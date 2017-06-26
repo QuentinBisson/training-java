@@ -85,3 +85,8 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+Supprimerait .idea/
+Supprimerait fr/ebiz/computerdatabase/mapper/
+Supprimerait fr/ebiz/computerdatabase/model/
+Supprimerait fr/ebiz/computerdatabase/persistence/
+Supprimerait fr/ebiz/computerdatabase/service/
