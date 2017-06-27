@@ -18,7 +18,7 @@ public class DaoFactory {
     private static DaoFactory instance;
 
     private DaoConfiguration configuration;
-
+    
     private DaoFactory(DaoConfiguration configuration) {
         this.configuration = configuration;
     }
@@ -41,7 +41,7 @@ public class DaoFactory {
     public final Dao<?, ?> make(Class<?> clazz) {
         if (Company.class.equals(clazz)) {
             return new CompanyDaoImpl(getInstance());
-        } else if(Computer.class.equals(clazz)) {
+        } else if (Computer.class.equals(clazz)) {
             return new ComputerDaoImpl(getInstance());
         }
         throw new IllegalArgumentException("No dao exists for this class");

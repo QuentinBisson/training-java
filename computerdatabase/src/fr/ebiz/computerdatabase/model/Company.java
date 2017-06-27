@@ -12,17 +12,17 @@ public class Company {
     /**
      * Company uuid
      */
-    private int id;
+    private Integer id;
     /**
      * Company name
      */
     private String name;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -45,5 +45,13 @@ public class Company {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Company{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

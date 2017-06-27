@@ -15,7 +15,7 @@ public class Computer {
     /**
      * Company uuid
      */
-    private int id;
+    private Integer id;
     /**
      * Company name
      */
@@ -34,18 +34,18 @@ public class Computer {
     /**
      * Company the computer was created by
      */
-    private int companyId;
+    private Integer companyId;
 
     /**
      * Company the computer was created by
      */
     private Company company;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -81,11 +81,11 @@ public class Computer {
         this.company = company;
     }
 
-    public int getCompanyId() {
+    public Integer getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(int companyId) {
+    public void setCompanyId(Integer companyId) {
         this.companyId = companyId;
     }
 
@@ -100,5 +100,16 @@ public class Computer {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Computer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", introduced=" + introduced +
+                ", discontinued=" + discontinued +
+                ", companyId=" + companyId +
+                '}';
     }
 }

@@ -12,6 +12,8 @@ import java.sql.SQLException;
 public class CompanyDaoImpl extends AbstractDao<Company, Integer> implements CompanyDao {
 
     private static final String COMPANY_TABLE_NAME = "company";
+    private static final String ID_COLUMN_NAME = "id";
+    private static final String NAME_COLUMN_NAME = "name";
 
     public CompanyDaoImpl(DaoFactory daoFactory) {
         super(daoFactory);
@@ -24,17 +26,17 @@ public class CompanyDaoImpl extends AbstractDao<Company, Integer> implements Com
 
     @Override
     protected String getIDSelector() {
-        return Columns.id.name() + EQUAL_OPERATOR + ":id";
+        return ID_COLUMN_NAME + EQUAL_OPERATOR + "?";
     }
 
     @Override
     protected String getInsertQuery() {
-        return INSERT_INTO_QUERY + getTableName() + "(name) VALUES (:" + Columns.name.name() + ")";
+        return INSERT_INTO_QUERY + getTableName() + "(name) VALUES (?" + NAME_COLUMN_NAME + ")";
     }
 
     @Override
     protected String getUpdateQuery() {
-        return UPDATE_QUERY + getTableName() + " SET name = :" + Columns.name.name() + WHERE_OPERATOR + getIDSelector();
+        return UPDATE_QUERY + getTableName() + " SET name = ?" + WHERE_OPERATOR + getIDSelector();
     }
 
     @Override
@@ -42,8 +44,8 @@ public class CompanyDaoImpl extends AbstractDao<Company, Integer> implements Com
         if (resultSet != null && !resultSet.isClosed()) {
             Company company = new Company();
 
-            company.setId(resultSet.getInt(Columns.id.name()));
-            company.setName(resultSet.getString(Columns.name.name()));
+            company.setId(resultSet.getInt(ID_COLUMN_NAME));
+            company.setName(resultSet.getString(NAME_COLUMN_NAME));
             return company;
         }
 
@@ -51,21 +53,25 @@ public class CompanyDaoImpl extends AbstractDao<Company, Integer> implements Com
     }
 
     @Override
-    public void bindModel(PreparedStatement statement, Company model) throws SQLException {
-        statement.setString(Columns.name.getIndex(), model.getName());
-        bindID(statement, model.getId());
+    protected void mapGeneratedId(ResultSet resultSet, Company model) throws SQLException {
+        if (resultSet != null && !resultSet.isClosed()) {
+            model.setId(resultSet.getInt(FIRST_PARAMETER_INDEX));
+        }
+    }
+
+    @Override
+    public void bindModel(PreparedStatement statement, Company model, boolean updating) throws SQLException {
+        int parameterIndex = FIRST_PARAMETER_INDEX;
+        statement.setString(parameterIndex++, model.getName());
+
+        if (updating) {
+            statement.setInt(parameterIndex++, model.getId());
+        }
     }
 
     @Override
     public void bindID(PreparedStatement statement, Integer id) throws SQLException {
-        statement.setInt(Columns.id.getIndex(), id);
+        statement.setInt(FIRST_PARAMETER_INDEX, id);
     }
 
-    private enum Columns {
-        id, name;
-
-        public int getIndex() {
-            return ordinal() + 1;
-        }
-    }
 }
