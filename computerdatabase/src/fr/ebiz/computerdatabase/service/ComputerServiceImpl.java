@@ -13,9 +13,10 @@ import java.util.List;
 
 public class ComputerServiceImpl implements ComputerService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComputerServiceImpl.class.getName());
     private CompanyDao companyDao;
     private ComputerDao computerDao;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComputerServiceImpl.class.getName());
+
     public ComputerServiceImpl() {
         this.companyDao = (CompanyDao) DaoFactory.getInstance().make(Company.class);
         this.computerDao = (ComputerDao) DaoFactory.getInstance().make(Computer.class);
@@ -37,7 +38,7 @@ public class ComputerServiceImpl implements ComputerService {
     }
 
     @Override
-    public List<Computer> getAllComputersWithCompanies() {
+    public Page<Computer> getAllComputersWithCompanies(int currentPage, int maxElements) {
         List<Computer> computers = getAll();
         List<Company> companies = companyDao.getAll();
 
@@ -49,7 +50,11 @@ public class ComputerServiceImpl implements ComputerService {
             }
         }
 
-        return computers;
+        Page<Computer> page = new Page<>();
+        page.setTotalPages(computerDao.count() / maxElements + (computerDao.count() % maxElements > 0 ? 1 : 0));
+        page.setCurrentPage(currentPage);
+        page.getElements().addAll(computers.subList((currentPage - 1) * maxElements, currentPage * maxElements > computers.size() ? computers.size() : currentPage * maxElements));
+        return page;
     }
 
     @Override

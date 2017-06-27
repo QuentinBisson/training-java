@@ -9,10 +9,10 @@ public interface ComputerService {
     Computer get(int id);
 
     List<Computer> getAll();
-
-    List<Computer> getAllComputersWithCompanies();
+    Page<Computer> getAllComputersWithCompanies(int currentPage, int maxElements);
 
     void insert(Computer computer);
     void update(Computer computer);
     void delete(Computer computer);
+
 }

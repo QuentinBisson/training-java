@@ -2,18 +2,18 @@ package fr.ebiz.computerdatabase.ui;
 
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.service.CompanyService;
-import fr.ebiz.computerdatabase.service.CompanyServiceImpl;
-import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.ComputerServiceImpl;
+import fr.ebiz.computerdatabase.service.*;
 import fr.ebiz.computerdatabase.ui.printer.factory.PrettyPrintFactory;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class Cli {
+    public static final int DEFAULT_PAGE = 1;
     private ComputerService computerService;
     private CompanyService companyService;
+
+    private static final int MAX_ELEMENTS = 20;
 
     private Cli() {
         this.computerService = new ComputerServiceImpl();
@@ -59,9 +59,7 @@ public class Cli {
                         .make(Company.class).printList(companyService.getAll()));
                 break;
             case LIST_COMPUTERS:
-                System.out.println("Here is the list of computers");
-                System.out.println(PrettyPrintFactory.getInstance()
-                        .make(Computer.class).printList(computerService.getAll()));
+                listComputers(scanner);
                 break;
             case SHOW_COMPUTER:
                 showComputerDetail(scanner);
@@ -78,25 +76,60 @@ public class Cli {
         }
     }
 
+    private void listComputers(Scanner scanner) {
+        int currentPage = DEFAULT_PAGE;
+        Page<Computer> page = null;
+
+        System.out.println("Here is the list of computers");
+        do {
+            if (page == null || page.getCurrentPage() != currentPage) {
+                page = computerService.getAllComputersWithCompanies(currentPage, MAX_ELEMENTS);
+            }
+            System.out.println(PrettyPrintFactory.getInstance()
+                    .make(Computer.class).printList(page.getElements()));
+
+            System.out.print("Choose a page between 1 and " + page.getTotalPages() + " or \"quit\" to go back : ");
+            String input = scanner.nextLine();
+            if (Command.QUIT.getCommandString().equals(StringUtils.cleanString(input))) {
+                return;
+            } else {
+                if (StringUtils.isNumeric(input)) {
+                    int readPage = Integer.parseInt(input);
+                    if (readPage < 1 || readPage > page.getTotalPages()) {
+                        System.out.println("Page is out of range. It must be between 1 and " + page.getTotalPages());
+                    } else {
+                        currentPage = readPage;
+                    }
+                } else {
+                    System.out.println("Page must be an integer !");
+                }
+            }
+        } while(true);
+    }
+
     private void help() {
         System.out.println("Here is the list of command you can use :");
         Arrays.stream(Command.values()).forEach(command ->
                 System.out.println("\t" + command.getCommandString() + " : " + command.getHelpMessage()));
     }
 
-
     private void showComputerDetail(Scanner scanner) {
         Computer computer = readComputer(scanner, "Id of the computer to show : ");
         System.out.println(PrettyPrintFactory.getInstance().make(Computer.class).printDetail(computer));
     }
 
-
     private void addComputer(Scanner scanner) {
         Computer computer = new Computer();
 
-        computer.setName(PrinterUtils.readString(scanner, "Name of the computer* : ", true));
-        computer.setIntroduced(PrinterUtils.readLocalDate(scanner, "Introduced in (dd/mm/yyyy) or empty (no date) : ", false));
-        computer.setDiscontinued(PrinterUtils.readLocalDate(scanner, "Discontinued in (dd/mm/yyyy) or empty (no date) : ", false));
+        computer.setName(PrinterUtils.readString(scanner,
+                "Name of the computer* : ",
+                true));
+        computer.setIntroduced(PrinterUtils.readLocalDate(scanner,
+                "Introduced in (dd/mm/yyyy) or empty (no date) : ",
+                false));
+        computer.setDiscontinued(PrinterUtils.readLocalDate(scanner,
+                "Discontinued in (dd/mm/yyyy) or empty (no date) : ",
+                false));
 
         Company company = readCompany(scanner, false);
         computer.setCompanyId(company == null ? null : company.getId());
@@ -106,9 +139,12 @@ public class Cli {
     }
 
     private void updateComputer(Scanner scanner) {
-        Computer computer = readComputer(scanner, "Id of the computer to update : ");
+        Computer computer = readComputer(scanner,
+                "Id of the computer to update : ");
 
-        computer.setName(PrinterUtils.readString(scanner, "Name of the computer* [" + computer.getName() + "]: ", true));
+        computer.setName(PrinterUtils.readString(scanner,
+                "Name of the computer* [" + computer.getName() + "]: ",
+                true));
         computer.setIntroduced(PrinterUtils.readLocalDate(scanner,
                 "Introduced in (dd/mm/yyyy) or empty (no date) [" + computer.getIntroduced() + "] : ",
                 false));
