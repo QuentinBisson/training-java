@@ -1,18 +1,22 @@
 package fr.ebiz.computerdatabase.service;
 
 import fr.ebiz.computerdatabase.model.Computer;
+import fr.ebiz.computerdatabase.service.impl.paging.Page;
+import fr.ebiz.computerdatabase.service.impl.paging.Pageable;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface ComputerService {
 
-    Computer get(int id);
+    Optional<Computer> get(int id);
 
-    List<Computer> getAll();
-    Page<Computer> getAllComputersWithCompanies(int currentPage, int maxElements);
+    Page<Computer> getAll(Pageable pageable);
 
     void insert(Computer computer);
+
     void update(Computer computer);
+
     void delete(Computer computer);
+
 
 }

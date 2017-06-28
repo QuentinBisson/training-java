@@ -18,6 +18,14 @@ public class Company {
      */
     private String name;
 
+    public Company() {
+        super();
+    }
+
+    public static CompanyBuilder builder() {
+        return new CompanyBuilder();
+    }
+
     public Integer getId() {
         return id;
     }
@@ -30,16 +38,12 @@ public class Company {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Company company = (Company) o;
-        return getId() == company.getId();
+        return Objects.equals(getId(), company.getId());
     }
 
     @Override
@@ -53,5 +57,28 @@ public class Company {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public static class CompanyBuilder implements Builder<Company> {
+        private Company company;
+
+        public CompanyBuilder() {
+            company = new Company();
+        }
+
+        public CompanyBuilder id(int id) {
+            company.id = id;
+            return this;
+        }
+
+        public CompanyBuilder name(String name) {
+            company.name = name;
+            return this;
+        }
+
+        @Override
+        public Company build() {
+            return company;
+        }
     }
 }

@@ -1,6 +1,6 @@
 package fr.ebiz.computerdatabase.model;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
@@ -13,33 +13,36 @@ import java.util.Objects;
 public class Computer {
 
     /**
-     * Company uuid
+     * Computer uuid
      */
     private Integer id;
     /**
-     * Company name
+     * Computer name
      */
     private String name;
 
     /**
      * Introduction date of the computer
      */
-    private LocalDate introduced;
+    private OffsetDateTime introduced;
 
     /**
      * Discontinuation date of the computer
      */
-    private LocalDate discontinued;
+    private OffsetDateTime discontinued;
 
     /**
      * Company the computer was created by
      */
     private Integer companyId;
 
-    /**
-     * Company the computer was created by
-     */
-    private Company company;
+    public Computer() {
+        super();
+    }
+
+    public static ComputerBuilder builder() {
+        return new ComputerBuilder();
+    }
 
     public Integer getId() {
         return id;
@@ -48,45 +51,20 @@ public class Computer {
     public void setId(Integer id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDate getIntroduced() {
+    public OffsetDateTime getIntroduced() {
         return introduced;
     }
 
-    public void setIntroduced(LocalDate introduced) {
-        this.introduced = introduced;
-    }
-
-    public LocalDate getDiscontinued() {
+    public OffsetDateTime getDiscontinued() {
         return discontinued;
-    }
-
-    public void setDiscontinued(LocalDate discontinued) {
-        this.discontinued = discontinued;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
     }
 
     public Integer getCompanyId() {
         return companyId;
-    }
-
-    public void setCompanyId(Integer companyId) {
-        this.companyId = companyId;
     }
 
     @Override
@@ -94,7 +72,7 @@ public class Computer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Computer computer = (Computer) o;
-        return getId() == computer.getId();
+        return Objects.equals(getId(), computer.getId());
     }
 
     @Override
@@ -111,5 +89,44 @@ public class Computer {
                 ", discontinued=" + discontinued +
                 ", companyId=" + companyId +
                 '}';
+    }
+
+    public static class ComputerBuilder implements Builder<Computer> {
+
+        private Computer computer;
+
+        public ComputerBuilder() {
+            computer = new Computer();
+        }
+
+        public ComputerBuilder id(int id) {
+            computer.id = id;
+            return this;
+        }
+
+        public ComputerBuilder name(String name) {
+            computer.name = name;
+            return this;
+        }
+
+        public ComputerBuilder introduced(OffsetDateTime introduced) {
+            computer.introduced = introduced;
+            return this;
+        }
+
+        public ComputerBuilder discontinued(OffsetDateTime discontinued) {
+            computer.discontinued = discontinued;
+            return this;
+        }
+
+        public ComputerBuilder companyId(Integer companyId) {
+            computer.companyId = companyId;
+            return this;
+        }
+
+        @Override
+        public Computer build() {
+            return computer;
+        }
     }
 }

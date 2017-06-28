@@ -2,13 +2,15 @@ package fr.ebiz.computerdatabase.service;
 
 
 import fr.ebiz.computerdatabase.model.Company;
+import fr.ebiz.computerdatabase.service.impl.paging.Page;
+import fr.ebiz.computerdatabase.service.impl.paging.Pageable;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface CompanyService {
 
-    Company get(int id);
+    Optional<Company> get(int id);
 
-    List<Company> getAll();
+    Page<Company> getAll(Pageable pageable);
 
 }

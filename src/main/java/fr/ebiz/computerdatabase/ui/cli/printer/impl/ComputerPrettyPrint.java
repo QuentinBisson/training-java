@@ -1,9 +1,9 @@
-package fr.ebiz.computerdatabase.ui.printer.impl;
+package fr.ebiz.computerdatabase.ui.cli.printer.impl;
 
 import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.ui.printer.PrettyPrint;
+import fr.ebiz.computerdatabase.ui.cli.printer.PrettyPrint;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,10 +33,10 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
                 }
             }
             sb.append(DOT);
-            if (computer.getCompany() != null) {
+            if (computer.getCompanyId() != null) {
                 sb.append(SPACE)
                         .append(CREATED_BY)
-                        .append(computer.getCompany().getName()).append(DOT);
+                        .append(computer.getCompanyId()).append(DOT);
             }
             return sb.toString();
         }).collect(Collectors.joining(System.lineSeparator()));
@@ -56,16 +56,16 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
                         .append(formatDate(objectToPrint.getDiscontinued()));
             }
         }
-        if (objectToPrint.getCompany() != null) {
+        if (objectToPrint.getCompanyId() != null) {
             sb.append(System.lineSeparator())
                     .append(SPACE).append(CREATED_BY)
-                    .append(objectToPrint.getCompany().getName());
+                    .append(objectToPrint.getCompanyId());
         }
         return sb.toString();
     }
 
 
-    private String formatDate(LocalDate date) {
+    private String formatDate(OffsetDateTime date) {
         return date != null ? date.format(DateTimeFormatter.ISO_DATE) : "";
     }
 

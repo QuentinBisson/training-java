@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.ui;
+package fr.ebiz.computerdatabase.ui.cli;
 
 public class StringUtils {
 

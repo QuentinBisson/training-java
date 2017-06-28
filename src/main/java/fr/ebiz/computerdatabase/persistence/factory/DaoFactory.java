@@ -1,10 +1,5 @@
 package fr.ebiz.computerdatabase.persistence.factory;
 
-import fr.ebiz.computerdatabase.model.Company;
-import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.persistence.Dao;
-import fr.ebiz.computerdatabase.persistence.dao.impl.CompanyDaoImpl;
-import fr.ebiz.computerdatabase.persistence.dao.impl.ComputerDaoImpl;
 import fr.ebiz.computerdatabase.persistence.exception.DaoConfigurationException;
 
 import java.sql.Connection;
@@ -23,7 +18,7 @@ public class DaoFactory {
         this.configuration = configuration;
     }
 
-    public static DaoFactory getInstance() {
+    public synchronized static DaoFactory getInstance() {
         if (instance == null) {
             DaoConfiguration configuration = new DaoConfiguration(CONFIGURATION_FILE_PROPERTY);
 
@@ -38,15 +33,6 @@ public class DaoFactory {
         return instance;
     }
 
-    public final Dao<?, ?> make(Class<?> clazz) {
-        if (Company.class.equals(clazz)) {
-            return new CompanyDaoImpl(getInstance());
-        } else if (Computer.class.equals(clazz)) {
-            return new ComputerDaoImpl(getInstance());
-        }
-        throw new IllegalArgumentException("No dao exists for this class");
-    }
-
     public Connection getConnection() {
         try {
             return DriverManager.getConnection(configuration.getUrl(), configuration.getUsername(), configuration.getPassword());
@@ -54,4 +40,5 @@ public class DaoFactory {
             throw new DaoConfigurationException("Could not open connection", e);
         }
     }
+
 }

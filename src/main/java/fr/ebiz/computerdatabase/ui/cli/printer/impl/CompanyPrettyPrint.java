@@ -1,11 +1,9 @@
-package fr.ebiz.computerdatabase.ui.printer.impl;
+package fr.ebiz.computerdatabase.ui.cli.printer.impl;
 
 import fr.ebiz.computerdatabase.model.Company;
-import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.ui.printer.PrettyPrint;
+import fr.ebiz.computerdatabase.ui.cli.printer.PrettyPrint;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 

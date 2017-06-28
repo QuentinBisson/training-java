@@ -1,23 +1,28 @@
-package fr.ebiz.computerdatabase.ui;
+package fr.ebiz.computerdatabase.ui.cli;
 
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.service.*;
-import fr.ebiz.computerdatabase.ui.printer.factory.PrettyPrintFactory;
+import fr.ebiz.computerdatabase.service.CompanyService;
+import fr.ebiz.computerdatabase.service.ComputerService;
+import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
+import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
+import fr.ebiz.computerdatabase.service.impl.paging.Page;
+import fr.ebiz.computerdatabase.service.impl.paging.Pageable;
+import fr.ebiz.computerdatabase.ui.cli.printer.factory.PrettyPrintFactory;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Cli {
     public static final int DEFAULT_PAGE = 1;
+    private static final int MAX_ELEMENTS = 20;
     private ComputerService computerService;
     private CompanyService companyService;
 
-    private static final int MAX_ELEMENTS = 20;
-
     private Cli() {
-        this.computerService = new ComputerServiceImpl();
-        this.companyService = new CompanyServiceImpl();
+        this.computerService = ComputerServiceImpl.getInstance();
+        this.companyService = CompanyServiceImpl.getInstance();
     }
 
     public static void main(String... args) {
@@ -56,7 +61,7 @@ public class Cli {
             case LIST_COMPANIES:
                 System.out.println("Here is the list of companies");
                 System.out.println(PrettyPrintFactory.getInstance()
-                        .make(Company.class).printList(companyService.getAll()));
+                        .make(Company.class).printList(companyService.getAll(Pageable.builder().page(DEFAULT_PAGE).elements(Integer.MAX_VALUE).build()).getElements()));
                 break;
             case LIST_COMPUTERS:
                 listComputers(scanner);
@@ -83,7 +88,7 @@ public class Cli {
         System.out.println("Here is the list of computers");
         do {
             if (page == null || page.getCurrentPage() != currentPage) {
-                page = computerService.getAllComputersWithCompanies(currentPage, MAX_ELEMENTS);
+                page = computerService.getAll(Pageable.builder().page(currentPage).elements(MAX_ELEMENTS).build());
             }
             System.out.println(PrettyPrintFactory.getInstance()
                     .make(Computer.class).printList(page.getElements()));
@@ -119,21 +124,20 @@ public class Cli {
     }
 
     private void addComputer(Scanner scanner) {
-        Computer computer = new Computer();
 
-        computer.setName(PrinterUtils.readString(scanner,
+        Computer.ComputerBuilder computerBuilder = Computer.builder()
+                .name(PrinterUtils.readString(scanner,
                 "Name of the computer* : ",
-                true));
-        computer.setIntroduced(PrinterUtils.readLocalDate(scanner,
+                        true))
+                .introduced(PrinterUtils.readDate(scanner,
                 "Introduced in (dd/mm/yyyy) or empty (no date) : ",
-                false));
-        computer.setDiscontinued(PrinterUtils.readLocalDate(scanner,
+                        false))
+                .discontinued(PrinterUtils.readDate(scanner,
                 "Discontinued in (dd/mm/yyyy) or empty (no date) : ",
                 false));
 
         Company company = readCompany(scanner, false);
-        computer.setCompanyId(company == null ? null : company.getId());
-
+        Computer computer = computerBuilder.companyId(company == null ? null : company.getId()).build();
         computerService.insert(computer);
         System.out.println(computer.toString() + " was inserted successfully");
     }
@@ -142,21 +146,23 @@ public class Cli {
         Computer computer = readComputer(scanner,
                 "Id of the computer to update : ");
 
-        computer.setName(PrinterUtils.readString(scanner,
+        Computer.ComputerBuilder computerBuilder = Computer.builder()
+                .id(computer.getId())
+                .name(PrinterUtils.readString(scanner,
                 "Name of the computer* [" + computer.getName() + "]: ",
-                true));
-        computer.setIntroduced(PrinterUtils.readLocalDate(scanner,
+                        true))
+                .introduced(PrinterUtils.readDate(scanner,
                 "Introduced in (dd/mm/yyyy) or empty (no date) [" + computer.getIntroduced() + "] : ",
-                false));
-        computer.setDiscontinued(PrinterUtils.readLocalDate(scanner,
+                        false))
+                .discontinued(PrinterUtils.readDate(scanner,
                 "Discontinued in (dd/mm/yyyy) or empty (no date) [" + computer.getDiscontinued() + "] : ",
                 false));
 
         Company company = readCompany(scanner, false);
-        computer.setCompanyId(company == null ? null : company.getId());
 
-        computerService.update(computer);
-        System.out.println(computer.toString() + " was updated successfully");
+        Computer computerToUpdate = computerBuilder.companyId(company == null ? null : company.getId()).build();
+        computerService.update(computerToUpdate);
+        System.out.println(computerToUpdate.toString() + " was updated successfully");
     }
 
     private void deleteComputer(Scanner scanner) {
@@ -171,9 +177,9 @@ public class Cli {
             String input = scanner.nextLine();
             if (StringUtils.isNumeric(input)) {
                 int computerId = Integer.parseInt(input);
-                Computer computer = computerService.get(computerId);
-                if (computer != null) {
-                    return computer;
+                Optional<Computer> computer = computerService.get(computerId);
+                if (computer.isPresent()) {
+                    return computer.get();
                 } else {
                     System.out.println("Computer does not exist !");
                 }
@@ -196,9 +202,9 @@ public class Cli {
             } else {
                 if (StringUtils.isNumeric(input)) {
                     int companyId = Integer.parseInt(input);
-                    Company company = companyService.get(companyId);
-                    if (company != null) {
-                        return company;
+                    Optional<Company> company = companyService.get(companyId);
+                    if (company.isPresent()) {
+                        return company.get();
                     } else {
                         System.out.println("Company does not exist !");
                     }
