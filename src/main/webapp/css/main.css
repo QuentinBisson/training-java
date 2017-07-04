@@ -27,3 +27,11 @@ input[type='checkbox'] {
     border-radius: 5px;
     white-space: nowrap;
 }
+
+.has-success .form-control-error, .has-success .form-control-label {
+    color: #5cb85c;
+}
+
+.has-danger .form-control-error, .has-danger .form-control-label {
+    color: #d9534f;
+}

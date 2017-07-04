@@ -24,42 +24,49 @@
                 </div>
                 <h1>Edit Computer</h1>
 
-                <form action="./computers" method="POST">
+                <form action="./computers" method="POST" id="computer-form">
                     <c:out value="${result}"/>
 
                     <input type="hidden" name="id" value="${computer.id}" id="id"/>
                     <fieldset>
-                        <div class="form-group">
-                            <label for="computerName">Computer name</label>
-                            <c:out value="${errors[\"name\"]}"/>
-                            <input type="text" class="form-control" id="computerName" name="name"
+                        <div class="form-group <c:if test='${!empty errors["name"]}'>has-danger</c:if> <c:if test='${!empty errors && empty errors["name"]}'>has-success</c:if>">
+                            <label class="form-control-label" for="computerName">Computer name</label>
+                            <input type="text"
+                                   class="form-control  <c:if test='${!empty errors["name"]}'>form-control-danger</c:if> <c:if test='${!empty errors && empty errors["name"]}'>form-control-success</c:if>"
+                                   id="computerName" name="name"
                                    placeholder="Computer name" value="${computer.name}">
+                            <div class="form-control-error"><c:out value="${errors[\"name\"]}"/></div>
                         </div>
-                        <div class="form-group">
-                            <label for="introduced">Introduced date</label>
-                            <c:out value="${errors[\"introduced\"]}"/>
-                            <input type="date" class="form-control" id="introduced" name="introduced"
+                        <div class="form-group <c:if test='${!empty errors["introduced"]}'>has-danger</c:if> <c:if test='${!empty errors && empty errors["introduced"]}'>has-success</c:if>">
+                            <label class="form-control-label" for="introduced">Introduced date</label>
+                            <input type="date"
+                                   class="form-control <c:if test='${!empty errors["introduced"]}'>form-control-danger</c:if> <c:if test='${!empty errors && empty errors["introduced"]}'>form-control-success</c:if>"
+                                   id="introduced" name="introduced"
                                    placeholder="Introduced date"
                                    value="<tags:localDate pattern = "dd/MM/yyyy" value="${computer.introduced}" />">
+                            <div class="form-control-error"><c:out value="${errors[\"introduced\"]}"/></div>
                         </div>
-                        <div class="form-group">
-                            <label for="discontinued">Discontinued date</label>
-                            <c:out value="${errors[\"discontinued\"]}"/>
-                            <input type="date" class="form-control" id="discontinued" name="discontinued"
+                        <div class="form-group <c:if test='${!empty errors["discontinued"]}'>has-danger</c:if> <c:if test='${!empty errors && empty errors["discontinued"]}'>has-success</c:if>">
+                            <label class="form-control-label" for="discontinued">Discontinued date</label>
+                            <input type="date"
+                                   class="form-control <c:if test='${!empty errors["discontinued"]}'>form-control-danger</c:if> <c:if test='${!empty errors && empty errors["discontinued"]}'>form-control-success</c:if>"
+                                   id="discontinued" name="discontinued"
                                    placeholder="Discontinued date"
                                    value="<tags:localDate pattern = "dd/MM/yyyy" value="${computer.discontinued}" />">
+                            <div class="form-control-error"><c:out value="${errors[\"discontinued\"]}"/></div>
                         </div>
-                        <div class="form-group">
-                            <label for="companyId">Company</label>
-                            <c:out value="${errors[\"company\"]}"/>
-                            <select class="form-control" id="companyId" name="company">
-                                <option value="0">--</option>
+                        <div class="form-group <c:if test='${!empty errors["company"]}'>has-danger</c:if> <c:if test='${!empty errors && empty errors["company"]}'>has-success</c:if>">
+                            <label class="form-control-label" for="companyId">Company</label>
+                            <select class="form-control <c:if test='${!empty errors["company"]}'>form-control-danger</c:if> <c:if test='${!empty errors && empty errors["company"]}'>form-control-success</c:if>"
+                                    id="companyId" name="company">
+                                <option value="" import java.time.LocalDate;>--</option>
                                 <c:forEach var="company" items="${companies}">
                                     <option value="${company.id}"
                                             <c:if test="${company.id == computer.companyId}">selected</c:if>><c:out
                                             value="${company.name}"/></option>
                                 </c:forEach>
                             </select>
+                            <div class="form-control-error"><c:out value="${errors[\"company\"]}"/></div>
                         </div>
                     </fieldset>
                     <div class="actions pull-right">
@@ -72,5 +79,7 @@
         </div>
     </div>
 </section>
+<script src="${contextPath}/js/jquery.min.js"></script>
+<script src="${contextPath}/js/computers.js"></script>
 </body>
 </html>

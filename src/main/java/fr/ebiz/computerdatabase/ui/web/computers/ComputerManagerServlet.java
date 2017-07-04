@@ -9,7 +9,6 @@ import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
 import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
 import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
 import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
-import fr.ebiz.computerdatabase.utils.FormUtils;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -18,9 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,6 +103,7 @@ public class ComputerManagerServlet extends HttpServlet {
         }
     }
 
+
     /**
      * Create or update a computer.
      *
@@ -115,60 +113,24 @@ public class ComputerManagerServlet extends HttpServlet {
      * @throws IOException      if an IO exception occurs
      */
     private void updateComputer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ComputerDto.ComputerDtoBuilder builder = ComputerDto.builder();
-        try {
+        ComputerForm form = new ComputerForm();
+        Map<String, String> errors = form.parseAndValidate(request, response);
 
-            Map<String, String> errors = new HashMap<>();
-
-            String idParam = request.getParameter(ComputerValidator.COMPUTER_ID_FIELD);
-            if (StringUtils.isNumeric(idParam)) {
-                builder.id(Integer.parseInt(idParam));
-            } else if (!StringUtils.isBlank(idParam)) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-
-            builder.name(request.getParameter(ComputerValidator.COMPUTER_NAME_FIELD));
-
-            String introducedParam = request.getParameter(ComputerValidator.COMPUTER_INTRODUCED_FIELD);
-            LocalDate introduced = FormUtils.getLocalDate(introducedParam);
-            if (!StringUtils.isBlank(introducedParam) && introduced != null) {
-                builder.introduced(introduced);
-            } else if (!StringUtils.isBlank(introducedParam)) {
-                errors.put(ComputerValidator.COMPUTER_INTRODUCED_FIELD, "Introduction is not a valid date !");
-            }
-
-            String discontinuedParam = request.getParameter(ComputerValidator.COMPUTER_DISCONTINUED_FIELD);
-            LocalDate discontinued = FormUtils.getLocalDate(discontinuedParam);
-            if (!StringUtils.isBlank(discontinuedParam) && discontinued != null) {
-                builder.discontinued(discontinued);
-            } else if (!StringUtils.isBlank(discontinuedParam)) {
-                errors.put(ComputerValidator.COMPUTER_DISCONTINUED_FIELD, "Discontinuation is not a valid date !");
-            }
-
-            String companyParam = request.getParameter(ComputerValidator.COMPUTER_COMPANY_FIELD);
-            if (StringUtils.isNumeric(companyParam)) {
-                builder.companyId(Integer.parseInt(companyParam));
-            } else if (!StringUtils.isBlank(companyParam)) {
-                errors.put(ComputerValidator.COMPUTER_COMPANY_FIELD, "Company id is not valid !");
-            }
-
-            if (errors.isEmpty()) {
-                ComputerDto dto = builder.build();
-                // Try to insert or update depending on business rules
-
+        ComputerDto dto = form.getModel();
+        if (errors != null && errors.isEmpty()) {
+            // Try to insert or update depending on business rules
+            try {
                 if (dto.getId() == null) {
                     computerService.insert(dto);
                 } else {
                     computerService.update(dto);
                 }
-
                 response.sendRedirect(request.getContextPath());
-            } else {
-                handleValidationErrors(request, response, builder.build(), errors);
+            } catch (ValidationException e) {
+                handleValidationErrors(request, response, dto, e.getErrors());
             }
-        } catch (ValidationException e) {
-            handleValidationErrors(request, response, builder.build(), e.getErrors());
+        } else {
+            handleValidationErrors(request, response, dto, errors);
         }
     }
 

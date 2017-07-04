@@ -21,8 +21,8 @@ public class ComputerServiceImpl implements ComputerService {
 
     private static ComputerService instance;
     private final ComputerDao computerDao;
+    private final CompanyDao companyDao;
     private final ComputerMapper computerMapper;
-    private final ComputerValidator validator;
 
     /**
      * Service constructor used to inject dao.
@@ -32,7 +32,7 @@ public class ComputerServiceImpl implements ComputerService {
      */
     private ComputerServiceImpl(ComputerDao computerDao, CompanyDao companyDao) {
         this.computerDao = computerDao;
-        this.validator = new ComputerValidator(companyDao);
+        this.companyDao = companyDao;
 
         this.computerMapper = new ComputerMapper();
     }
@@ -111,7 +111,7 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("Computer should not have an id");
         }
 
-        validator.validate(dto);
+        new ComputerValidator(companyDao).validate(dto);
 
         computerDao.insert(computerMapper.toEntity(dto));
     }
@@ -124,7 +124,7 @@ public class ComputerServiceImpl implements ComputerService {
         assertComputerIsNotNull(dto);
         assertComputerIdIsNotNullAndExists(dto);
 
-        validator.validate(dto);
+        new ComputerValidator(companyDao).validate(dto);
 
         computerDao.update(computerMapper.toEntity(dto));
     }
