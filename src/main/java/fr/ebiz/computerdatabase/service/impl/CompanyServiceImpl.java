@@ -1,12 +1,12 @@
 package fr.ebiz.computerdatabase.service.impl;
 
+import fr.ebiz.computerdatabase.dto.paging.Page;
+import fr.ebiz.computerdatabase.dto.paging.Pageable;
+import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.impl.CompanyDaoImpl;
 import fr.ebiz.computerdatabase.service.CompanyService;
-import fr.ebiz.computerdatabase.service.impl.paging.Page;
-import fr.ebiz.computerdatabase.service.impl.paging.Pageable;
-import fr.ebiz.computerdatabase.service.impl.paging.PagingUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,15 +14,30 @@ import java.util.Optional;
 public class CompanyServiceImpl implements CompanyService {
 
     private static CompanyService instance;
-    private CompanyDao companyDao;
+    private final CompanyDao companyDao;
 
+    /**
+     * Service constructor used to inject a {@link CompanyDao} instance.
+     *
+     * @param companyDao The dao to inject
+     */
     private CompanyServiceImpl(CompanyDao companyDao) {
         this.companyDao = companyDao;
     }
 
-    public synchronized static CompanyService getInstance() {
+    /**
+     * Get the service instance.
+     * Creates it thread-safe if it does not exist.
+     *
+     * @return the service singleton instance
+     */
+    public static synchronized CompanyService getInstance() {
         if (instance == null) {
-            instance = new CompanyServiceImpl(CompanyDaoImpl.getInstance());
+            synchronized (CompanyServiceImpl.class) {
+                if (instance == null) {
+                    instance = new CompanyServiceImpl(CompanyDaoImpl.getInstance());
+                }
+            }
         }
         return instance;
     }
@@ -64,6 +79,7 @@ public class CompanyServiceImpl implements CompanyService {
         return Page.builder()
                 .currentPage(pageable.getPage())
                 .totalPages(totalPage)
+                .totalElements(numberOfCompanies)
                 .elements(companies)
                 .build();
     }

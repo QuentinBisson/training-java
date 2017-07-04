@@ -1,14 +1,18 @@
 package fr.ebiz.computerdatabase.service.impl;
 
+import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.paging.Page;
+import fr.ebiz.computerdatabase.dto.paging.Pageable;
+import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
+import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.impl.CompanyDaoImpl;
 import fr.ebiz.computerdatabase.persistence.dao.impl.ComputerDaoImpl;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.impl.paging.Page;
-import fr.ebiz.computerdatabase.service.impl.paging.Pageable;
-import fr.ebiz.computerdatabase.service.impl.paging.PagingUtils;
+import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
+import fr.ebiz.computerdatabase.utils.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,17 +20,36 @@ import java.util.Optional;
 public class ComputerServiceImpl implements ComputerService {
 
     private static ComputerService instance;
-    private ComputerDao computerDao;
-    private CompanyDao companyDao;
+    private final ComputerDao computerDao;
+    private final ComputerMapper computerMapper;
+    private final ComputerValidator validator;
 
+    /**
+     * Service constructor used to inject dao.
+     *
+     * @param computerDao The computer dao to inject
+     * @param companyDao  The company dao to inject
+     */
     private ComputerServiceImpl(ComputerDao computerDao, CompanyDao companyDao) {
         this.computerDao = computerDao;
-        this.companyDao = companyDao;
+        this.validator = new ComputerValidator(companyDao);
+
+        this.computerMapper = new ComputerMapper();
     }
 
-    public synchronized static ComputerService getInstance() {
+    /**
+     * Get the service instance.
+     * Creates it thread-safe if it does not exist.
+     *
+     * @return the service singleton instance
+     */
+    public static synchronized ComputerService getInstance() {
         if (instance == null) {
-            instance = new ComputerServiceImpl(ComputerDaoImpl.getInstance(), CompanyDaoImpl.getInstance());
+            synchronized (ComputerServiceImpl.class) {
+                if (instance == null) {
+                    instance = new ComputerServiceImpl(ComputerDaoImpl.getInstance(), CompanyDaoImpl.getInstance());
+                }
+            }
         }
         return instance;
     }
@@ -35,12 +58,15 @@ public class ComputerServiceImpl implements ComputerService {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Computer> get(int id) {
+    public Optional<ComputerDto> get(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID must be > 0");
         }
 
-        return computerDao.get(id);
+        return computerDao
+                .get(id)
+                .map(computer -> Optional.of(computerMapper.toDto(computer)))
+                .orElse(Optional.empty());
     }
 
     /**
@@ -48,7 +74,7 @@ public class ComputerServiceImpl implements ComputerService {
      */
     @SuppressWarnings(value = "unchecked")
     @Override
-    public Page<Computer> getAll(Pageable pageable) {
+    public Page<ComputerDto> getAll(String query, Pageable pageable) {
         if (pageable == null) {
             throw new IllegalArgumentException("Pagination object is null");
         }
@@ -57,19 +83,21 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("The number of returned elements must be > 0");
         }
 
-        int numberOfComputers = computerDao.count();
+        String nameQuery = query == null ? "" : StringUtils.cleanString(query);
+        int numberOfComputers = computerDao.count(nameQuery);
         int totalPage = PagingUtils.countPages(pageable.getElements(), numberOfComputers);
 
         if (pageable.getPage() < 0 || pageable.getPage() > totalPage) {
             throw new IllegalArgumentException("Page number must be [0-" + totalPage + "]");
         }
 
-        List<Computer> computers = computerDao.getAll(pageable.getElements(), pageable.getPage() * pageable.getElements());
+        List<Computer> computers = computerDao.getAll(nameQuery, pageable.getElements(), pageable.getPage() * pageable.getElements());
 
         return Page.builder()
                 .currentPage(pageable.getPage())
                 .totalPages(totalPage)
-                .elements(computers)
+                .totalElements(numberOfComputers)
+                .elements(computerMapper.toDto(computers))
                 .build();
     }
 
@@ -77,84 +105,61 @@ public class ComputerServiceImpl implements ComputerService {
      * {@inheritDoc}
      */
     @Override
-    public void insert(Computer computer) {
-        assertComputerIsNotNull(computer);
-        if (computer.getId() != null) {
+    public void insert(ComputerDto dto) {
+        assertComputerIsNotNull(dto);
+        if (dto.getId() != null) {
             throw new IllegalArgumentException("Computer should not have an id");
         }
 
-        assertComputerNameIsFilled(computer);
-        assertComputerIntroductionDateIsNullOrValid(computer);
-        assertComputerDiscontinuedDateIsNullOrValid(computer);
-        assertCompanyIsNullOrExist(computer);
+        validator.validate(dto);
 
-        computerDao.insert(computer);
+        computerDao.insert(computerMapper.toEntity(dto));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void update(Computer computer) {
-        assertComputerIsNotNull(computer);
-        assertComputerIdIsNotNullAndExists(computer);
-        assertComputerNameIsFilled(computer);
-        assertComputerIntroductionDateIsNullOrValid(computer);
-        assertComputerDiscontinuedDateIsNullOrValid(computer);
+    public void update(ComputerDto dto) {
+        assertComputerIsNotNull(dto);
+        assertComputerIdIsNotNullAndExists(dto);
 
-        assertCompanyIsNullOrExist(computer);
+        validator.validate(dto);
 
-        computerDao.update(computer);
+        computerDao.update(computerMapper.toEntity(dto));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void delete(Computer computer) {
-        assertComputerIsNotNull(computer);
-        assertComputerIdIsNotNullAndExists(computer);
+    public void delete(ComputerDto dto) {
+        assertComputerIsNotNull(dto);
+        assertComputerIdIsNotNullAndExists(dto);
 
-        computerDao.delete(computer.getId());
+        computerDao.delete(dto.getId());
     }
 
-    private void assertComputerIsNotNull(Computer computer) {
+    /**
+     * Assert the computer object is not null, throws an {@link IllegalArgumentException} otherwise.
+     *
+     * @param computer The computer to test
+     */
+    private void assertComputerIsNotNull(ComputerDto computer) {
         if (computer == null) {
             throw new IllegalArgumentException("Computer object is null");
         }
     }
 
-    private void assertComputerIdIsNotNullAndExists(Computer computer) {
-        if (computer.getId() == null || !computerDao.get(computer.getCompanyId()).isPresent()) {
+    /**
+     * Assert the computer object has an id and exists in the database, throws an {@link IllegalArgumentException} otherwise.
+     *
+     * @param computer The computer to test
+     */
+    private void assertComputerIdIsNotNullAndExists(ComputerDto computer) {
+        if (computer.getId() == null || !computerDao.get(computer.getId()).isPresent()) {
             throw new IllegalArgumentException("Computer should not have an id");
         }
     }
 
-    private void assertComputerNameIsFilled(Computer computer) {
-        if (computer.getName() == null || computer.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Computer name is mandatory not have an id");
-        }
-    }
-
-    private void assertComputerIntroductionDateIsNullOrValid(Computer computer) {
-        if (computer.getIntroduced() != null && computer.getIntroduced().toEpochSecond() < 0) {
-            throw new IllegalArgumentException("Introduction date must be null or a valid timestamp");
-        }
-    }
-
-    private void assertComputerDiscontinuedDateIsNullOrValid(Computer computer) {
-        if (computer.getDiscontinued() != null && computer.getDiscontinued().toEpochSecond() < 0) {
-            throw new IllegalArgumentException("Introduction date must be null or a valid timestamp");
-        }
-
-        if (computer.getIntroduced() == null || computer.getIntroduced().isAfter(computer.getDiscontinued())) {
-            throw new IllegalArgumentException("Discontinuation date must be superior to the introduction date");
-        }
-    }
-
-    private void assertCompanyIsNullOrExist(Computer computer) {
-        if (computer.getCompanyId() != null && !companyDao.get(computer.getCompanyId()).isPresent()) {
-            throw new IllegalArgumentException("Company which introduced the computer must exist");
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package fr.ebiz.computerdatabase.persistence.factory;
 
+import fr.ebiz.computerdatabase.persistence.dao.impl.CompanyDaoImpl;
 import fr.ebiz.computerdatabase.persistence.exception.DaoConfigurationException;
 
 import java.sql.Connection;
@@ -12,27 +13,47 @@ public class DaoFactory {
 
     private static DaoFactory instance;
 
-    private DaoConfiguration configuration;
-    
+    private final DaoConfiguration configuration;
+
+    /**
+     * Constructor used to inject the database configuration.
+     *
+     * @param configuration The database access configuration
+     */
     private DaoFactory(DaoConfiguration configuration) {
         this.configuration = configuration;
     }
 
-    public synchronized static DaoFactory getInstance() {
+    /**
+     * Get the dao factory instance.
+     * Creates it thread-safe if it does not exist.
+     *
+     * @return the dao factory singleton instance
+     */
+    public static synchronized DaoFactory getInstance() {
         if (instance == null) {
-            DaoConfiguration configuration = new DaoConfiguration(CONFIGURATION_FILE_PROPERTY);
+            synchronized (CompanyDaoImpl.class) {
+                if (instance == null) {
+                    DaoConfiguration configuration = new DaoConfiguration(CONFIGURATION_FILE_PROPERTY);
 
-            try {
-                Class.forName(configuration.getDriver());
-            } catch (ClassNotFoundException e) {
-                throw new DaoConfigurationException("Driver not found in classpath.", e);
+                    try {
+                        Class.forName(configuration.getDriver());
+                    } catch (ClassNotFoundException e) {
+                        throw new DaoConfigurationException("Driver not found in classpath.", e);
+                    }
+
+                    instance = new DaoFactory(configuration);
+                }
             }
-
-            instance = new DaoFactory(configuration);
         }
         return instance;
     }
 
+    /**
+     * Open a connection to the database.
+     *
+     * @return the database connection
+     */
     public Connection getConnection() {
         try {
             return DriverManager.getConnection(configuration.getUrl(), configuration.getUsername(), configuration.getPassword());

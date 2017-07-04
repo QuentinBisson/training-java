@@ -13,33 +13,46 @@ import java.util.Objects;
 public class Computer {
 
     /**
+     * .
      * Computer uuid
      */
     private Integer id;
+
     /**
+     * .
      * Computer name
      */
     private String name;
 
     /**
+     * .
      * Introduction date of the computer
      */
     private OffsetDateTime introduced;
 
     /**
+     * .
      * Discontinuation date of the computer
      */
     private OffsetDateTime discontinued;
 
     /**
-     * Company the computer was created by
+     * .
+     * Company if the computer was created by
      */
     private Integer companyId;
+    /**
+     * .
+     * Company name the computer was created by
+     */
+    private String companyName;
 
-    public Computer() {
-        super();
-    }
-
+    /**
+     * .
+     * Create a Computer builder instance
+     *
+     * @return a new computer builder
+     */
     public static ComputerBuilder builder() {
         return new ComputerBuilder();
     }
@@ -51,6 +64,7 @@ public class Computer {
     public void setId(Integer id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
@@ -67,10 +81,18 @@ public class Computer {
         return companyId;
     }
 
+    public String getCompanyName() {
+        return companyName;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Computer computer = (Computer) o;
         return Objects.equals(getId(), computer.getId());
     }
@@ -91,40 +113,89 @@ public class Computer {
                 '}';
     }
 
-    public static class ComputerBuilder implements Builder<Computer> {
+    public static class ComputerBuilder {
 
-        private Computer computer;
+        private final Computer computer;
 
-        public ComputerBuilder() {
+        /**
+         * Create a new computer object to build.
+         */
+        ComputerBuilder() {
             computer = new Computer();
         }
 
-        public ComputerBuilder id(int id) {
+        /**
+         * Set the computer id.
+         *
+         * @param id The new id to set
+         * @return The builder instance
+         */
+        public ComputerBuilder id(Integer id) {
             computer.id = id;
             return this;
         }
 
+        /**
+         * Set the computer name.
+         *
+         * @param name The new name to set
+         * @return The builder instance
+         */
         public ComputerBuilder name(String name) {
             computer.name = name;
             return this;
         }
 
+        /**
+         * Set the computer introduction date.
+         *
+         * @param introduced The new introduction date to set
+         * @return The builder instance
+         */
         public ComputerBuilder introduced(OffsetDateTime introduced) {
             computer.introduced = introduced;
             return this;
         }
 
+        /**
+         * Set the computer discontinuation date.
+         *
+         * @param discontinued The new discontinued to set
+         * @return The builder instance
+         */
         public ComputerBuilder discontinued(OffsetDateTime discontinued) {
             computer.discontinued = discontinued;
             return this;
         }
 
+        /**
+         * Set the computer's company id.
+         *
+         * @param companyId The new company id to set
+         * @return The builder instance
+         */
         public ComputerBuilder companyId(Integer companyId) {
             computer.companyId = companyId;
             return this;
         }
 
-        @Override
+        /**
+         * Set the computer's company name.
+         *
+         * @param companyName The new company id to set
+         * @return The builder instance
+         */
+        public ComputerBuilder companyName(String companyName) {
+            computer.companyName = companyName;
+            return this;
+        }
+
+        /**
+         * .
+         * Return the built instance of Computer
+         *
+         * @return the computer
+         */
         public Computer build() {
             return computer;
         }

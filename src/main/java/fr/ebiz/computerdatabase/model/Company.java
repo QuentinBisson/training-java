@@ -10,18 +10,20 @@ import java.util.Objects;
 public class Company {
 
     /**
-     * Company uuid
+     * Company uuid.
      */
     private Integer id;
+
     /**
-     * Company name
+     * Company name.
      */
     private String name;
 
-    public Company() {
-        super();
-    }
-
+    /**
+     * Create a Company builder instance.
+     *
+     * @return a new company builder
+     */
     public static CompanyBuilder builder() {
         return new CompanyBuilder();
     }
@@ -40,8 +42,12 @@ public class Company {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Company company = (Company) o;
         return Objects.equals(getId(), company.getId());
     }
@@ -59,24 +65,47 @@ public class Company {
                 '}';
     }
 
-    public static class CompanyBuilder implements Builder<Company> {
-        private Company company;
+    public static class CompanyBuilder {
+        private final Company company;
 
-        public CompanyBuilder() {
+        /**
+         * .
+         * Create a new company object to build;
+         */
+        CompanyBuilder() {
             company = new Company();
         }
 
+        /**
+         * .
+         * Set the company id
+         *
+         * @param id The new id to set
+         * @return The builder instance
+         */
         public CompanyBuilder id(int id) {
             company.id = id;
             return this;
         }
 
+        /**
+         * .
+         * Set the company name
+         *
+         * @param name The new name to set
+         * @return The builder instance
+         */
         public CompanyBuilder name(String name) {
             company.name = name;
             return this;
         }
 
-        @Override
+        /**
+         * .
+         * Return the built instance of Company
+         *
+         * @return the company
+         */
         public Company build() {
             return company;
         }

@@ -1,10 +1,10 @@
 package fr.ebiz.service;
 
+import fr.ebiz.computerdatabase.dto.paging.Page;
+import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
-import fr.ebiz.computerdatabase.service.impl.paging.Page;
-import fr.ebiz.computerdatabase.service.impl.paging.Pageable;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CompanyServiceTest {
 
-    public static final int ELEMENTS_PER_PAGE = 10;
+    private static final int ELEMENTS_PER_PAGE = 10;
     @Mock
     private CompanyDao companyDao;
 
@@ -34,7 +34,7 @@ public class CompanyServiceTest {
         Company company = Company.builder().id(1).name("Test").build();
         when(companyDao.get(1)).thenReturn(Optional.of(company));
 
-        Assert.assertEquals(service.get(1).get(), company);
+        Assert.assertEquals(company, service.get(1).get());
     }
 
     @Test

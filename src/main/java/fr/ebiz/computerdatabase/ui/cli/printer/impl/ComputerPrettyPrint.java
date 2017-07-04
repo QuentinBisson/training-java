@@ -17,6 +17,9 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
     private static final String DISCONTINUED_AT = "Discontinued at" + SPACE;
     private static final String CREATED_BY = "It was created by" + SPACE;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String printList(List<Computer> listToPrint) {
         return listToPrint.stream().map(computer -> {
@@ -42,6 +45,9 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
         }).collect(Collectors.joining(System.lineSeparator()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String printDetail(Computer objectToPrint) {
         StringBuilder sb = new StringBuilder(COMPUTER)
@@ -64,7 +70,12 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
         return sb.toString();
     }
 
-
+    /**
+     * Format an {@link OffsetDateTime} to a String using the ISO format.
+     *
+     * @param date The date to format
+     * @return The date formatted in ISO format
+     */
     private String formatDate(OffsetDateTime date) {
         return date != null ? date.format(DateTimeFormatter.ISO_DATE) : "";
     }

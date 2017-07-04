@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public class CompanyDaoImpl implements CompanyDao {
 
-    private static final String READ_QUERY = "SELECT * from company LIMIT ? OFFSET ?";
+    private static final String READ_QUERY = "SELECT * from company order by name LIMIT ? OFFSET ?";
     private static final String READ_BY_ID_QUERY = "SELECT * from company where id = ?";
     private static final String COUNT_QUERY = "SELECT COUNT(*) from company";
 
@@ -27,30 +27,40 @@ public class CompanyDaoImpl implements CompanyDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
     private static final String TOO_MANY_RESULTS_WERE_FOUND_FOR_ID_EXCEPTION = "Too many results were found for id = ";
-    private static CompanyDao instance;
-    private DaoFactory daoFactory;
 
+    private static CompanyDao instance;
+
+    private final DaoFactory daoFactory;
+
+    /**
+     * Service constructor used to inject a {@link DaoFactory} instance.
+     *
+     * @param daoFactory The dao factory to inject
+     */
     private CompanyDaoImpl(DaoFactory daoFactory) {
         this.daoFactory = daoFactory;
     }
 
-    public synchronized static CompanyDao getInstance() {
+    /**
+     * Get the dao instance.
+     * Creates it thread-safe if it does not exist.
+     *
+     * @return the dao singleton instance
+     */
+    public static synchronized CompanyDao getInstance() {
         if (instance == null) {
-            instance = new CompanyDaoImpl(DaoFactory.getInstance());
+            synchronized (CompanyDaoImpl.class) {
+                if (instance == null) {
+                    instance = new CompanyDaoImpl(DaoFactory.getInstance());
+                }
+            }
         }
         return instance;
     }
 
-    private Company mapEntity(ResultSet resultSet) throws SQLException {
-        if (resultSet != null && !resultSet.isClosed()) {
-            return Company.builder()
-                    .id(resultSet.getInt(ID_COLUMN_NAME))
-                    .name(resultSet.getString(NAME_COLUMN_NAME)).build();
-        }
-
-        return null;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<Company> get(int id) {
         try (Connection connection = daoFactory.getConnection();
@@ -79,6 +89,9 @@ public class CompanyDaoImpl implements CompanyDao {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Company> getAll(int elements, int offset) throws DaoException {
         try (Connection connection = daoFactory.getConnection();
@@ -102,6 +115,9 @@ public class CompanyDaoImpl implements CompanyDao {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int count() throws DaoException {
         try (Connection connection = daoFactory.getConnection();
@@ -116,4 +132,22 @@ public class CompanyDaoImpl implements CompanyDao {
             throw new DaoException("Dao access error", e);
         }
     }
+
+    /**
+     * Map a {@link ResultSet} to a {@link Company} entity.
+     *
+     * @param resultSet The result set to extract data from
+     * @return The mapped entity
+     * @throws SQLException if an error occurs when accessing the properties from the result set
+     */
+    private Company mapEntity(ResultSet resultSet) throws SQLException {
+        if (resultSet != null && !resultSet.isClosed()) {
+            return Company.builder()
+                    .id(resultSet.getInt(ID_COLUMN_NAME))
+                    .name(resultSet.getString(NAME_COLUMN_NAME)).build();
+        }
+
+        return null;
+    }
+
 }

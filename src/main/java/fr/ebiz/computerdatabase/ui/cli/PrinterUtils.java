@@ -1,18 +1,26 @@
 package fr.ebiz.computerdatabase.ui.cli;
 
-import java.time.OffsetDateTime;
+import fr.ebiz.computerdatabase.utils.StringUtils;
+
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
-public class PrinterUtils {
+class PrinterUtils {
 
-    public static final String MANDATORY_INPUT = "Input is mandatory. It can't be empty";
-
+    private static final String MANDATORY_INPUT = "Input is mandatory. It can't be empty";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-
-    public static String readString(Scanner scanner, String label, boolean mandatory) {
+    /**
+     * Read a string from the scanner.
+     *
+     * @param scanner   The scanner to read from
+     * @param label     The label to display till the input is valid
+     * @param mandatory Is the value mandatory ?
+     * @return The read string or null if not mandatory
+     */
+    static String readString(Scanner scanner, String label, boolean mandatory) {
         do {
             System.out.print(label);
             String input = scanner.nextLine();
@@ -24,7 +32,15 @@ public class PrinterUtils {
         } while (true);
     }
 
-    public static OffsetDateTime readDate(Scanner scanner, String label, boolean mandatory) {
+    /**
+     * Read a date from a scanner.
+     *
+     * @param scanner   The scanner to read from
+     * @param label     The label to display till the input is valid
+     * @param mandatory Is the value mandatory ?
+     * @return the read date or null if not mandatory
+     */
+    static LocalDate readDate(Scanner scanner, String label, boolean mandatory) {
         do {
             System.out.print(label);
             String input = scanner.nextLine();
@@ -36,8 +52,9 @@ public class PrinterUtils {
                 return null;
             } else {
                 try {
+                    // TODO change this when possible
                     // We try to parse the input
-                    return OffsetDateTime.parse(input, FORMATTER);
+                    return LocalDate.parse(input, FORMATTER);
                 } catch (DateTimeParseException e) {
                     System.out.println("Invalid date");
                 }

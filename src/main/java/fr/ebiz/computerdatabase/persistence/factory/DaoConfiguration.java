@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class DaoConfiguration {
+class DaoConfiguration {
     private static final String URL_PROPERTY = "url";
     private static final String DRIVER_PROPERTY = "driver";
     private static final String USERNAME_PROPERTY = "username";
@@ -17,7 +17,12 @@ public class DaoConfiguration {
     private final String username;
     private final String password;
 
-    public DaoConfiguration(String propertyFile) {
+    /**
+     * Constructor to extract the database access configuration from a property file.
+     *
+     * @param propertyFile The location of the property file
+     */
+    DaoConfiguration(String propertyFile) {
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             InputStream propertyFileStream = classLoader.getResourceAsStream(propertyFile);
@@ -37,19 +42,19 @@ public class DaoConfiguration {
         }
     }
 
-    public String getUrl() {
+    String getUrl() {
         return url;
     }
 
-    public String getUsername() {
+    String getUsername() {
         return username;
     }
 
-    public String getPassword() {
+    String getPassword() {
         return password;
     }
 
-    public String getDriver() {
+    String getDriver() {
         return driver;
     }
 
