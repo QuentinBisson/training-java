@@ -25,7 +25,7 @@
         </li>
     </c:if>
 
-    <c:forEach begin="${Math.max(0, page - 3)}" end="${Math.min(totalPages - 1, page + 3)}" var="currentPage">
+    <c:forEach begin="${Math.max(0, page - 3)}" end="${Math.max(0, Math.min(totalPages - 1, page + 3))}" var="currentPage">
         <li <c:if test="${page == currentPage}"> class="active" </c:if>/>
             <a href="${url}&page=${currentPage}${elementsParameter}">
                 <c:out value="${currentPage + 1}" />
