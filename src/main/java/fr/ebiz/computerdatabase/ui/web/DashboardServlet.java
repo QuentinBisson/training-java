@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/")
+@WebServlet(urlPatterns = {"/", "/index"})
 public class DashboardServlet extends HttpServlet {
 
     private static final int DEFAULT_ELEMENTS_PER_PAGE = 10;

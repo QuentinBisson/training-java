@@ -1,17 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="tags" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Computer Database</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
-    <base href="${pageContext.request.contextPath}/">
     <!-- Bootstrap -->
-    <link href="./css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="./css/font-awesome.css" rel="stylesheet" media="screen">
-    <link href="./css/main.css" rel="stylesheet" media="screen">
+    <link href="${contextPath}/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="${contextPath}/css/font-awesome.css" rel="stylesheet" media="screen">
+    <link href="${contextPath}/css/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
 
@@ -105,8 +105,8 @@
     </div>
 </footer>
 
-<script src="./js/jquery.min.js"></script>
-<script src="./js/bootstrap.min.js"></script>
-<script src="./js/dashboard.js"></script>
+<script src="${contextPath}/js/jquery.min.js"></script>
+<script src="${contextPath}/js/bootstrap.min.js"></script>
+<script src="${contextPath}/js/dashboard.js"></script>
 </body>
 </html>

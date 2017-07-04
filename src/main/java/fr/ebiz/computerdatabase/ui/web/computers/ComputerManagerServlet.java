@@ -28,8 +28,6 @@ import java.util.Optional;
 @WebServlet("/computers/*")
 public class ComputerManagerServlet extends HttpServlet {
 
-    private static final String URL_404_PAGE = "/404";
-
     private static final String CREATE_VIEW = "/WEB-INF/views/computers/add.jsp";
     private static final String EDIT_VIEW = "/WEB-INF/views/computers/edit.jsp";
 
@@ -57,7 +55,7 @@ public class ComputerManagerServlet extends HttpServlet {
         } else if (StringUtils.isNumeric(idParam)) {
             editComputer(request, response, idParam);
         } else {
-            response.sendRedirect(request.getContextPath() + URL_404_PAGE);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -104,7 +102,7 @@ public class ComputerManagerServlet extends HttpServlet {
             request.setAttribute(COMPANIES_ATTR, getAllCompanies());
             request.getRequestDispatcher(EDIT_VIEW).forward(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + URL_404_PAGE);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -126,7 +124,7 @@ public class ComputerManagerServlet extends HttpServlet {
             if (StringUtils.isNumeric(idParam)) {
                 builder.id(Integer.parseInt(idParam));
             } else if (!StringUtils.isBlank(idParam)) {
-                response.sendRedirect(request.getContextPath() + URL_404_PAGE);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
 
