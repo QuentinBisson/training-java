@@ -2,6 +2,7 @@ package fr.ebiz.computerdatabase.persistence.dao.impl;
 
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
+import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
 import fr.ebiz.computerdatabase.persistence.factory.DaoFactory;
 import org.slf4j.Logger;
@@ -26,7 +27,6 @@ public class CompanyDaoImpl implements CompanyDao {
     private static final String NAME_COLUMN_NAME = "name";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
-    private static final String TOO_MANY_RESULTS_WERE_FOUND_FOR_ID_EXCEPTION = "Too many results were found for id = ";
 
     private static CompanyDao instance;
 
@@ -74,14 +74,7 @@ public class CompanyDaoImpl implements CompanyDao {
                     found.add(mapEntity(resultSet));
                 }
 
-                if (found.isEmpty()) {
-                    return Optional.empty();
-                } else if (found.size() > 1) {
-                    String message = TOO_MANY_RESULTS_WERE_FOUND_FOR_ID_EXCEPTION + id;
-                    LOGGER.error(message);
-                    throw new DaoException(message);
-                }
-                return Optional.of(found.get(0));
+                return DaoUtils.checkOnlyOne(found, LOGGER);
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
@@ -123,10 +116,7 @@ public class CompanyDaoImpl implements CompanyDao {
         try (Connection connection = daoFactory.getConnection();
              PreparedStatement statement = connection.prepareStatement(COUNT_QUERY);
              ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet != null && resultSet.next()) {
-                return resultSet.getInt(FIRST_PARAMETER_INDEX);
-            }
-            return 0;
+            return resultSet != null && resultSet.next() ? resultSet.getInt(FIRST_PARAMETER_INDEX) : 0;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
             throw new DaoException("Dao access error", e);

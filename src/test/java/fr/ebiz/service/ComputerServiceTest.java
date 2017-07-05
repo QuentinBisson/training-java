@@ -214,7 +214,6 @@ public class ComputerServiceTest {
 
     @Test(expected = ValidationException.class)
     public void testInsertHandleUnknownCompany() {
-        System.out.println("insert");
         ComputerDto computer = ComputerDto
                 .builder()
                 .name("test")

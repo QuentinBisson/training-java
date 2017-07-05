@@ -37,6 +37,16 @@
 
     <build>
         <finalName>ComputerDatabase</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -156,6 +166,21 @@
             <artifactId>selenium-java</artifactId>
             <version>${selenium-java.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chrome-driver</artifactId>
+            <version>${selenium-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-firefox-driver</artifactId>
+            <version>${selenium-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>1.7.0</version>
         </dependency>
     </dependencies>
 </project>

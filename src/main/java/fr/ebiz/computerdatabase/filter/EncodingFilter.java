@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Servlet filter used to encode requests to UTF-8
+ * Servlet filter used to encode requests to UTF-8.
  */
 @WebFilter("/*")
 public class EncodingFilter implements Filter {

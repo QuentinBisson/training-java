@@ -33,7 +33,6 @@ public class ComputerDaoImpl implements ComputerDao {
     private static final String DISCONTINUED_COLUMN_NAME = "discontinued";
     private static final String COMPANY_ID_COLUMN_NAME = "company_id";
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
-    private static final String TOO_MANY_RESULTS_WERE_FOUND_FOR_ID_EXCEPTION = "Too many results were found for id = ";
 
     private static ComputerDao instance;
     private final DaoFactory daoFactory;
@@ -80,14 +79,7 @@ public class ComputerDaoImpl implements ComputerDao {
                     found.add(mapEntity(resultSet));
                 }
 
-                if (found.isEmpty()) {
-                    return Optional.empty();
-                } else if (found.size() > 1) {
-                    String message = TOO_MANY_RESULTS_WERE_FOUND_FOR_ID_EXCEPTION + id;
-                    LOGGER.error(message);
-                    throw new DaoException(message);
-                }
-                return Optional.of(found.get(0));
+                return DaoUtils.checkOnlyOne(found, LOGGER);
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);

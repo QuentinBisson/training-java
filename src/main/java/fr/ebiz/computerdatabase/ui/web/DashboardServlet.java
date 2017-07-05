@@ -39,6 +39,9 @@ public class DashboardServlet extends HttpServlet {
         int page = DEFAULT_PAGE;
         if (StringUtils.isNumeric(pageParameter)) {
             page = Integer.valueOf(pageParameter);
+        } else if (!StringUtils.isBlank(pageParameter)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
 
         String elementsPerPageParameter = request.getParameter(ELEMENTS_PER_PAGE_PARAM);
