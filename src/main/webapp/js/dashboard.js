@@ -3,6 +3,11 @@ $(function () {
     // Default: hide edit mode
     $(".editMode").hide();
 
+    // Default: hide edit mode
+    $(".disabled").on('click', function (event) {
+        event.preventDefault();
+    });
+
     // Click on "selectall" box
     $("#selectall").click(function () {
         $('.cb').prop('checked', this.checked);

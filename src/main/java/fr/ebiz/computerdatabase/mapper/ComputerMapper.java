@@ -1,6 +1,7 @@
 package fr.ebiz.computerdatabase.mapper;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 
 import java.time.LocalTime;
@@ -16,8 +17,8 @@ public class ComputerMapper implements Mapper<Computer, ComputerDto> {
                 .name(entity.getName())
                 .introduced(entity.getIntroduced() != null ? entity.getIntroduced().toLocalDate() : null)
                 .discontinued(entity.getDiscontinued() != null ? entity.getDiscontinued().toLocalDate() : null)
-                .companyId(entity.getCompanyId())
-                .companyName(entity.getCompanyName())
+                .companyId(entity.getCompany() != null ? entity.getCompany().getId() : null)
+                .companyName(entity.getCompany() != null ? entity.getCompany().getName() : null)
                 .build();
     }
 
@@ -28,8 +29,7 @@ public class ComputerMapper implements Mapper<Computer, ComputerDto> {
                 .name(dto.getName())
                 .introduced(dto.getIntroduced() != null ? OffsetDateTime.of(dto.getIntroduced(), LocalTime.MIDNIGHT, ZoneOffset.UTC) : null)
                 .discontinued(dto.getDiscontinued() != null ? OffsetDateTime.of(dto.getDiscontinued(), LocalTime.MIDNIGHT, ZoneOffset.UTC) : null)
-                .companyId(dto.getCompanyId())
-                .companyName(dto.getCompanyName())
+                .company(Company.builder().id(dto.getCompanyId()).name(dto.getCompanyName()).build())
                 .build();
     }
 

@@ -25,6 +25,14 @@ public interface CompanyDao {
     List<Company> getAll(int elements, int offset);
 
     /**
+     * Delete a company from the database.
+     *
+     * @param id The company's id to delete
+     * @return true if the company was deleted
+     */
+    boolean delete(Integer id);
+
+    /**
      * Count the number of elements in the database.
      *
      * @return the total number of elements

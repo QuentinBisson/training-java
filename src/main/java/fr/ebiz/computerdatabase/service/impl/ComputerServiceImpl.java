@@ -1,8 +1,8 @@
 package fr.ebiz.computerdatabase.service.impl;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.DashboardRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
-import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
@@ -43,7 +43,7 @@ public class ComputerServiceImpl implements ComputerService {
      *
      * @return the service singleton instance
      */
-    public static synchronized ComputerService getInstance() {
+    public static ComputerService getInstance() {
         if (instance == null) {
             synchronized (ComputerServiceImpl.class) {
                 if (instance == null) {
@@ -74,27 +74,29 @@ public class ComputerServiceImpl implements ComputerService {
      */
     @SuppressWarnings(value = "unchecked")
     @Override
-    public Page<ComputerDto> getAll(String query, Pageable pageable) {
-        if (pageable == null) {
+    public Page<ComputerDto> getAll(DashboardRequest dashboardRequest) {
+        if (dashboardRequest == null) {
             throw new IllegalArgumentException("Pagination object is null");
         }
 
-        if (pageable.getElements() <= 0) {
-            throw new IllegalArgumentException("The number of returned elements must be > 0");
+        if (dashboardRequest.getPageSize() <= 0) {
+            throw new IllegalArgumentException("Page size must be > 0");
         }
 
-        String nameQuery = query == null ? "" : StringUtils.cleanString(query);
+        String nameQuery = StringUtils.cleanString(dashboardRequest.getQuery());
         int numberOfComputers = computerDao.count(nameQuery);
-        int totalPage = PagingUtils.countPages(pageable.getElements(), numberOfComputers);
+        int totalPage = PagingUtils.countPages(dashboardRequest.getPageSize(), numberOfComputers);
 
-        if (pageable.getPage() < 0 || pageable.getPage() > totalPage) {
+        if (dashboardRequest.getPage() < 0 || dashboardRequest.getPage() > totalPage) {
             throw new IllegalArgumentException("Page number must be [0-" + totalPage + "]");
         }
 
-        List<Computer> computers = computerDao.getAll(nameQuery, pageable.getElements(), pageable.getPage() * pageable.getElements());
+        List<Computer> computers = computerDao.getAll(
+                nameQuery, dashboardRequest.getOrder(),
+                dashboardRequest.getPageSize(), dashboardRequest.getPage() * dashboardRequest.getPageSize());
 
         return Page.builder()
-                .currentPage(pageable.getPage())
+                .currentPage(dashboardRequest.getPage())
                 .totalPages(totalPage)
                 .totalElements(numberOfComputers)
                 .elements(computerMapper.toDto(computers))

@@ -38,14 +38,9 @@ public class Computer {
 
     /**
      * .
-     * Company if the computer was created by
+     * Company the computer was created by
      */
-    private Integer companyId;
-    /**
-     * .
-     * Company name the computer was created by
-     */
-    private String companyName;
+    private Company company;
 
     /**
      * .
@@ -77,12 +72,8 @@ public class Computer {
         return discontinued;
     }
 
-    public Integer getCompanyId() {
-        return companyId;
-    }
-
-    public String getCompanyName() {
-        return companyName;
+    public Company getCompany() {
+        return company;
     }
 
     @Override
@@ -109,7 +100,7 @@ public class Computer {
                 ", name='" + name + '\'' +
                 ", introduced=" + introduced +
                 ", discontinued=" + discontinued +
-                ", companyId=" + companyId +
+                ", company=" + company.toString() +
                 '}';
     }
 
@@ -169,24 +160,13 @@ public class Computer {
         }
 
         /**
-         * Set the computer's company id.
+         * Set the computer's company.
          *
-         * @param companyId The new company id to set
+         * @param company The new company to set
          * @return The builder instance
          */
-        public ComputerBuilder companyId(Integer companyId) {
-            computer.companyId = companyId;
-            return this;
-        }
-
-        /**
-         * Set the computer's company name.
-         *
-         * @param companyName The new company id to set
-         * @return The builder instance
-         */
-        public ComputerBuilder companyName(String companyName) {
-            computer.companyName = companyName;
+        public ComputerBuilder company(Company company) {
+            computer.company = company;
             return this;
         }
 

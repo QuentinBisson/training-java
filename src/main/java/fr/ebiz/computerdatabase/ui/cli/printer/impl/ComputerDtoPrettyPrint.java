@@ -1,14 +1,15 @@
 package fr.ebiz.computerdatabase.ui.cli.printer.impl;
 
-import fr.ebiz.computerdatabase.model.Computer;
+import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.ui.cli.printer.PrettyPrint;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ComputerPrettyPrint implements PrettyPrint<Computer> {
+public class ComputerDtoPrettyPrint implements PrettyPrint<ComputerDto> {
 
     private static final String DOT = ".";
     private static final String SPACE = " ";
@@ -21,7 +22,7 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
      * {@inheritDoc}
      */
     @Override
-    public String printList(List<Computer> listToPrint) {
+    public String printList(List<ComputerDto> listToPrint) {
         return listToPrint.stream().map(computer -> {
             StringBuilder sb = new StringBuilder("" + computer.getId()).append(" - ")
                     .append(computer.getName().trim());
@@ -36,10 +37,10 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
                 }
             }
             sb.append(DOT);
-            if (computer.getCompanyId() != null) {
+            if (computer.getCompanyName() != null) {
                 sb.append(SPACE)
                         .append(CREATED_BY)
-                        .append(computer.getCompanyId()).append(DOT);
+                        .append(computer.getCompanyName()).append(DOT);
             }
             return sb.toString();
         }).collect(Collectors.joining(System.lineSeparator()));
@@ -49,7 +50,7 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
      * {@inheritDoc}
      */
     @Override
-    public String printDetail(Computer objectToPrint) {
+    public String printDetail(ComputerDto objectToPrint) {
         StringBuilder sb = new StringBuilder(COMPUTER)
                 .append(objectToPrint.getId()).append(" - ")
                 .append(objectToPrint.getName().trim());
@@ -62,10 +63,10 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
                         .append(formatDate(objectToPrint.getDiscontinued()));
             }
         }
-        if (objectToPrint.getCompanyId() != null) {
+        if (objectToPrint.getCompanyName() != null) {
             sb.append(System.lineSeparator())
                     .append(SPACE).append(CREATED_BY)
-                    .append(objectToPrint.getCompanyId());
+                    .append(objectToPrint.getCompanyName());
         }
         return sb.toString();
     }
@@ -76,7 +77,7 @@ public class ComputerPrettyPrint implements PrettyPrint<Computer> {
      * @param date The date to format
      * @return The date formatted in ISO format
      */
-    private String formatDate(OffsetDateTime date) {
+    private String formatDate(LocalDate date) {
         return date != null ? date.format(DateTimeFormatter.ISO_DATE) : "";
     }
 

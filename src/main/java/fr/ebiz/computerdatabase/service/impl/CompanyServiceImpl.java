@@ -31,7 +31,7 @@ public class CompanyServiceImpl implements CompanyService {
      *
      * @return the service singleton instance
      */
-    public static synchronized CompanyService getInstance() {
+    public static CompanyService getInstance() {
         if (instance == null) {
             synchronized (CompanyServiceImpl.class) {
                 if (instance == null) {
@@ -84,4 +84,8 @@ public class CompanyServiceImpl implements CompanyService {
                 .build();
     }
 
+    @Override
+    public void delete(Company company) {
+        companyDao.delete(company.getId());
+    }
 }

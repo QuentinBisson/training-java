@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ComputerDao {
-
     /**
      * Get the computer from the database.
      *
@@ -19,11 +18,12 @@ public interface ComputerDao {
      * Get the computers from the database paginated.
      *
      * @param nameQuery name to look for
+     * @param order     The order to get the elements from
      * @param elements  The number of computers to get
      * @param offset    The number of computers to skip in the results
      * @return The paginated computers
      */
-    List<Computer> getAll(String nameQuery, int elements, int offset);
+    List<Computer> getAll(String nameQuery, OrderType order, int elements, int offset);
 
     /**
      * Count the number of elements in the database.
@@ -56,4 +56,23 @@ public interface ComputerDao {
      * @return true if the computer was deleted
      */
     boolean delete(Integer id);
+
+    enum OrderType {
+        NAME("computerName"), INTRODUCED("computer.introduced, computerName"), DISCONTINUED("computer.discontinued, computerName"), COMPANY("companyName, computerName");
+
+        String field;
+
+        /**
+         * Constructor.
+         *
+         * @param field The field to use in DB queries
+         */
+        OrderType(String field) {
+            this.field = field;
+        }
+
+        public String getField() {
+            return field;
+        }
+    }
 }

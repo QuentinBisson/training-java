@@ -1,10 +1,10 @@
 package fr.ebiz.computerdatabase.ui.cli.printer.factory;
 
+import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.model.Company;
-import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.ui.cli.printer.PrettyPrint;
 import fr.ebiz.computerdatabase.ui.cli.printer.impl.CompanyPrettyPrint;
-import fr.ebiz.computerdatabase.ui.cli.printer.impl.ComputerPrettyPrint;
+import fr.ebiz.computerdatabase.ui.cli.printer.impl.ComputerDtoPrettyPrint;
 
 public class PrettyPrintFactory {
 
@@ -32,8 +32,8 @@ public class PrettyPrintFactory {
      */
     @SuppressWarnings("unchecked")
     public final <T> PrettyPrint<T> make(Class<T> clazz) {
-        if (Computer.class.equals(clazz)) {
-            return (PrettyPrint<T>) new ComputerPrettyPrint();
+        if (ComputerDto.class.equals(clazz)) {
+            return (PrettyPrint<T>) new ComputerDtoPrettyPrint();
         } else if (Company.class.equals(clazz)) {
             return (PrettyPrint<T>) new CompanyPrettyPrint();
         }

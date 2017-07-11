@@ -25,7 +25,6 @@
         <div id="actions" class="form-horizontal">
             <div class="pull-left">
                 <form id="searchForm" action="#" method="GET" class="form-inline">
-
                     <input type="search" id="searchbox" name="search" class="form-control" placeholder="Search name"
                            value="${search}"/>
                     <input type="submit" id="searchsubmit" value="Filter by name"
@@ -39,7 +38,7 @@
         </div>
     </div>
 
-    <form id="deleteForm" action="<c:url value="/computers"/>" method="POST">
+    <form id="deleteForm" action="/computers" method="POST">
         <input type="hidden" name="selection" value="">
     </form>
 
@@ -59,21 +58,31 @@
                             </span>
                 </th>
                 <th>
-                    Computer name
+                    <a <c:if test="${empty order || order.equals(\"name\")}">class="disabled"
+                       </c:if>href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=name">Computer
+                        name</a>
                 </th>
                 <th>
-                    Introduced date
+                    <a
+                            <c:if test="${order.equals(\"introduced\")}">class="disabled" </c:if>
+                            href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=introduced">Introduced
+                        date</a>
                 </th>
                 <!-- Table header for Discontinued Date -->
                 <th>
-                    Discontinued date
+                    <a
+                            <c:if test="${order.equals(\"discontinued\")}">class="disabled" </c:if>
+                            href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=discontinued">Discontinued
+                        date</a>
                 </th>
                 <!-- Table header for Company -->
                 <th>
-                    Company
+                    <a
+                            <c:if test="${order.equals(\"company\")}">class="disabled" </c:if>
+                            href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=company">Company</a>
                 </th>
-
             </tr>
+
             </thead>
             <!-- Browse attribute computers -->
             <tbody id="results">
@@ -85,8 +94,14 @@
                     <td>
                         <a href="computers?id=${computer.id}" onclick=""><c:out value="${computer.name}"/></a>
                     </td>
-                    <td><tags:localDate pattern="dd/MM/yyyy" value="${computer.introduced}"/></td>
-                    <td><tags:localDate pattern="dd/MM/yyyy" value="${computer.discontinued}"/></td>
+                    <td>
+                        <c:if test="${!empty computer.introduced}">
+                            <tags:localDate pattern="dd/MM/yyyy" value="${computer.introduced}"/>
+                        </c:if>
+                    </td>
+                    <td><c:if test="${!empty computer.discontinued}">
+                        <tags:localDate pattern="dd/MM/yyyy" value="${computer.discontinued}"/>
+                    </c:if></td>
                     <td><c:out value="${computer.companyName}"/></td>
                 </tr>
             </c:forEach>
@@ -100,8 +115,8 @@
         <tags:pager
                 page="${computers.currentPage}"
                 totalPages="${computers.totalPages}"
-                elements="${elements}"
-                url="?search=${search}"/>
+                pageSize="${pageSize}"
+                url="?search=${search}&order=${order}"/>
     </div>
 </footer>
 

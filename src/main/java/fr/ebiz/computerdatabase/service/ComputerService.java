@@ -1,8 +1,8 @@
 package fr.ebiz.computerdatabase.service;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.DashboardRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
-import fr.ebiz.computerdatabase.dto.paging.Pageable;
 
 import java.util.Optional;
 
@@ -19,11 +19,10 @@ public interface ComputerService {
     /**
      * Get the computers with pagination.
      *
-     * @param query    The name to look for in the list of computers
-     * @param pageable The pageable data
+     * @param dashboardRequest    The filtering request
      * @return The paginated computers
      */
-    Page<ComputerDto> getAll(String query, Pageable pageable);
+    Page<ComputerDto> getAll(DashboardRequest dashboardRequest);
 
     /**
      * Assert a computer is valid and insert it if it is.

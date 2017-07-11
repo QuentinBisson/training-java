@@ -83,12 +83,12 @@ public class Company {
          * @param id The new id to set
          * @return The builder instance
          */
-        public CompanyBuilder id(int id) {
+        public CompanyBuilder id(Integer id) {
             company.id = id;
             return this;
         }
 
-        /**
+        /**int
          * .
          * Set the company name
          *

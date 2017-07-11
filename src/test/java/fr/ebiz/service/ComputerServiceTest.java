@@ -1,6 +1,7 @@
 package fr.ebiz.service;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.DashboardRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComputerServiceTest {
 
-    private static final int ELEMENTS_PER_PAGE = 10;
+    private static final int PAGE_SIZE = 10;
     private final ComputerMapper computerMapper;
     @Mock
     private ComputerDao computerDao;
@@ -70,34 +71,34 @@ public class ComputerServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNullPageable() {
-        service.getAll(null, null);
+        service.getAll(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNoRequestedElements() {
-        service.getAll(null, Pageable.builder().build());
+        service.getAll(DashboardRequest.builder().build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNegativeElements() {
-        service.getAll(null, Pageable.builder().elements(Integer.MIN_VALUE).build());
+        service.getAll(DashboardRequest.builder().pageSize(Integer.MIN_VALUE).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNegativePage() {
-        service.getAll(null, Pageable.builder().elements(10).page(-1).build());
+        service.getAll(DashboardRequest.builder().pageSize(PAGE_SIZE).page(-1).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithTooBigPageNumberWithFullLastPage() {
         when(computerDao.count("")).thenReturn(100);
-        service.getAll(null, Pageable.builder().elements(ELEMENTS_PER_PAGE).page(11).build());
+        service.getAll(DashboardRequest.builder().pageSize(PAGE_SIZE).page(11).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithTooBigPageNumberWithoutFullLastPage() {
         when(computerDao.count("")).thenReturn(101);
-        service.getAll(null, Pageable.builder().elements(ELEMENTS_PER_PAGE).page(12).build());
+        service.getAll(DashboardRequest.builder().pageSize(PAGE_SIZE).page(12).build());
     }
 
     @Test
@@ -108,11 +109,11 @@ public class ComputerServiceTest {
                 .collect(Collectors.toList());
 
         when(computerDao.count("")).thenReturn(elements);
-        Pageable pageable = Pageable.builder().elements(ELEMENTS_PER_PAGE).page(0).build();
+        Pageable pageable = Pageable.builder().elements(PAGE_SIZE).page(0).build();
         List<Computer> pagedComputers = computers.subList(0, elements);
-        when(computerDao.getAll("", pageable.getElements(), pageable.getPage() * pageable.getElements())).thenReturn(pagedComputers);
+        when(computerDao.getAll("", ComputerDao.OrderType.NAME, pageable.getElements(), pageable.getPage() * pageable.getElements())).thenReturn(pagedComputers);
 
-        Page<ComputerDto> page = service.getAll(null, pageable);
+        Page<ComputerDto> page = service.getAll(DashboardRequest.builder().pageSize(pageable.getElements()).page(pageable.getPage()).query("").order(ComputerDao.OrderType.NAME).build());
         Assert.assertEquals(0, page.getCurrentPage());
         Assert.assertEquals(1, page.getTotalPages());
         for (int i = 0; i < pagedComputers.size(); i++) {

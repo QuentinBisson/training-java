@@ -24,4 +24,10 @@ public interface CompanyService {
      */
     Page<Company> getAll(Pageable pageable);
 
+    /**
+     * Delete a company and it's attached computers.
+     *
+     * @param company The company to delete
+     */
+    void delete(Company company);
 }

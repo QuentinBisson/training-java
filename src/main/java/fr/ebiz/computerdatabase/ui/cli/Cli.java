@@ -1,9 +1,11 @@
 package fr.ebiz.computerdatabase.ui.cli;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.DashboardRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
+import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
@@ -17,7 +19,7 @@ import java.util.Scanner;
 
 public class Cli {
 
-    private static final int DEFAULT_PAGE = 1;
+    private static final int DEFAULT_PAGE = 0;
     private static final int MAX_ELEMENTS = 20;
     private final ComputerService computerService;
     private final CompanyService companyService;
@@ -82,6 +84,9 @@ public class Cli {
                 System.out.println(PrettyPrintFactory.getInstance()
                         .make(Company.class).printList(companyService.getAll(Pageable.builder().page(DEFAULT_PAGE).elements(Integer.MAX_VALUE).build()).getElements()));
                 break;
+            case DELETE_COMPANY:
+                deleteCompany();
+                break;
             case LIST_COMPUTERS:
                 listComputers();
                 break;
@@ -110,12 +115,12 @@ public class Cli {
         System.out.println("Here is the list of computers");
         do {
             if (page == null || page.getCurrentPage() != currentPage) {
-                page = computerService.getAll(null, Pageable.builder().page(currentPage).elements(MAX_ELEMENTS).build());
+                page = computerService.getAll(DashboardRequest.builder().page(currentPage).order(ComputerDao.OrderType.NAME).pageSize(MAX_ELEMENTS).build());
             }
             System.out.println(PrettyPrintFactory.getInstance()
                     .make(ComputerDto.class).printList(page.getElements()));
 
-            System.out.print("Choose a page between 1 and " + page.getTotalPages() + " or \"quit\" to go back : ");
+            System.out.print("Choose a page between 0 and " + (page.getTotalPages() - 1) + " or \"quit\" to go back : ");
             String input = scanner.nextLine();
             if (Command.QUIT.getCommandString().equals(StringUtils.cleanString(input))) {
                 return;
@@ -197,6 +202,16 @@ public class Cli {
         computerService.update(computerToUpdate);
         System.out.println(computerToUpdate.toString() + " was updated successfully");
     }
+
+    /**
+     * Handle the DELETE_COMPANY command.
+     */
+    private void deleteCompany() {
+        Company company = readCompany(true);
+        companyService.delete(company);
+        System.out.println(company.toString() + " was deleted successfully");
+    }
+
 
     /**
      * Handle the DELETE_COMPUTER command.

@@ -1,13 +1,15 @@
 package fr.ebiz.computerdatabase.persistence.dao.impl;
 
+import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
-import fr.ebiz.computerdatabase.persistence.factory.DaoFactory;
+import fr.ebiz.computerdatabase.persistence.factory.ConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,9 +22,9 @@ import java.util.Optional;
 
 public class ComputerDaoImpl implements ComputerDao {
 
-    private static final String READ_QUERY = "SELECT computer.id, computer.name as computerName, computer.introduced, computer.discontinued, computer.company_id, company.name as companyName from computer computer LEFT JOIN company company ON computer.company_id = company.id where lower(computer.name) like ? order by computer.name LIMIT ? OFFSET ?";
+    private static final String READ_QUERY = "SELECT computer.id, computer.name as computerName, computer.introduced, computer.discontinued, computer.company_id, company.name as companyName FROM computer computer LEFT JOIN company company ON computer.company_id = company.id WHERE lower(computer.name) LIKE ? OR lower(company.name) LIKE ? ORDER BY %s ASC LIMIT ? OFFSET ?";
     private static final String READ_BY_ID_QUERY = "SELECT computer.id, computer.name as computerName, computer.introduced, computer.discontinued, computer.company_id, company.name as companyName from computer LEFT JOIN company company ON computer.company_id = company.id where computer.id = ?";
-    private static final String COUNT_QUERY = "SELECT COUNT(*) from computer where lower(name) like ?";
+    private static final String COUNT_QUERY = "SELECT COUNT(*) from computer where lower(name) LIKE ?";
     private static final String INSERT_QUERY = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?) ";
     private static final String UPDATE_QUERY = "UPDATE computer SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM computer WHERE id = ?";
@@ -33,17 +35,18 @@ public class ComputerDaoImpl implements ComputerDao {
     private static final String DISCONTINUED_COLUMN_NAME = "discontinued";
     private static final String COMPANY_ID_COLUMN_NAME = "company_id";
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
+    private static final String DAO_ACCESS_ERROR = "Dao access error";
 
     private static ComputerDao instance;
-    private final DaoFactory daoFactory;
+    private final DataSource dataSource;
 
     /**
-     * Service constructor used to inject a {@link DaoFactory} instance.
+     * Service constructor used to inject a {@link ConnectionPool} instance.
      *
-     * @param daoFactory The dao factory to inject
+     * @param dataSource The dataSource to inject
      */
-    private ComputerDaoImpl(DaoFactory daoFactory) {
-        this.daoFactory = daoFactory;
+    private ComputerDaoImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -56,7 +59,7 @@ public class ComputerDaoImpl implements ComputerDao {
         if (instance == null) {
             synchronized (ComputerDaoImpl.class) {
                 if (instance == null) {
-                    instance = new ComputerDaoImpl(DaoFactory.getInstance());
+                    instance = new ComputerDaoImpl(ConnectionPool.getInstance());
                 }
             }
         }
@@ -68,7 +71,7 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public Optional<Computer> get(int id) {
-        try (Connection connection = daoFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(READ_BY_ID_QUERY)) {
 
             statement.setInt(FIRST_PARAMETER_INDEX, id);
@@ -83,7 +86,7 @@ public class ComputerDaoImpl implements ComputerDao {
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException("Dao access error", e);
+            throw new DaoException(DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -91,12 +94,16 @@ public class ComputerDaoImpl implements ComputerDao {
      * {@inheritDoc}
      */
     @Override
-    public List<Computer> getAll(String nameQuery, int elements, int offset) {
-        try (Connection connection = daoFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(READ_QUERY)) {
+    public List<Computer> getAll(String query, OrderType order, int elements, int offset) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(String.format(READ_QUERY, order.getField()))) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
-            statement.setString(parameterIndex++, "%" + nameQuery + "%");
+
+            String likeParameter = "%" + query + "%";
+            statement.setString(parameterIndex++, likeParameter); // Computer name
+            statement.setString(parameterIndex++, likeParameter); // Company name
+
             statement.setInt(parameterIndex++, elements);
             statement.setInt(parameterIndex, offset);
 
@@ -109,7 +116,7 @@ public class ComputerDaoImpl implements ComputerDao {
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException("Dao access error", e);
+            throw new DaoException(DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -118,7 +125,7 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public int count(String nameQuery) {
-        try (Connection connection = daoFactory.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(COUNT_QUERY)) {
 
             statement.setString(FIRST_PARAMETER_INDEX, "%" + nameQuery + "%");
@@ -132,7 +139,7 @@ public class ComputerDaoImpl implements ComputerDao {
             return 0;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException("Dao access error", e);
+            throw new DaoException(DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -141,21 +148,31 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean insert(final Computer computer) {
-        try (Connection connection = daoFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
 
-            bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
+            try (PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+                bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
 
-            int affectedRows = statement.executeUpdate();
-            try (ResultSet resultSet = statement.getGeneratedKeys()) {
-                getGeneratedId(resultSet, computer);
+                int affectedRows = statement.executeUpdate();
+                connection.commit();
+                try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                    getGeneratedId(resultSet, computer);
+                }
+
+                return affectedRows == 1;
+
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage(), e);
+                connection.rollback();
+                throw new DaoException(DAO_ACCESS_ERROR, e);
+            } finally {
+                connection.setAutoCommit(true);
             }
-
-            return affectedRows == 1;
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException("Dao access error", e);
+            throw new DaoException(DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -164,22 +181,31 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean update(final Computer computer) {
-        try (Connection connection = daoFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
 
-            int parameterIndex = bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
-            statement.setInt(parameterIndex, computer.getId());
+            try (PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+                int parameterIndex = bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
+                statement.setInt(parameterIndex, computer.getId());
 
-            int affectedRows = statement.executeUpdate();
-            try (ResultSet resultSet = statement.getGeneratedKeys()) {
-                getGeneratedId(resultSet, computer);
+                int affectedRows = statement.executeUpdate();
+                connection.commit();
+                try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                    getGeneratedId(resultSet, computer);
+                }
+
+                return affectedRows == 1;
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage(), e);
+                connection.rollback();
+                throw new DaoException(DAO_ACCESS_ERROR, e);
+            } finally {
+                connection.setAutoCommit(true);
             }
-
-            return affectedRows == 1;
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException("Dao access error", e);
+            throw new DaoException(DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -189,18 +215,25 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean delete(Integer id) throws DaoException {
-        try (Connection connection = daoFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
 
-            statement.setInt(FIRST_PARAMETER_INDEX, id);
-
-            int affectedRows = statement.executeUpdate();
-
-            return affectedRows == 1;
+            try (PreparedStatement statement = connection.prepareStatement(DELETE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+                statement.setInt(FIRST_PARAMETER_INDEX, id);
+                int affectedRows = statement.executeUpdate();
+                connection.commit();
+                return affectedRows == 1;
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage(), e);
+                connection.rollback();
+                throw new DaoException(DAO_ACCESS_ERROR, e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException("Dao access error", e);
+            throw new DaoException(DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -226,8 +259,8 @@ public class ComputerDaoImpl implements ComputerDao {
         } else {
             statement.setNull(parameterIndex++, Types.DATE);
         }
-        if (computer.getCompanyId() != null) {
-            statement.setInt(parameterIndex++, computer.getCompanyId());
+        if (computer.getCompany() != null && computer.getCompany().getId() != null) {
+            statement.setInt(parameterIndex++, computer.getCompany().getId());
         } else {
             statement.setNull(parameterIndex++, Types.INTEGER);
         }
@@ -246,7 +279,6 @@ public class ComputerDaoImpl implements ComputerDao {
             Computer.ComputerBuilder builder = Computer.builder()
                     .id(resultSet.getInt(ID_COLUMN_NAME))
                     .name(resultSet.getString("computerName"))
-                    .companyName(resultSet.getString("companyName"))
                     .introduced(DaoUtils.toDate(resultSet.getTimestamp(INTRODUCED_COLUMN_NAME)))
                     .discontinued(DaoUtils.toDate(resultSet.getTimestamp(DISCONTINUED_COLUMN_NAME)));
 
@@ -255,7 +287,10 @@ public class ComputerDaoImpl implements ComputerDao {
             if (resultSet.wasNull()) {
                 companyId = null;
             }
-            builder.companyId(companyId);
+            builder.company(Company.builder()
+                    .id(companyId)
+                    .name(resultSet.getString("companyName"))
+                    .build());
             return builder.build();
         }
 
