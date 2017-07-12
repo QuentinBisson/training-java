@@ -1,8 +1,8 @@
 package fr.ebiz.computerdatabase.service;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
-import fr.ebiz.computerdatabase.dto.DashboardRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
+import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ public interface ComputerService {
      * @param dashboardRequest    The filtering request
      * @return The paginated computers
      */
-    Page<ComputerDto> getAll(DashboardRequest dashboardRequest);
+    Page<ComputerDto> getAll(GetAllComputersRequest dashboardRequest);
 
     /**
      * Assert a computer is valid and insert it if it is.
@@ -44,6 +44,5 @@ public interface ComputerService {
      * @param computer The computer to delete
      */
     void delete(ComputerDto computer);
-
 
 }

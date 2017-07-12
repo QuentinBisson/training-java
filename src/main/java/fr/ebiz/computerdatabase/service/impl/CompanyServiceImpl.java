@@ -5,7 +5,12 @@ import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
+import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.impl.CompanyDaoImpl;
+import fr.ebiz.computerdatabase.persistence.dao.impl.ComputerDaoImpl;
+import fr.ebiz.computerdatabase.persistence.factory.ConnectionPool;
+import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
+import fr.ebiz.computerdatabase.persistence.transaction.impl.TransactionManagerImpl;
 import fr.ebiz.computerdatabase.service.CompanyService;
 
 import java.util.List;
@@ -15,14 +20,17 @@ public class CompanyServiceImpl implements CompanyService {
 
     private static CompanyService instance;
     private final CompanyDao companyDao;
+    private final ComputerDao computerDao;
 
     /**
-     * Service constructor used to inject a {@link CompanyDao} instance.
+     * Service constructor used to inject a {@link ConnectionPool} instance.
      *
-     * @param companyDao The dao to inject
+     * @param companyDao The company dao
+     * @param computerDao The computer dao to inject
      */
-    private CompanyServiceImpl(CompanyDao companyDao) {
+    private CompanyServiceImpl(CompanyDao companyDao, ComputerDao computerDao) {
         this.companyDao = companyDao;
+        this.computerDao = computerDao;
     }
 
     /**
@@ -35,7 +43,7 @@ public class CompanyServiceImpl implements CompanyService {
         if (instance == null) {
             synchronized (CompanyServiceImpl.class) {
                 if (instance == null) {
-                    instance = new CompanyServiceImpl(CompanyDaoImpl.getInstance());
+                    instance = new CompanyServiceImpl(CompanyDaoImpl.getInstance(), ComputerDaoImpl.getInstance());
                 }
             }
         }
@@ -50,7 +58,15 @@ public class CompanyServiceImpl implements CompanyService {
         if (id <= 0) {
             throw new IllegalArgumentException("ID must be > 0");
         }
-        return companyDao.get(id);
+
+        TransactionManager tx = TransactionManagerImpl.getInstance();
+        tx.open(false);
+
+        try {
+            return companyDao.get(id);
+        } finally {
+            tx.close();
+        }
     }
 
     /**
@@ -67,25 +83,41 @@ public class CompanyServiceImpl implements CompanyService {
             throw new IllegalArgumentException("The number of returned elements must be > 0");
         }
 
-        int numberOfCompanies = companyDao.count();
-        int totalPage = PagingUtils.countPages(pageable.getElements(), numberOfCompanies);
+        TransactionManager tx = TransactionManagerImpl.getInstance();
+        tx.open(true);
 
-        if (pageable.getPage() < 0 || pageable.getPage() > totalPage - 1) {
-            throw new IllegalArgumentException("Page number must be [0-" + (totalPage - 1) + "]");
+        try {
+            int numberOfCompanies = companyDao.count();
+            int totalPage = PagingUtils.countPages(pageable.getElements(), numberOfCompanies);
+
+            if (pageable.getPage() < 0 || pageable.getPage() > totalPage - 1) {
+                throw new IllegalArgumentException("Page number must be [0-" + (totalPage - 1) + "]");
+            }
+            List<Company> companies = companyDao.getAll(pageable.getElements(), pageable.getPage() * pageable.getElements());
+
+            return Page.builder()
+                    .currentPage(pageable.getPage())
+                    .totalPages(totalPage)
+                    .totalElements(numberOfCompanies)
+                    .elements(companies)
+                    .build();
+        } finally {
+            tx.close();
         }
-
-        List<Company> companies = companyDao.getAll(pageable.getElements(), pageable.getPage() * pageable.getElements());
-
-        return Page.builder()
-                .currentPage(pageable.getPage())
-                .totalPages(totalPage)
-                .totalElements(numberOfCompanies)
-                .elements(companies)
-                .build();
     }
 
     @Override
     public void delete(Company company) {
-        companyDao.delete(company.getId());
+        TransactionManager tx = TransactionManagerImpl.getInstance();
+        tx.open(true);
+
+        try {
+            computerDao.deleteByCompanyId(company.getId());
+            companyDao.delete(company.getId());
+
+            tx.commit();
+        } finally {
+            tx.close();
+        }
     }
 }

@@ -1,7 +1,6 @@
 package fr.ebiz.service;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
-import fr.ebiz.computerdatabase.dto.DashboardRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
@@ -9,6 +8,9 @@ import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
+import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
+import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
+import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
 import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
 import org.junit.Assert;
@@ -19,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +39,10 @@ public class ComputerServiceTest {
     private ComputerDao computerDao;
     @Mock
     private CompanyDao companyDao;
-
+    @Mock
+    private DataSource dataSource;
+    @Mock
+    private TransactionManager transactionManager;
     @InjectMocks
     private ComputerServiceImpl service;
 
@@ -76,29 +82,29 @@ public class ComputerServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNoRequestedElements() {
-        service.getAll(DashboardRequest.builder().build());
+        service.getAll(GetAllComputersRequest.builder().build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNegativeElements() {
-        service.getAll(DashboardRequest.builder().pageSize(Integer.MIN_VALUE).build());
+        service.getAll(GetAllComputersRequest.builder().pageSize(Integer.MIN_VALUE).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNegativePage() {
-        service.getAll(DashboardRequest.builder().pageSize(PAGE_SIZE).page(-1).build());
+        service.getAll(GetAllComputersRequest.builder().pageSize(PAGE_SIZE).page(-1).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithTooBigPageNumberWithFullLastPage() {
         when(computerDao.count("")).thenReturn(100);
-        service.getAll(DashboardRequest.builder().pageSize(PAGE_SIZE).page(11).build());
+        service.getAll(GetAllComputersRequest.builder().pageSize(PAGE_SIZE).page(11).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithTooBigPageNumberWithoutFullLastPage() {
         when(computerDao.count("")).thenReturn(101);
-        service.getAll(DashboardRequest.builder().pageSize(PAGE_SIZE).page(12).build());
+        service.getAll(GetAllComputersRequest.builder().pageSize(PAGE_SIZE).page(12).build());
     }
 
     @Test
@@ -111,9 +117,9 @@ public class ComputerServiceTest {
         when(computerDao.count("")).thenReturn(elements);
         Pageable pageable = Pageable.builder().elements(PAGE_SIZE).page(0).build();
         List<Computer> pagedComputers = computers.subList(0, elements);
-        when(computerDao.getAll("", ComputerDao.OrderType.NAME, pageable.getElements(), pageable.getPage() * pageable.getElements())).thenReturn(pagedComputers);
+        when(computerDao.getAll(Mockito.any(GetAllComputersRequest.class))).thenReturn(pagedComputers);
 
-        Page<ComputerDto> page = service.getAll(DashboardRequest.builder().pageSize(pageable.getElements()).page(pageable.getPage()).query("").order(ComputerDao.OrderType.NAME).build());
+        Page<ComputerDto> page = service.getAll(GetAllComputersRequest.builder().pageSize(pageable.getElements()).page(pageable.getPage()).query("").order(SortOrder.ASC).column(ComputerDao.SortColumn.NAME).build());
         Assert.assertEquals(0, page.getCurrentPage());
         Assert.assertEquals(1, page.getTotalPages());
         for (int i = 0; i < pagedComputers.size(); i++) {

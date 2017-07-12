@@ -1,7 +1,8 @@
 package fr.ebiz.computerdatabase.ui.web;
 
-import fr.ebiz.computerdatabase.dto.DashboardRequest;
-import fr.ebiz.computerdatabase.persistence.dao.ComputerDao.OrderType;
+import fr.ebiz.computerdatabase.persistence.dao.ComputerDao.SortColumn;
+import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
+import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,8 +16,11 @@ class DashboardRequestParser {
     static final String PAGE_PARAM = "page";
     static final String SEARCH_PARAM = "search";
     static final String PAGE_SIZE_PARAM = "pageSize";
-    static final String ORDER_BY_PARAM = "order";
-    private static final OrderType DEFAULT_ORDER = OrderType.NAME;
+    static final String SORT_COLUMN_PARAM = "column";
+    static final String SORT_ORDER_PARAM = "order";
+
+    private static final SortColumn DEFAULT_COLUMN = SortColumn.NAME;
+    private static final SortOrder DEFAULT_ORDER = SortOrder.ASC;
     private static final int DEFAULT_PAGE_SIZE = 10;
     private static final int DEFAULT_PAGE = 0;
 
@@ -28,12 +32,13 @@ class DashboardRequestParser {
      * @return The parsed request
      * @throws IOException if an error occurs when sending a 404 error
      */
-    static DashboardRequest parseRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        DashboardRequest.DashboardRequestBuilder builder = DashboardRequest.builder();
+    static GetAllComputersRequest parseRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        GetAllComputersRequest.GetAllComputersRequestBuilder builder = GetAllComputersRequest.builder();
 
         parsePage(request, response, builder);
         parsePageSize(request, builder);
-        parseOrderBy(request, builder);
+        parseSortColumn(request, builder);
+        parseSortOrder(request, builder);
 
         builder.query(request.getParameter(SEARCH_PARAM));
         return builder.build();
@@ -45,7 +50,7 @@ class DashboardRequestParser {
      * @param request the HTTP request
      * @param builder The page request builder
      */
-    private static void parsePageSize(HttpServletRequest request, DashboardRequest.DashboardRequestBuilder builder) {
+    private static void parsePageSize(HttpServletRequest request, GetAllComputersRequest.GetAllComputersRequestBuilder builder) {
         String pageSizeParameter = request.getParameter(PAGE_SIZE_PARAM);
         builder.pageSize(DEFAULT_PAGE_SIZE);
         if (StringUtils.isNumeric(pageSizeParameter)) {
@@ -61,7 +66,7 @@ class DashboardRequestParser {
      * @param builder  The page request builder
      * @throws IOException if an error occurs when sending a 404 error
      */
-    private static void parsePage(HttpServletRequest request, HttpServletResponse response, DashboardRequest.DashboardRequestBuilder builder) throws IOException {
+    private static void parsePage(HttpServletRequest request, HttpServletResponse response, GetAllComputersRequest.GetAllComputersRequestBuilder builder) throws IOException {
         builder.page(DEFAULT_PAGE);
         String pageParameter = request.getParameter(PAGE_PARAM);
         if (StringUtils.isNumeric(pageParameter)) {
@@ -77,12 +82,27 @@ class DashboardRequestParser {
      * @param request the HTTP request
      * @param builder The page request builder
      */
-    private static void parseOrderBy(HttpServletRequest request, DashboardRequest.DashboardRequestBuilder builder) {
+    private static void parseSortColumn(HttpServletRequest request, GetAllComputersRequest.GetAllComputersRequestBuilder builder) {
+        builder.column(DEFAULT_COLUMN);
+        String parameter = request.getParameter(SORT_COLUMN_PARAM);
+        Optional<SortColumn> sortColumn = Arrays.stream(SortColumn.values()).filter(order -> order.name().toLowerCase().equals(parameter)).findFirst();
+        if (sortColumn.isPresent()) {
+            builder.column(sortColumn.get());
+        }
+    }
+
+    /**
+     * Parse the order parameter from the HTTP request.
+     *
+     * @param request the HTTP request
+     * @param builder The page request builder
+     */
+    private static void parseSortOrder(HttpServletRequest request, GetAllComputersRequest.GetAllComputersRequestBuilder builder) {
         builder.order(DEFAULT_ORDER);
-        String parameter = request.getParameter(ORDER_BY_PARAM);
-        Optional<OrderType> orderType = Arrays.stream(OrderType.values()).filter(order -> order.name().toLowerCase().equals(parameter)).findFirst();
-        if (orderType.isPresent()) {
-            builder.order(orderType.get());
+        String parameter = request.getParameter(SORT_ORDER_PARAM);
+        Optional<SortOrder> sortOrder = Arrays.stream(SortOrder.values()).filter(order -> order.name().toLowerCase().equals(parameter)).findFirst();
+        if (sortOrder.isPresent()) {
+            builder.order(sortOrder.get());
         }
     }
 
