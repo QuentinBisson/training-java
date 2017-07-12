@@ -62,7 +62,7 @@ public class ComputerManagerServlet extends HttpServlet {
 
         if (!StringUtils.isBlank(ids)) {
             deleteComputers(ids.split(","));
-            response.sendRedirect(request.getContextPath());
+            response.sendRedirect("home");
         } else {
             updateComputer(request, response);
         }

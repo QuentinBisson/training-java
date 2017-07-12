@@ -17,21 +17,18 @@ public interface ComputerDao {
     /**
      * Get the computers from the database paginated.
      *
-     * @param nameQuery name to look for
-     * @param order     The order to get the elements from
-     * @param elements  The number of computers to get
-     * @param offset    The number of computers to skip in the results
+     * @param request    The request parameters
      * @return The paginated computers
      */
-    List<Computer> getAll(String nameQuery, OrderType order, int elements, int offset);
+    List<Computer> getAll(GetAllComputersRequest request);
 
     /**
      * Count the number of elements in the database.
      *
-     * @param nameQuery name to look for
+     * @param query name to look for
      * @return the total number of elements
      */
-    int count(String nameQuery);
+    int count(String query);
 
     /**
      * Insert a computer in the database.
@@ -57,8 +54,16 @@ public interface ComputerDao {
      */
     boolean delete(Integer id);
 
-    enum OrderType {
-        NAME("computerName"), INTRODUCED("computer.introduced, computerName"), DISCONTINUED("computer.discontinued, computerName"), COMPANY("companyName, computerName");
+    /**
+     * Delete computers introduced by a company.
+     *
+     * @param companyId The id of the company
+     * @return true if any computer was deleted
+     */
+    boolean deleteByCompanyId(Integer companyId);
+
+    enum SortColumn {
+        NAME("computer.name"), INTRODUCED("computer.introduced, computer.name"), DISCONTINUED("computer.discontinued, computer.name"), COMPANY_NAME("company.name, computer.name"), COMPANY_ID("company.id, computer.name");
 
         String field;
 
@@ -67,7 +72,7 @@ public interface ComputerDao {
          *
          * @param field The field to use in DB queries
          */
-        OrderType(String field) {
+        SortColumn(String field) {
             this.field = field;
         }
 

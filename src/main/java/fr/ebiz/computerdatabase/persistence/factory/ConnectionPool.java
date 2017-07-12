@@ -50,7 +50,7 @@ public class ConnectionPool {
         jdbcConfig.setPassword(properties.getProperty("password"));
         jdbcConfig.setIdleTimeout(PropertiesUtils.getIntProperty(properties, "idleTimeout"));
         jdbcConfig.setInitializationFailTimeout(1);
-        jdbcConfig.setLeakDetectionThreshold(60000);
+        jdbcConfig.setLeakDetectionThreshold(10);
 
         jdbcConfig.addDataSourceProperty(CACHE_PREP_STMTS_PROP, PropertiesUtils.getBooleanProperty(properties, CACHE_PREP_STMTS_PROP));
         jdbcConfig.addDataSourceProperty(PREP_STMT_CACHE_SIZE_PROP, PropertiesUtils.getIntProperty(properties, PREP_STMT_CACHE_SIZE_PROP));

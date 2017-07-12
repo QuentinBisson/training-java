@@ -1,6 +1,6 @@
 package fr.ebiz.computerdatabase.ui.web;
 
-import fr.ebiz.computerdatabase.dto.DashboardRequest;
+import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
 
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/index"})
+@WebServlet(urlPatterns = {"/home"})
 public class DashboardServlet extends HttpServlet {
 
     private static final String VIEW = "/WEB-INF/views/dashboard.jsp";
@@ -28,12 +28,12 @@ public class DashboardServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        DashboardRequest dashboardRequest = DashboardRequestParser.parseRequest(request, response);
+        GetAllComputersRequest dashboardRequest = DashboardRequestParser.parseRequest(request, response);
 
         request.setAttribute(DashboardRequestParser.SEARCH_PARAM, dashboardRequest.getQuery());
         request.setAttribute(DashboardRequestParser.PAGE_SIZE_PARAM, dashboardRequest.getPageSize());
         request.setAttribute(DashboardRequestParser.PAGE_PARAM, dashboardRequest.getPage());
-        request.setAttribute(DashboardRequestParser.ORDER_BY_PARAM, dashboardRequest.getOrder().name().toLowerCase());
+        request.setAttribute(DashboardRequestParser.SORT_COLUMN_PARAM, dashboardRequest.getColumn().name().toLowerCase());
         request.setAttribute(COMPUTERS_ATTR, computerService.getAll(dashboardRequest));
 
         request.getRequestDispatcher(VIEW).forward(request, response);

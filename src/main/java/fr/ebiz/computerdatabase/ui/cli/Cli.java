@@ -1,11 +1,12 @@
 package fr.ebiz.computerdatabase.ui.cli;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
-import fr.ebiz.computerdatabase.dto.DashboardRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
+import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
+import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
@@ -115,7 +116,7 @@ public class Cli {
         System.out.println("Here is the list of computers");
         do {
             if (page == null || page.getCurrentPage() != currentPage) {
-                page = computerService.getAll(DashboardRequest.builder().page(currentPage).order(ComputerDao.OrderType.NAME).pageSize(MAX_ELEMENTS).build());
+                page = computerService.getAll(GetAllComputersRequest.builder().page(currentPage).column(ComputerDao.SortColumn.NAME).order(SortOrder.ASC).pageSize(MAX_ELEMENTS).build());
             }
             System.out.println(PrettyPrintFactory.getInstance()
                     .make(ComputerDto.class).printList(page.getElements()));
