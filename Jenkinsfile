@@ -12,7 +12,7 @@ pipeline {
         stage('maven-build') {
             steps {
                 docker.image('maven:latest').inside({ // https://registry.hub.docker.com/_/maven/
-                    //checkout scm
+                    checkout scm
                     sh 'mvn --version'
                 })
             }
