@@ -4,18 +4,20 @@ pipeline {
     agent any
 
     stages {
-        //stage('mysql-test') {
-        //    steps {
-        //      sh 'mvn --version'
-        //    }
-        //}
-        stage('maven-build') {
+        stage('mysql-test') {
+            agent { docker 'mysql:latest' }
             steps {
+                echo 'Pull and configure test mysql instance'
+            }
+        }
+        stage('maven-build') {
+            agent { docker 'maven:latest' }
+            steps {
+                echo 'Build and test projet with maven'
+
                 script {
-                    docker.image('maven:latest').inside({ // https://registry.hub.docker.com/_/maven/
-                        checkout scm
-                        sh 'mvn --version'
-                    })
+                    checkout scm
+                    sh 'mvn clean package'
                 }
             }
         }
