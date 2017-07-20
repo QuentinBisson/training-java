@@ -11,10 +11,12 @@ pipeline {
         //}
         stage('maven-build') {
             steps {
-                docker.image('maven:latest').inside({ // https://registry.hub.docker.com/_/maven/
-                    checkout scm
-                    sh 'mvn --version'
-                })
+                script {
+                    docker.image('maven:latest').inside({ // https://registry.hub.docker.com/_/maven/
+                        checkout scm
+                        sh 'mvn --version'
+                    })
+                }
             }
         }
     }
