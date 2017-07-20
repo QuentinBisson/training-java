@@ -1,8 +1,8 @@
 package fr.ebiz.computerdatabase.persistence.transaction.impl;
 
 
+import fr.ebiz.computerdatabase.persistence.ConnectionPool;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
-import fr.ebiz.computerdatabase.persistence.factory.ConnectionPool;
 import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,17 +11,20 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class TransactionManagerImpl extends ThreadLocal<Connection> implements TransactionManager {
+public class TransactionManagerImpl implements TransactionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class.getName());
     private final DataSource dataSource;
+    private final ThreadLocal<Connection> threadLocal;
 
     /**
      * Constructor.
      *
-     * @param dataSource The injected dataSource
+     * @param dataSource  The injected dataSource
+     * @param threadLocal The thread local
      */
-    private TransactionManagerImpl(DataSource dataSource) {
+    private TransactionManagerImpl(DataSource dataSource, ThreadLocal<Connection> threadLocal) {
         this.dataSource = dataSource;
+        this.threadLocal = threadLocal;
     }
 
     public static TransactionManager getInstance() {
@@ -30,13 +33,16 @@ public class TransactionManagerImpl extends ThreadLocal<Connection> implements T
 
     @Override
     public Connection getConnection() {
-        return this.get();
+        return threadLocal.get();
     }
 
     @Override
     public void commit() {
         try {
-            getConnection().commit();
+            Connection connection = threadLocal.get();
+            if (connection != null) {
+                connection.commit();
+            }
         } catch (SQLException e) {
             rollback();
             close();
@@ -58,9 +64,12 @@ public class TransactionManagerImpl extends ThreadLocal<Connection> implements T
     @Override
     public void open(boolean openTransaction) {
         try {
-            Connection connection = dataSource.getConnection();
-            connection.setAutoCommit(!openTransaction);
-            set(connection);
+            Connection connection = threadLocal.get();
+            if (connection == null) {
+                connection = dataSource.getConnection();
+                threadLocal.set(connection);
+                connection.setAutoCommit(!openTransaction);
+            }
         } catch (SQLException e) {
             close();
             LOGGER.error(e.getMessage(), e);
@@ -71,12 +80,14 @@ public class TransactionManagerImpl extends ThreadLocal<Connection> implements T
     @Override
     public void close() {
         try {
-            Connection connection = getConnection();
-            connection.setAutoCommit(true);
-            connection.close();
 
+            Connection connection = threadLocal.get();
+            if (connection != null) {
+                connection.setAutoCommit(true);
+                connection.close();
+            }
             // Clean the thread local
-            remove();
+            threadLocal.remove();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
             throw new DaoException("Could not close transaction", e);
@@ -88,7 +99,7 @@ public class TransactionManagerImpl extends ThreadLocal<Connection> implements T
         *  Using enum singleton pattern for lazy singletons
         */
     private enum Transaction {
-        INSTANCE(new TransactionManagerImpl(ConnectionPool.getInstance()));
+        INSTANCE(new TransactionManagerImpl(ConnectionPool.getInstance(), new ThreadLocal<>()));
         private final TransactionManager local;
 
         /**

@@ -9,7 +9,7 @@ public final class PagingUtils {
      * @param numberOfElements The total number of elements
      * @return the total number of pages
      */
-    public static int countPages(int elementsPerPage, int numberOfElements) {
+    public static Integer countPages(int elementsPerPage, int numberOfElements) {
         return (numberOfElements / elementsPerPage)
                 + ((numberOfElements % elementsPerPage) > 0 ? 1 : 0);
     }

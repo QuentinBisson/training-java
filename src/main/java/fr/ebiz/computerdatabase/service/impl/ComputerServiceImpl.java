@@ -5,41 +5,46 @@ import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
-import fr.ebiz.computerdatabase.persistence.dao.impl.CompanyDaoImpl;
 import fr.ebiz.computerdatabase.persistence.dao.impl.ComputerDaoImpl;
 import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import fr.ebiz.computerdatabase.persistence.transaction.impl.TransactionManagerImpl;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
-import fr.ebiz.computerdatabase.utils.StringUtils;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class ComputerServiceImpl implements ComputerService {
 
+    private static final String GET_ALL_COMPUTERS_CACHE = "getAllComputers";
     private static ComputerService instance;
+
     private final ComputerDao computerDao;
-    private final CompanyDao companyDao;
-    private final ComputerMapper computerMapper;
     private final TransactionManager transactionManager;
+    private final Cache<GetAllComputersRequest, Page<ComputerDto>> cache;
 
     /**
      * Service constructor used to inject dao.
      *
-     * @param computerDao The computer dao to inject
-     * @param companyDao  The company dao to inject
-     *                    @param transactionManager The transaction manager
+     * @param computerDao        The computer dao to inject
+     * @param transactionManager The transaction manager
+     * @param cache              The computer cache
      */
-    private ComputerServiceImpl(ComputerDao computerDao, CompanyDao companyDao, TransactionManager transactionManager) {
+    private ComputerServiceImpl(ComputerDao computerDao,
+                                TransactionManager transactionManager,
+                                Cache<GetAllComputersRequest, Page<ComputerDto>> cache) {
         this.computerDao = computerDao;
-        this.companyDao = companyDao;
         this.transactionManager = transactionManager;
-
-        this.computerMapper = new ComputerMapper();
+        this.cache = cache;
     }
 
     /**
@@ -52,7 +57,14 @@ public class ComputerServiceImpl implements ComputerService {
         if (instance == null) {
             synchronized (ComputerServiceImpl.class) {
                 if (instance == null) {
-                    instance = new ComputerServiceImpl(ComputerDaoImpl.getInstance(), CompanyDaoImpl.getInstance(), TransactionManagerImpl.getInstance());
+                    CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
+                    MutableConfiguration<GetAllComputersRequest, Page<ComputerDto>> config = new MutableConfiguration<>();
+                    config.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_HOUR));
+
+                    instance = new ComputerServiceImpl(
+                            ComputerDaoImpl.getInstance(),
+                            TransactionManagerImpl.getInstance(),
+                            cacheManager.createCache(GET_ALL_COMPUTERS_CACHE, config));
                 }
             }
         }
@@ -69,11 +81,8 @@ public class ComputerServiceImpl implements ComputerService {
         }
 
         transactionManager.open(false);
-
         try {
-            return computerDao
-                    .get(id)
-                    .map(computer -> Optional.of(computerMapper.toDto(computer)))
+            return computerDao.get(id).map(c -> Optional.of(ComputerMapper.getInstance().toDto(c)))
                     .orElse(Optional.empty());
         } finally {
             transactionManager.close();
@@ -85,38 +94,50 @@ public class ComputerServiceImpl implements ComputerService {
      */
     @SuppressWarnings(value = "unchecked")
     @Override
-    public Page<ComputerDto> getAll(GetAllComputersRequest allComputersRequest) {
-        if (allComputersRequest == null) {
+    public Page<ComputerDto> getAll(GetAllComputersRequest request) {
+        if (request == null) {
             throw new IllegalArgumentException("Pagination object is null");
         }
 
-        if (allComputersRequest.getPageSize() <= 0) {
+        if (request.getPageSize() <= 0) {
             throw new IllegalArgumentException("Page size must be > 0");
         }
 
-        String query = StringUtils.cleanString(allComputersRequest.getQuery());
-
-        transactionManager.open(false);
+        if (cache.containsKey(request)) {
+            return cache.get(request);
+        }
 
         try {
-            int numberOfComputers = computerDao.count(query);
-            int totalPage = PagingUtils.countPages(allComputersRequest.getPageSize(), numberOfComputers);
+            transactionManager.open(true);
+            Integer numberOfComputers = computerDao.count(request.getQuery());
 
-            if (allComputersRequest.getPage() < 0 || allComputersRequest.getPage() > totalPage) {
+            Integer totalPage = PagingUtils.countPages(request.getPageSize(), numberOfComputers);
+
+            if (request.getPage() < 0 || request.getPage() > totalPage) {
                 throw new IllegalArgumentException("Page number must be [0-" + totalPage + "]");
             }
 
-            List<Computer> computers = computerDao.getAll(allComputersRequest);
+            List<Computer> computers;
+            if (totalPage == 0) {
+                computers = Collections.emptyList();
+            } else {
+                computers = computerDao.getAll(request);
+            }
 
-            return Page.builder()
-                    .currentPage(allComputersRequest.getPage())
+            transactionManager.commit();
+            Page<ComputerDto> page = Page.builder()
+                    .currentPage(request.getPage())
                     .totalPages(totalPage)
                     .totalElements(numberOfComputers)
-                    .elements(computerMapper.toDto(computers))
+                    .elements(ComputerMapper.getInstance().toDto(computers))
                     .build();
+
+            cache.put(request, page);
+            return page;
 
         } finally {
             transactionManager.close();
+
         }
     }
 
@@ -131,11 +152,11 @@ public class ComputerServiceImpl implements ComputerService {
         }
 
         transactionManager.open(true);
-
-        new ComputerValidator(companyDao).validate(dto);
+        ComputerValidator.getInstance().validate(dto);
 
         try {
-            computerDao.insert(computerMapper.toEntity(dto));
+            computerDao.insert(ComputerMapper.getInstance().toEntity(dto));
+            clearCache();
             transactionManager.commit();
         } finally {
             transactionManager.close();
@@ -143,18 +164,26 @@ public class ComputerServiceImpl implements ComputerService {
     }
 
     /**
+     * Clear all the cache.
+     */
+    private void clearCache() {
+        cache.clear();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public void update(ComputerDto dto) {
-        transactionManager.open(true);
-
         assertComputerIsNotNull(dto);
         assertComputerIdIsNotNullAndExists(dto);
-        new ComputerValidator(companyDao).validate(dto);
+
+        transactionManager.open(true);
+        ComputerValidator.getInstance().validate(dto);
 
         try {
-            computerDao.update(computerMapper.toEntity(dto));
+            computerDao.update(ComputerMapper.getInstance().toEntity(dto));
+            clearCache();
             transactionManager.commit();
         } finally {
             transactionManager.close();
@@ -173,6 +202,34 @@ public class ComputerServiceImpl implements ComputerService {
 
         try {
             computerDao.delete(dto.getId());
+            clearCache();
+            transactionManager.commit();
+        } finally {
+            transactionManager.close();
+        }
+    }
+
+    @Override
+    public void deleteByCompanyId(Integer companyId) {
+        transactionManager.open(true);
+
+        try {
+            computerDao.deleteByCompanyId(companyId);
+            clearCache();
+            transactionManager.commit();
+        } finally {
+            transactionManager.close();
+        }
+    }
+
+    @Override
+    public void deleteComputers(List<Integer> ids) {
+        transactionManager.open(true);
+
+
+        try {
+            computerDao.deleteComputers(ids);
+            clearCache();
             transactionManager.commit();
         } finally {
             transactionManager.close();
@@ -196,8 +253,8 @@ public class ComputerServiceImpl implements ComputerService {
      * @param computer The computer to test
      */
     private void assertComputerIdIsNotNullAndExists(ComputerDto computer) {
-        if (computer.getId() == null || !computerDao.get(computer.getId()).isPresent()) {
-            throw new IllegalArgumentException("Computer should not have an id");
+        if (computer.getId() == null || !get(computer.getId()).isPresent()) {
+            throw new IllegalArgumentException("Computer should have an id and exist in the database");
         }
     }
 

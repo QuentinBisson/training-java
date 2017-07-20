@@ -1,5 +1,6 @@
 package fr.ebiz.computerdatabase.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -10,7 +11,7 @@ import java.util.Objects;
  * <p>
  * A computer must be identified by an id and a name
  */
-public class ComputerDto {
+public class ComputerDto implements Serializable {
 
     /**
      * Computer uuid.

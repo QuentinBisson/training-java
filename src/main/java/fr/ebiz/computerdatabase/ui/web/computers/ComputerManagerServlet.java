@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -159,10 +160,11 @@ public class ComputerManagerServlet extends HttpServlet {
      * @param ids The list of id to delete
      */
     private void deleteComputers(String[] ids) {
+        List<Integer> idList = new ArrayList<>();
         Arrays.stream(ids)
                 .filter(StringUtils::isNumeric)
-                .mapToInt(Integer::parseInt)
-                .forEach(id -> computerService.delete(ComputerDto.builder().id(id).build()));
+                .mapToInt(Integer::parseInt).forEach(idList::add);
+        computerService.deleteComputers(idList);
     }
 
     /**

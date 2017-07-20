@@ -13,9 +13,20 @@ public final class PropertiesUtils {
      * @param propertyName The property name
      * @return The int property
      */
-    public static int getIntProperty(Properties properties, String propertyName) {
+    public static Integer getIntProperty(Properties properties, String propertyName) {
         String property = properties.getProperty(propertyName);
         return Integer.parseInt(property);
+    }
+
+    /**
+     * Get a long from properties.
+     *
+     * @param properties   The properties object
+     * @param propertyName The property name
+     * @return The long property
+     */
+    public static Long getLongProperty(Properties properties, String propertyName) {
+        return Long.parseLong(properties.getProperty(propertyName));
     }
 
 
@@ -26,7 +37,7 @@ public final class PropertiesUtils {
      * @param propertyName The property name
      * @return The property
      */
-    public static boolean getBooleanProperty(Properties properties, String propertyName) {
+    public static Boolean getBooleanProperty(Properties properties, String propertyName) {
         String property = properties.getProperty(propertyName);
         return new Boolean(property);
     }

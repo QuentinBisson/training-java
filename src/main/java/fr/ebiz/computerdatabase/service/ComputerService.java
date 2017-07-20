@@ -4,6 +4,7 @@ import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ComputerService {
@@ -45,4 +46,17 @@ public interface ComputerService {
      */
     void delete(ComputerDto computer);
 
+    /**
+     * Delete computers introduced by a company.
+     *
+     * @param companyId The id of the company
+     */
+    void deleteByCompanyId(Integer companyId);
+
+    /**
+     * Delete computers introduced by a company.
+     *
+     * @param ids The ids of the computer to delete
+     */
+    void deleteComputers(List<Integer> ids);
 }

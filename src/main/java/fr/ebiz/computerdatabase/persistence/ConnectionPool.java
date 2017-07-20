@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.persistence.factory;
+package fr.ebiz.computerdatabase.persistence;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -16,11 +16,10 @@ public class ConnectionPool {
     private static final String CACHE_PREP_STMTS_PROP = "cachePrepStmts";
     private static final String PREP_STMT_CACHE_SQL_LIMIT_PROP = "prepStmtCacheSqlLimit";
     private static final String USE_SERVER_PREP_STMTS_PROP = "useServerPrepStmts";
+    private static final String MAINTAIN_TIME_STATS_PROP = "maintainTimeStats";
+
     private static final String USE_LOCAL_SESSION_STATE_PROP = "useLocalSessionState";
     private static final String USE_LOCAL_TRANSACTION_STATE_PROP = "useLocalTransactionState";
-    private static final String REWRITE_BATCHED_STATEMENTS_PROP = "rewriteBatchedStatements";
-    private static final String CACHE_RESULT_SET_METADATA_PROP = "cacheResultSetMetadata";
-    private static final String CACHE_SERVER_CONFIGURATION_PROP = "cacheServerConfiguration";
 
     public static DataSource getInstance() {
         return Pool.INSTANCE.getDataSource();
@@ -49,18 +48,23 @@ public class ConnectionPool {
         jdbcConfig.setUsername(properties.getProperty("username"));
         jdbcConfig.setPassword(properties.getProperty("password"));
         jdbcConfig.setIdleTimeout(PropertiesUtils.getIntProperty(properties, "idleTimeout"));
+        jdbcConfig.setMaxLifetime(PropertiesUtils.getLongProperty(properties, "maxLifeTime"));
+        jdbcConfig.setConnectionTimeout(PropertiesUtils.getIntProperty(properties, "connectionTimeout"));
         jdbcConfig.setInitializationFailTimeout(1);
-        jdbcConfig.setLeakDetectionThreshold(10);
+        jdbcConfig.setLeakDetectionThreshold(2000);
 
-        jdbcConfig.addDataSourceProperty(CACHE_PREP_STMTS_PROP, PropertiesUtils.getBooleanProperty(properties, CACHE_PREP_STMTS_PROP));
-        jdbcConfig.addDataSourceProperty(PREP_STMT_CACHE_SIZE_PROP, PropertiesUtils.getIntProperty(properties, PREP_STMT_CACHE_SIZE_PROP));
-        jdbcConfig.addDataSourceProperty(PREP_STMT_CACHE_SQL_LIMIT_PROP, PropertiesUtils.getIntProperty(properties, PREP_STMT_CACHE_SQL_LIMIT_PROP));
-        jdbcConfig.addDataSourceProperty(USE_SERVER_PREP_STMTS_PROP, PropertiesUtils.getBooleanProperty(properties, USE_SERVER_PREP_STMTS_PROP));
-        jdbcConfig.addDataSourceProperty(USE_LOCAL_SESSION_STATE_PROP, PropertiesUtils.getBooleanProperty(properties, USE_LOCAL_SESSION_STATE_PROP));
-        jdbcConfig.addDataSourceProperty(USE_LOCAL_TRANSACTION_STATE_PROP, PropertiesUtils.getBooleanProperty(properties, USE_LOCAL_TRANSACTION_STATE_PROP));
-        jdbcConfig.addDataSourceProperty(REWRITE_BATCHED_STATEMENTS_PROP, PropertiesUtils.getBooleanProperty(properties, REWRITE_BATCHED_STATEMENTS_PROP));
-        jdbcConfig.addDataSourceProperty(CACHE_RESULT_SET_METADATA_PROP, PropertiesUtils.getBooleanProperty(properties, CACHE_RESULT_SET_METADATA_PROP));
-        jdbcConfig.addDataSourceProperty(CACHE_SERVER_CONFIGURATION_PROP, PropertiesUtils.getBooleanProperty(properties, CACHE_SERVER_CONFIGURATION_PROP));
+
+//        maintainTimeStats=false
+//        useLocalSessionState=true
+//        useLocalTransactionState=true
+
+//        jdbcConfig.addDataSourceProperty(CACHE_PREP_STMTS_PROP, PropertiesUtils.getBooleanProperty(properties, CACHE_PREP_STMTS_PROP));
+//        jdbcConfig.addDataSourceProperty(PREP_STMT_CACHE_SIZE_PROP, PropertiesUtils.getIntProperty(properties, PREP_STMT_CACHE_SIZE_PROP));
+//        jdbcConfig.addDataSourceProperty(PREP_STMT_CACHE_SQL_LIMIT_PROP, PropertiesUtils.getIntProperty(properties, PREP_STMT_CACHE_SQL_LIMIT_PROP));
+//        jdbcConfig.addDataSourceProperty(USE_SERVER_PREP_STMTS_PROP, PropertiesUtils.getBooleanProperty(properties, USE_SERVER_PREP_STMTS_PROP));
+//        jdbcConfig.addDataSourceProperty(MAINTAIN_TIME_STATS_PROP, PropertiesUtils.getBooleanProperty(properties, MAINTAIN_TIME_STATS_PROP));
+//        jdbcConfig.addDataSourceProperty(USE_LOCAL_SESSION_STATE_PROP, PropertiesUtils.getBooleanProperty(properties, USE_LOCAL_SESSION_STATE_PROP));
+//        jdbcConfig.addDataSourceProperty(USE_LOCAL_TRANSACTION_STATE_PROP, PropertiesUtils.getBooleanProperty(properties, USE_LOCAL_TRANSACTION_STATE_PROP));
 
         return new HikariDataSource(jdbcConfig);
     }
