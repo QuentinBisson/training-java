@@ -1,6 +1,9 @@
 package fr.ebiz.computerdatabase.dto.paging;
 
-public class Pageable {
+import java.io.Serializable;
+import java.util.Objects;
+
+public class Pageable implements Serializable {
 
     private int page;
     private int elements;
@@ -20,6 +23,24 @@ public class Pageable {
 
     public int getElements() {
         return elements;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Pageable pageable = (Pageable) o;
+        return getPage() == pageable.getPage() &&
+                getElements() == pageable.getElements();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPage(), getElements());
     }
 
     public static class PageableBuilder {

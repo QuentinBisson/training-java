@@ -40,17 +40,20 @@
     There are a few ways you can change logging levels on the fly in a running app.
     This could be a better solution than over logging.
     -->
+    <!--<root level="WARN">-->
     <root level="WARN">
         <!--
         If you want async logging just use ref="ASYNC" instead.
         We will favor synchronous logging for simplicity. -->
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC"/>
     </root>
+
+    <logger name="net.sf.ehcache" level="INFO"/>
 
     <!-- Turn on debug logging for our HikariCP connection pool. -->
     <logger name="com.zaxxer.hikari" level="DEBUG"/>
 
-    <!-- Turn on debug logging for all loggers under com.stubbornjava -->
+    <!-- Turn on debug logging for all loggers under fr.ebiz.computerdatabase -->
     <logger name="fr.ebiz.computerdatabase" level="DEBUG"/>
 
 </configuration>

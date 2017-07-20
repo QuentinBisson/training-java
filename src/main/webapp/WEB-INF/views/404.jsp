@@ -13,7 +13,12 @@
     <link href="${contextPath}/css/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
-<c:import url="../template/header.jsp"/>
+
+<header class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="."> Application - Computer Database </a>
+    </div>
+</header>
 
 <section id="main">
     <div class="container">

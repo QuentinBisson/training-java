@@ -1,6 +1,7 @@
 package fr.ebiz.computerdatabase.persistence.dao;
 
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao.SortColumn;
+import fr.ebiz.computerdatabase.utils.StringUtils;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -84,7 +85,7 @@ public class GetAllComputersRequest implements Serializable {
          * @return The builder
          */
         public GetAllComputersRequestBuilder query(String query) {
-            request.query = query;
+            request.query = StringUtils.cleanString(query);
             return this;
         }
 

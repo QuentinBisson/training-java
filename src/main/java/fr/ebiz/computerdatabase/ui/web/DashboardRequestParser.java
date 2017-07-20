@@ -40,7 +40,8 @@ class DashboardRequestParser {
         parseSortColumn(request, builder);
         parseSortOrder(request, builder);
 
-        builder.query(request.getParameter(SEARCH_PARAM));
+        String query = request.getParameter(SEARCH_PARAM);
+        builder.query(StringUtils.isBlank(query) ? null : query);
         return builder.build();
     }
 

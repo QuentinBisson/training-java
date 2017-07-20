@@ -12,18 +12,13 @@ import fr.ebiz.computerdatabase.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.AccessedExpiryPolicy;
-import javax.cache.expiry.Duration;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +26,10 @@ public class ComputerDaoImpl implements ComputerDao {
 
     private static final String READ_QUERY = "SELECT computer.id, computer.name as computerName, computer.introduced, computer.discontinued, computer.company_id, company.name as companyName FROM computer computer LEFT JOIN company company ON computer.company_id = company.id";
     private static final String READ_BY_ID_QUERY = "SELECT computer.id, computer.name as computerName, computer.introduced, computer.discontinued, computer.company_id, company.name as companyName from computer LEFT JOIN company company ON computer.company_id = company.id where computer.id = ?";
-    private static final String COUNT_QUERY = "SELECT COUNT(*) from computer";
+    private static final String COUNT_QUERY = "SELECT COUNT(1) from computer";
     private static final String INSERT_QUERY = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?) ";
     private static final String UPDATE_QUERY = "UPDATE computer SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
-    private static final String DELETE_QUERY = "DELETE FROM computer WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM computer";
     private static final String DELETE_COMPUTERS_FOR_COMPANY_QUERY = "DELETE FROM computer WHERE company_id = ?";
 
     private static final int FIRST_PARAMETER_INDEX = 1;
@@ -45,20 +40,6 @@ public class ComputerDaoImpl implements ComputerDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
 
     private static ComputerDao instance;
-    private final Cache<GetAllComputersRequest, List<Computer>> allComputersCache;
-    private final Cache<String, Integer> countComputersCache;
-
-    /**
-     * Constructor.
-     *
-     * @param allComputersCache   The computer list cache
-     * @param countComputersCache The count catch
-     */
-    private ComputerDaoImpl(Cache<GetAllComputersRequest, List<Computer>> allComputersCache, Cache<String, Integer> countComputersCache) {
-        this.allComputersCache
-                = allComputersCache;
-        this.countComputersCache = countComputersCache;
-    }
 
     /**
      * Get the dao instance.
@@ -70,15 +51,7 @@ public class ComputerDaoImpl implements ComputerDao {
         if (instance == null) {
             synchronized (ComputerDaoImpl.class) {
                 if (instance == null) {
-                    MutableConfiguration<GetAllComputersRequest, List<Computer>> getAllConfig = new MutableConfiguration<>();
-                    getAllConfig.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_HOUR));
-
-                    MutableConfiguration<String, Integer> countConfig = new MutableConfiguration<>();
-                    getAllConfig.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_HOUR));
-
-                    CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
-
-                    instance = new ComputerDaoImpl(cacheManager.createCache("getAllComputers", getAllConfig), cacheManager.createCache("countComputers", countConfig));
+                    instance = new ComputerDaoImpl();
                 }
             }
         }
@@ -113,13 +86,9 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public List<Computer> getAll(GetAllComputersRequest request) {
-        if (allComputersCache.containsKey(request)) {
-            return allComputersCache.get(request);
-        }
-
         String stringQuery = READ_QUERY;
         if (!StringUtils.isBlank(request.getQuery())) {
-            stringQuery += " WHERE lower(computer.name) LIKE ? OR lower(company.name) LIKE ? ";
+            stringQuery += " WHERE computer.name like ? OR company.name like ? ";
         }
         stringQuery += String.format(" ORDER BY %s %s LIMIT ? OFFSET ? ", request.getColumn().getField(), request.getOrder().name());
         try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(stringQuery)) {
@@ -139,7 +108,6 @@ public class ComputerDaoImpl implements ComputerDao {
                 while (resultSet != null && resultSet.next()) {
                     found.add(mapEntity(resultSet));
                 }
-                allComputersCache.put(request, found);
                 return found;
             }
         } catch (SQLException e) {
@@ -153,30 +121,22 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public int count(String query) {
-
-        if (countComputersCache.containsKey(query)) {
-            return countComputersCache.get(query);
-        }
-
         String stringQuery = COUNT_QUERY;
 
         if (!StringUtils.isBlank(query)) {
-            stringQuery += " LEFT JOIN company company ON computer.company_id = company.id WHERE lower(computer.name) LIKE ? OR lower(company.name) LIKE ?";
+            stringQuery += " LEFT JOIN company company ON computer.company_id = company.id WHERE computer.name like ? OR company.name like ? ";
         }
         try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(stringQuery)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             if (!StringUtils.isBlank(query)) {
-                String likeParameter = query + "%";
-                statement.setString(parameterIndex++, likeParameter); // Computer name
-                statement.setString(parameterIndex, likeParameter); // Company name
+                statement.setString(parameterIndex++, query + "%"); // Computer name
+                statement.setString(parameterIndex, query + "%"); // Company name
             }
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet != null && resultSet.next()) {
-                    int total = resultSet.getInt(FIRST_PARAMETER_INDEX);
-                    countComputersCache.put(query, total);
-                    return total;
+                    return resultSet.getInt(FIRST_PARAMETER_INDEX);
                 }
             }
 
@@ -200,7 +160,7 @@ public class ComputerDaoImpl implements ComputerDao {
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 getGeneratedId(resultSet, computer);
             }
-            clearCache();
+
             return affectedRows == 1;
 
         } catch (SQLException e) {
@@ -208,14 +168,6 @@ public class ComputerDaoImpl implements ComputerDao {
             tx.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
-    }
-
-    /**
-     * Clear all the cache.
-     */
-    private void clearCache() {
-        allComputersCache.removeAll();
-        countComputersCache.removeAll();
     }
 
     /**
@@ -232,7 +184,7 @@ public class ComputerDaoImpl implements ComputerDao {
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 getGeneratedId(resultSet, computer);
             }
-            clearCache();
+
             return affectedRows == 1;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
@@ -246,9 +198,32 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean delete(Integer id) {
-        boolean result = DaoUtils.deleteById(DELETE_QUERY, id, LOGGER);
-        clearCache();
-        return result;
+        return deleteComputers(Collections.singletonList(id));
+    }
+
+    @Override
+    public boolean deleteComputers(List<Integer> ids) {
+        StringBuilder query = new StringBuilder(DELETE_QUERY + " WHERE ID IN (");
+        for (int i = 0; i < ids.size(); i++) {
+            if (i > 0) {
+                query.append(",");
+            }
+            query.append("?");
+        }
+        query.append(")");
+        TransactionManager tx = TransactionManagerImpl.getInstance();
+        try (PreparedStatement statement = tx.getConnection().prepareStatement(query.toString())) {
+            int index = FIRST_PARAMETER_INDEX;
+            for (Integer id : ids) {
+                statement.setInt(index++, id);
+            }
+
+            return statement.executeUpdate() == ids.size();
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage(), e);
+            tx.rollback();
+            throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
+        }
     }
 
     /**
@@ -260,7 +235,6 @@ public class ComputerDaoImpl implements ComputerDao {
         try (PreparedStatement statement = tx.getConnection().prepareStatement(DELETE_COMPUTERS_FOR_COMPANY_QUERY)) {
             statement.setInt(FIRST_PARAMETER_INDEX, companyId);
             int affectedRows = statement.executeUpdate();
-            clearCache();
             return affectedRows > 0;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
