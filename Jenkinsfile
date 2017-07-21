@@ -10,14 +10,14 @@ pipeline {
                 echo 'Pull and configure test mysql instance'
 
                 sh 'docker build -t mysql-test ./docker/mysql/test/'
-                sh 'docker run -d -it --name mysql-test -p 3306:3306 mysql-test'
+                sh 'docker run -itd --name mysql-test -p 3306:3306 mysql-test'
             }
         }
         stage('maven-build') { // get war and do test
             agent {
                 docker {
                     image 'maven:latest'
-                    args '--name maven-test -v /opt/jenkins/${env.BUILD_ID}:target/'
+                    args '--name maven-test -v /opt/jenkins/computer-database/:target/'
                 }
             }
             steps {
