@@ -19,7 +19,6 @@ pipeline {
                     image 'maven:latest'
                     args '--name maven-test'
                 }
-
             }
             steps {
                 echo 'Build and test projet with maven'
@@ -33,11 +32,11 @@ pipeline {
     }
     post {
         always {
-            docker stop mysql-test
-            docker rm mysql-test
-            docker rmi mysql-test
+            sh 'docker stop mysql-test'
+            sh 'docker rm mysql-test'
+            sh 'docker rmi mysql-test'
 
-            docker rmi maven-test
+            sh 'docker rmi maven-test'
         }
         failure {
             echo 'Failure happened'
