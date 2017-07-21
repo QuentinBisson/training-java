@@ -8,14 +8,10 @@ pipeline {
             agent any
             steps {
                 echo 'Pull and configure test mysql instance'
-
-                docker run -it --rm --name mysql-test
-                    -p 3306:3306
-                    -v ./docker/mysql/test/config:/etc/mysql/conf.d
-                    -v ./docker/mysql/test/data:/docker-entrypoint-initdb.d
-                    -e MYSQL_ROOT_PASSWORD=mysqladmin
-                    --character-set-server=utf8mb4
-                    --collation-server=utf8mb4_unicode_ci
+                docker build -t mysql-test ./docker/mysql/test/
+                docker run -d -it --name mysql-test \
+                    -p 3306:3306 \
+                    mysql-test
             }
         }
         stage('maven-build') {
@@ -34,8 +30,11 @@ pipeline {
         }
          post {
             always {
-                docker stop $(docker ps -q --filter ancestor=mysql-test )
-                docker stop $(docker ps -q --filter ancestor=maven-test )
+                docker stop mysql-test
+                docker rm mysql-test
+                docker rmi mysql-test
+
+                docker rmi maven-test
             }
             failure {
                 echo 'Failure happened'

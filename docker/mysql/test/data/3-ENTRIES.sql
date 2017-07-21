@@ -1,11 +1,13 @@
-insert into company (id,name) values (  1,'Apple Inc.');
-insert into company (id,name) values (  2,'Thinking Machines');
-insert into company (id,name) values (  3,'RCA');
-insert into company (id,name) values (  4,'Netronics');
-insert into company (id,name) values (  5,'Tandy Corporation');
-insert into company (id,name) values (  6,'Commodore International');
-insert into company (id,name) values (  7,'MOS Technology');
-insert into company (id,name) values (  8,'Micro Instrumentation and Telemetry Systems');
+USE `computer-database-db`;
+
+insert into company (id, name) values (1, 'Apple Inc.');
+insert into company (id, name) values (2, 'Thinking Machines');
+insert into company (id, name) values (3, 'RCA');
+insert into company (id, name) values (4, 'Netronics');
+insert into company (id, name) values (5, 'Tandy Corporation');
+insert into company (id, name) values (6, 'Commodore International');
+insert into company (id, name) values (7, 'MOS Technology');
+insert into company (id, name) values (8, 'Micro Instrumentation and Telemetry Systems');
 insert into company (id,name) values (  9,'IMS Associates, Inc.');
 insert into company (id,name) values ( 10,'Digital Equipment Corporation');
 insert into company (id,name) values ( 11,'Lincoln Laboratory');
