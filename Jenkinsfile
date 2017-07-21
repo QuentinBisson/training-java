@@ -15,8 +15,11 @@ pipeline {
         }
         stage('maven-build') {
             agent {
-                docker 'maven:latest'
-                args '--name maven-test'
+                docker {
+                    image 'maven:latest'
+                    args '--name maven-test'
+                }
+
             }
             steps {
                 echo 'Build and test projet with maven'
@@ -27,20 +30,20 @@ pipeline {
                 }
             }
         }
-         post {
-            always {
-                docker stop mysql-test
-                docker rm mysql-test
-                docker rmi mysql-test
+    }
+    post {
+        always {
+            docker stop mysql-test
+            docker rm mysql-test
+            docker rmi mysql-test
 
-                docker rmi maven-test
-            }
-            failure {
-                echo 'Failure happened'
-            }
-            success {
-                echo 'Build success'
-            }
+            docker rmi maven-test
+        }
+        failure {
+            echo 'Failure happened'
+        }
+        success {
+            echo 'Build success'
         }
     }
 }
