@@ -25,7 +25,6 @@ pipeline {
 
                 script {
                     checkout scm
-                    sh 'cd training-java/'
                     sh 'mvn clean test'
                 }
             }
