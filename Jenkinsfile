@@ -34,15 +34,14 @@ pipeline {
         }
          post {
             always {
-                echo 'Mysql was attempted'
-            }
-            failure {
-                echo 'Failure happened'
                 docker stop $(docker ps -q --filter ancestor=mysql-test )
                 docker stop $(docker ps -q --filter ancestor=maven-test )
             }
+            failure {
+                echo 'Failure happened'
+            }
             success {
-                echo 'Mysql success'
+                echo 'Build success'
             }
         }
     }
