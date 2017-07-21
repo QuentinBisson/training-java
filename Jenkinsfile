@@ -25,7 +25,8 @@ pipeline {
 
                 script {
                     checkout scm
-                    sh 'mvn clean package'
+                    sh 'cd training-java/'
+                    sh 'mvn clean test'
                 }
             }
         }
