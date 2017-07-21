@@ -2,7 +2,7 @@
 
 pipeline {
     agent any
-
+    // Add network between mysql and tomcat
     stages {
         stage('mysql-test') {
             agent any
@@ -17,7 +17,7 @@ pipeline {
             agent {
                 docker {
                     image 'maven:latest'
-                    args '--name maven-test'
+                    args '--name maven-test -v /opt/jenkins/${env.BUILD_ID}:target/'
                 }
             }
             steps {
@@ -51,6 +51,9 @@ pipeline {
     }
     post {
         always {
+            archive "target/**/*"
+            junit 'target/surefire-reports/*.xml'
+
             sh 'docker stop mysql-test'
             sh 'docker rm mysql-test'
             sh 'docker rmi mysql-test'

@@ -1,2 +1,0 @@
-FROM maven:latest
-
