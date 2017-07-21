@@ -31,22 +31,13 @@ pipeline {
             }
         }
         stage('tomcat-production-image') {
-            agent any
-            steps {
-                echo 'Pull and configure tomcat production instance'
-
-                docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
-                    docker.build('tomcat-run', './docker/tomcat').push()
-                }
+            docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
+                docker.build('tomcat-run', './docker/tomcat').push('latest')
             }
         }
         stage('mysql-production-image') {
-            agent any
-            steps {
-                echo 'Pull and configure mysql production instance'
-                docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
-                    docker.build('mysql-run', './docker/mysql/prod').push()
-                }
+            docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
+                docker.build('mysql-run', './docker/mysql/prod').push('latest')
             }
         }
     }
