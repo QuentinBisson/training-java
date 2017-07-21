@@ -34,7 +34,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
-                        docker.build('tomcat-run', './docker/tomcat').push('latest')
+                        docker.build('omegas27/tomcat-run', './docker/tomcat').push('latest')
                     }
                 }
             }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
-                        docker.build('mysql-run', './docker/mysql/prod').push('latest')
+                        docker.build('omegas27/mysql-run', './docker/mysql/prod').push('latest')
                     }
                 }
             }
@@ -55,10 +55,8 @@ pipeline {
             sh 'docker rm mysql-test'
             sh 'docker rmi mysql-test'
 
-            sh 'docker rmi maven-test'
-
-            sh 'docker rmi tomcat-run'
-            sh 'docker rmi mysql-run'
+            sh 'docker rmi omegas27/tomcat-run'
+            sh 'docker rmi omegas27/mysql-run'
         }
         failure {
             echo 'Failure happened'
