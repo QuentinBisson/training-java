@@ -32,7 +32,7 @@ pipeline {
         }
         stage('tomcat-production-image') {
             steps {
-                script {
+                script {
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
                         docker.build('tomcat-run', './docker/tomcat').push('latest')
                     }
@@ -41,7 +41,7 @@ pipeline {
         }
         stage('mysql-production-image') {
             steps {
-                script {
+                script {
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
                         docker.build('mysql-run', './docker/mysql/prod').push('latest')
                     }
