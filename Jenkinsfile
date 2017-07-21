@@ -26,6 +26,7 @@ pipeline {
                 script {
                     checkout scm
                     sh 'mvn clean package -DskipTests'
+                    sh 'chmod -R o+rwx /build'
                     sh 'cp target/ComputerDatabase.war /build/ComputerDatabase.war'
                     deleteDir()
                 }
