@@ -8,10 +8,12 @@ pipeline {
             agent any
             steps {
                 echo 'Pull and configure test mysql instance'
-                docker build -t mysql-test ./docker/mysql/test/
-                docker run -d -it --name mysql-test \
-                    -p 3306:3306 \
-                    mysql-test
+                script {
+                    docker build -t mysql-test ./docker/mysql/test/
+                    docker run -d -it --name mysql-test \
+                        -p 3306:3306 \
+                        mysql-test
+                }
             }
         }
         stage('maven-build') {
