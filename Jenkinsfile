@@ -10,7 +10,7 @@ pipeline {
                 echo 'Pull and configure test mysql instance'
 
                 sh 'docker build -t mysql-test ./docker/mysql/test/'
-                sh 'docker run -d -it --name mysql-test -p 3306:3306 mysql-test'
+                sh 'docker run -d -it --rm --name mysql-test -p 3306:3306 mysql-test'
             }
         }
         stage('maven-build') {
@@ -27,7 +27,7 @@ pipeline {
                 }
             }
         }
-         post {
+         post {
             always {
                 docker stop mysql-test
                 docker rm mysql-test
