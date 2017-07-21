@@ -11,22 +11,12 @@ pipeline {
                     -v ./docker/mysql/test/config:/etc/mysql/conf.d
                     -v ./docker/mysql/test/data:/docker-entrypoint-initdb.d
                     -e MYSQL_ROOT_PASSWORD=mysqladmin
+                    -t mysql:test
                     --character-set-server=utf8mb4
                     --collation-server=utf8mb4_unicode_ci'''
             }
             steps {
                 echo 'Pull and configure test mysql instance'
-            }
-            post {
-                always {
-                    echo 'Mysql was attempted'
-                }
-                failure {
-                    echo 'Mysql failure'
-                }
-                success {
-                    echo 'Mysql success'
-                }
             }
         }
         stage('maven-build') {
@@ -49,6 +39,18 @@ pipeline {
                 success {
                     echo 'Maven success'
                 }
+            }
+        }
+
+         post {
+            always {
+                echo 'Mysql was attempted'
+            }
+            failure {
+                echo 'Mysql failure'
+            }
+            success {
+                echo 'Mysql success'
             }
         }
     }
