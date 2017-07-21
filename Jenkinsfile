@@ -31,13 +31,17 @@ pipeline {
             }
         }
         stage('tomcat-production-image') {
-            docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
-                docker.build('tomcat-run', './docker/tomcat').push('latest')
+            script {
+                docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
+                    docker.build('tomcat-run', './docker/tomcat').push('latest')
+                }
             }
         }
         stage('mysql-production-image') {
-            docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
-                docker.build('mysql-run', './docker/mysql/prod').push('latest')
+            script {
+                docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
+                    docker.build('mysql-run', './docker/mysql/prod').push('latest')
+                }
             }
         }
     }
