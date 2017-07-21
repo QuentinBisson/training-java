@@ -17,7 +17,7 @@ pipeline {
             agent {
                 docker {
                     image 'maven:latest'
-                    args '--name maven-test -v /opt/jenkins/computer-database/:target/'
+                    args '--name maven-test -v /opt/jenkins/volumes/computer-database/:./target/'
                 }
             }
             steps {
@@ -51,12 +51,12 @@ pipeline {
     }
     post {
         always {
-            archive "target/**/*"
-            junit 'target/surefire-reports/*.xml'
-
             sh 'docker stop mysql-test'
             sh 'docker rm mysql-test'
             sh 'docker rmi mysql-test'
+
+            archive "target/**/*"
+            junit 'target/surefire-reports/*.xml'
 
             sh 'docker rmi omegas27/tomcat-run'
             sh 'docker rmi omegas27/mysql-run'
