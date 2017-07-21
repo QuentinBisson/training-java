@@ -5,22 +5,24 @@ pipeline {
 
     stages {
         stage('mysql-test') {
-            agent {
-                docker 'mysql:latest'
-                args '''-p 3306:3306
+            agent any
+            steps {
+                echo 'Pull and configure test mysql instance'
+
+                docker run -it --rm --name mysql-test
+                    -p 3306:3306
                     -v ./docker/mysql/test/config:/etc/mysql/conf.d
                     -v ./docker/mysql/test/data:/docker-entrypoint-initdb.d
                     -e MYSQL_ROOT_PASSWORD=mysqladmin
-                    -t mysql:test
                     --character-set-server=utf8mb4
-                    --collation-server=utf8mb4_unicode_ci'''
-            }
-            steps {
-                echo 'Pull and configure test mysql instance'
+                    --collation-server=utf8mb4_unicode_ci
             }
         }
         stage('maven-build') {
-            agent { docker 'maven:latest' }
+            agent {
+                docker 'maven:latest'
+                args '--name maven-test'
+            }
             steps {
                 echo 'Build and test projet with maven'
 
@@ -29,25 +31,15 @@ pipeline {
                     sh 'mvn clean package'
                 }
             }
-            post {
-                always {
-                    echo 'Maven was attempted'
-                }
-                failure {
-                    echo 'Maven failure'
-                }
-                success {
-                    echo 'Maven success'
-                }
-            }
         }
-
          post {
             always {
                 echo 'Mysql was attempted'
             }
             failure {
-                echo 'Mysql failure'
+                echo 'Failure happened'
+                docker stop $(docker ps -q --filter ancestor=mysql-test )
+                docker stop $(docker ps -q --filter ancestor=maven-test )
             }
             success {
                 echo 'Mysql success'
