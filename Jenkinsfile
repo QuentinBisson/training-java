@@ -17,7 +17,7 @@ pipeline {
             agent {
                 docker {
                     image 'maven:latest'
-                    args '--name maven-test -v /opt/jenkins/volumes/computer-database/:./target/'
+                    args '--name maven-test -v /opt/jenkins/volumes/computer-database/:/build/'
                 }
             }
             steps {
@@ -26,6 +26,7 @@ pipeline {
                 script {
                     checkout scm
                     sh 'mvn clean package -DskipTests'
+                    sh 'cp target/ComputerDatabase.war /build/ComputerDatabase.war'
                     deleteDir()
                 }
             }
