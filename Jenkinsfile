@@ -20,10 +20,10 @@ pipeline {
                 echo 'Build and test projet with maven'
 
                 script {
-                   withDockerContainer(image:'maven:latest', args:'--name maven-test --network=mysql-tomcat -v "$PWD"/cdb/:/usr/src/training-java -w /usr/src/training-java') {
+                   docker.image('maven:latest').inside('--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/usr/src/training-java -w /usr/src/training-java') {
                         checkout scm
                         sh 'mvn clean package -DskipTests'
-                    }
+                   }
                 }
             }
         }
