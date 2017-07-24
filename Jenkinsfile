@@ -31,6 +31,7 @@ pipeline {
                 echo 'Build production tomcat image'
 
                 script {
+                    sh 'cp /opt/jenkins/volumes/computer-database/target/*.war docker/tomcat'
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
                         docker.build('omegas27/tomcat-run', './docker/tomcat').push('latest')
                     }
