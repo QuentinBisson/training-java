@@ -50,6 +50,8 @@ pipeline {
     }
     post {
         always {
+            sh 'docker logs maven-test'
+
             sh 'docker stop mysql-test'
             sh 'docker stop maven-test'
 
@@ -57,7 +59,6 @@ pipeline {
             sh 'docker rm maven-test'
 
             sh 'docker network rm mysql-tomcat'
-
 
             sh 'docker rmi maven-test'
             sh 'docker rmi mysql-test'
@@ -70,9 +71,6 @@ pipeline {
         }
         failure {
             echo 'Failure happened'
-
-            sh 'docker logs mysql-test'
-            sh 'docker logs maven-test'
         }
         success {
             echo 'Build success'
