@@ -5,4 +5,4 @@ WORKDIR /usr/src/training-java
 
 COPY . /usr/src/training-java
 
-RUN ls -ltr
+RUN ls -ltr /usr/src/training-java
