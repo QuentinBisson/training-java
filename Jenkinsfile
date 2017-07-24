@@ -20,10 +20,8 @@ pipeline {
                 echo 'Build and test projet with maven'
 
                 script {
-                    docker.image('maven:3.5-jdk-8').withRun('--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/').inside {
+                    docker.image('maven:3.5-jdk-8').inside('--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/') {
                         checkout scm
-                        sh 'echo $JAVA_HOME'
-                        sh 'ls -ltr'
                         sh 'mvn clean package -DskipTests'
                         sh 'cp target/ComputerDatabase.war $(pwd)/build/ComputerDatabase.war'
                         deleteDir()
