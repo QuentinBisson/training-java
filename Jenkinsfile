@@ -9,10 +9,10 @@ pipeline {
                 echo 'Pull and configure test mysql instance'
                 sh 'docker network create --driver bridge mysql-tomcat'
 
-
-                docker
-                    .build('mysql-test', './docker/mysql/test/')
-                    .run('-itd --name mysql-test --network=mysql-tomcat -p 3306:3306 mysql-test')
+                script {
+                    def image = docker.build('mysql-test', './docker/mysql/test/')
+                    image.run('-itd --name mysql-test --network=mysql-tomcat -p 3306:3306 mysql-test')
+                }
             }
         }
         stage('maven-build') {
