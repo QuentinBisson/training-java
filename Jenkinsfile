@@ -20,10 +20,12 @@ pipeline {
                 echo 'Build and test projet with maven'
 
                 script {
-                   withDockerContainer(args:'--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/', image:'maven:latest') {
+                   withDockerContainer(args:'--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/root/build/', image:'maven:latest') {
                         checkout scm
                         sh 'mvn clean package -DskipTests'
-                        sh 'cp target/ComputerDatabase.war $(pwd)/build/ComputerDatabase.war'
+
+                        sh 'mkdir /root/build'
+                        sh 'cp target/ComputerDatabase.war /root/build/ComputerDatabase.war'
                         deleteDir()
                     }
                 }
