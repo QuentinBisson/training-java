@@ -21,9 +21,7 @@ pipeline {
 
                 script {
                    def image = docker.build('maven-test', './docker/maven/')
-                   image.inside('-itd --name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/usr/src/computer-database') {
-                        checkout scm
-                   }
+                   image.run('-itd --name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/usr/src/computer-database')
                 }
             }
         }
