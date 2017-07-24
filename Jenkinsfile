@@ -22,6 +22,8 @@ pipeline {
                 script {
                    withDockerContainer(args:'--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/root/build/', image:'maven:latest') {
                         checkout scm
+                        sh 'pwd'
+                        sh 'ls -ltr'
                         sh 'mvn clean package -DskipTests'
 
                         sh 'mkdir /root/build'
