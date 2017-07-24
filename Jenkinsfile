@@ -57,9 +57,9 @@ pipeline {
     }
     post {
         always {
+            sh 'docker stop mysql-test'
 
             sh 'docker network rm mysql-tomcat'
-            sh 'docker stop mysql-test'
             sh 'docker rm mysql-test'
             sh 'docker rmi mysql-test'
 
