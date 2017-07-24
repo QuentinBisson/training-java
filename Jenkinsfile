@@ -70,6 +70,9 @@ pipeline {
         }
         failure {
             echo 'Failure happened'
+
+            sh 'docker logs mysql-test'
+            sh 'docker logs maven-test'
         }
         success {
             echo 'Build success'
