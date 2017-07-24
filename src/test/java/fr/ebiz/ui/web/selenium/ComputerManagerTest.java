@@ -3,6 +3,7 @@ package fr.ebiz.ui.web.selenium;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -34,6 +35,7 @@ public class ComputerManagerTest {
         baseUrl = properties.getProperty("web-app.url");
     }
 
+    @Ignore
     @Test
     public void testCreateEditAndDelete() throws Exception {
         driver.get(baseUrl + INDEX_URL);
