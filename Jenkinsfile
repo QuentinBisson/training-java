@@ -62,8 +62,8 @@ pipeline {
             sh 'docker rmi maven-test'
             sh 'docker rmi mysql-test'
 
-            archive '/opt/jenkins/volumes/computer-database/**/*'
-            junit '/opt/jenkins/volumes/computer-database/surefire-reports/*.xml'
+            archive '/opt/jenkins/volumes/computer-database/target/**/*'
+            junit '/opt/jenkins/volumes/computer-database/target/surefire-reports/*.xml'
 
             sh 'docker rmi omegas27/tomcat-run'
             sh 'docker rmi omegas27/mysql-run'
