@@ -18,7 +18,7 @@ pipeline {
             agent {
                 docker {
                     image 'maven:latest'
-                    args '--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/build/'
+                    args '--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/'
                 }
             }
             steps {
@@ -27,8 +27,7 @@ pipeline {
                 script {
                     checkout scm
                     sh 'mvn clean package -DskipTests'
-                    sh 'chmod 700 /build'
-                    sh 'cp target/ComputerDatabase.war /build/ComputerDatabase.war'
+                    sh 'cp target/ComputerDatabase.war $(pwd)/build/ComputerDatabase.war'
                     deleteDir()
                 }
             }
