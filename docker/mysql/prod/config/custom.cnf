@@ -1,4 +1,4 @@
 [mysqld]
 max_connections=200
 max_allowed_packet=128M
-bind-address=89.91.254.125
+bind-address=0.0.0.0
