@@ -8,16 +8,17 @@ pipeline {
             agent any
             steps {
                 echo 'Pull and configure test mysql instance'
+                sh 'docker network create --driver bridge mysql-tomcat'
 
                 sh 'docker build -t mysql-test ./docker/mysql/test/'
-                sh 'docker run -itd --name mysql-test -p 3306:3306 mysql-test'
+                sh 'docker run -itd --name mysql-test --network=mysql-tomcat -p 3306:3306 mysql-test'
             }
         }
         stage('maven-build') { // get war and do test
             agent {
                 docker {
                     image 'maven:latest'
-                    args '--name maven-test -v /opt/jenkins/volumes/computer-database/:/build/'
+                    args '--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/build/'
                 }
             }
             steps {
@@ -26,7 +27,6 @@ pipeline {
                 script {
                     checkout scm
                     sh 'mvn clean package -DskipTests'
-                    sh 'chmod -R o+rwx /build'
                     sh 'cp target/ComputerDatabase.war /build/ComputerDatabase.war'
                     deleteDir()
                 }
@@ -34,6 +34,8 @@ pipeline {
         }
         stage('tomcat-production-image') {
             steps {
+                echo 'Build production tomcat image'
+
                 script {
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
                         docker.build('omegas27/tomcat-run', './docker/tomcat').push('latest')
@@ -43,6 +45,8 @@ pipeline {
         }
         stage('mysql-production-image') {
             steps {
+                echo 'Build production mysql image'
+
                 script {
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
                         docker.build('omegas27/mysql-run', './docker/mysql/prod').push('latest')
@@ -53,6 +57,8 @@ pipeline {
     }
     post {
         always {
+
+            sh 'docker network rm mysql-tomcat'
             sh 'docker stop mysql-test'
             sh 'docker rm mysql-test'
             sh 'docker rmi mysql-test'
