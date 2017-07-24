@@ -31,7 +31,7 @@ pipeline {
                 echo 'Build production tomcat image'
 
                 script {
-                    sh 'cp /opt/jenkins/volumes/computer-database/target/*.war docker/tomcat'
+                    sh 'cp /opt/jenkins/volumes/computer-database/*.war docker/tomcat'
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
                         docker.build('omegas27/tomcat-run', './docker/tomcat').push('latest')
                     }
@@ -52,8 +52,8 @@ pipeline {
     }
     post {
         always {
-            archive '/opt/jenkins/volumes/computer-database/target/**/*'
-            //junit '/opt/jenkins/volumes/computer-database/target/surefire-reports/*.xml'
+            archive '/opt/jenkins/volumes/computer-database/**/*'
+            //junit '/opt/jenkins/volumes/computer-database/surefire-reports/*.xml'
 
             sh 'docker stop mysql-test'
             sh 'docker stop maven-test'
