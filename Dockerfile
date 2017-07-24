@@ -10,6 +10,6 @@ RUN  mvn clean package -DskipTests
 
 WORKDIR /usr/src
 
-RUN ls -ltr training-java
+RUN ls -ltr training-java/target
 
-RUN cp training-java/target/ComputerDatabase.war computer-database/
+RUN cp training-java/target/*.war computer-database/
