@@ -53,7 +53,7 @@ pipeline {
     post {
         always {
             archive '/opt/jenkins/volumes/computer-database/target/**/*'
-            junit '/opt/jenkins/volumes/computer-database/target/surefire-reports/*.xml'
+            //junit '/opt/jenkins/volumes/computer-database/target/surefire-reports/*.xml'
 
             sh 'docker stop mysql-test'
             sh 'docker stop maven-test'
