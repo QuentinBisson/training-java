@@ -1,7 +1,6 @@
 FROM maven:latest
 
-RUN mkdir -p /usr/src
-WORKDIR /usr/src/
-
-RUN git clone https://github.com/omegas27/training-java.git
+RUN mkdir -p /usr/src/training-java
 WORKDIR /usr/src/training-java
+
+COPY . /usr/src/training-java

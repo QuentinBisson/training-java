@@ -50,7 +50,7 @@ pipeline {
     }
     post {
         always {
-            echo 'test'
+           echo 'test'
         }
         failure {
             echo 'Failure happened'
