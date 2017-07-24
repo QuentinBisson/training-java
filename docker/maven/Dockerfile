@@ -1,8 +1,8 @@
 FROM maven:latest
 
-RUN mkdir -p /usr/src/computer-database
-WORKDIR /usr/src/computer-database
+RUN mkdir -p /usr/src
+WORKDIR /usr/src/
 
-RUN git clone git@github.com:omegas27/training-java.git
+RUN git clone https://github.com/omegas27/training-java.git
 
 ONBUILD RUN mvn clean package -DskipTests
