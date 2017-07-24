@@ -21,7 +21,7 @@ pipeline {
 
                 script {
                    def image = docker.build('maven-test', './docker/maven/')
-                   image.run('-itd --name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/usr/src/training-java mvn clean package -DskipTests')
+                   image.runWith('-itd --name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:/usr/src/training-java mvn clean package -DskipTests')
                 }
             }
         }
