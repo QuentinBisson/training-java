@@ -25,7 +25,7 @@ pipeline {
                         sh 'mvn clean package -DskipTests'
                         sh 'cp target/ComputerDatabase.war $(pwd)/build/ComputerDatabase.war'
                         deleteDir()
-                    })
+                    }
                 }
             }
         }
