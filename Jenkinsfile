@@ -5,17 +5,17 @@ pipeline {
     // Add network between mysql and tomcat
     stages {
         stage('mysql-test') {
-            agent any
             steps {
                 echo 'Pull and configure test mysql instance'
                 sh 'docker network create --driver bridge mysql-tomcat'
 
-                sh 'docker build -t mysql-test ./docker/mysql/test/'
-                sh 'docker run -itd --name mysql-test --network=mysql-tomcat -p 3306:3306 mysql-test'
+
+                docker
+                    .build('mysql-test', './docker/mysql/test/')
+                    .run('-itd --name mysql-test --network=mysql-tomcat -p 3306:3306 mysql-test')
             }
         }
         stage('maven-build') {
-            agent any
             steps {
                 echo 'Build and test projet with maven'
 
