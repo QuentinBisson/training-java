@@ -50,24 +50,7 @@ pipeline {
     }
     post {
         always {
-            sh 'docker logs maven-test'
 
-            sh 'docker stop mysql-test'
-            sh 'docker stop maven-test'
-
-            sh 'docker rm mysql-test'
-            sh 'docker rm maven-test'
-
-            sh 'docker network rm mysql-tomcat'
-
-            sh 'docker rmi maven-test'
-            sh 'docker rmi mysql-test'
-
-            archive "target/**/*"
-            junit 'target/surefire-reports/*.xml'
-
-            sh 'docker rmi omegas27/tomcat-run'
-            sh 'docker rmi omegas27/mysql-run'
         }
         failure {
             echo 'Failure happened'
