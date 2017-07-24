@@ -69,6 +69,7 @@ pipeline {
             sh 'docker rmi omegas27/tomcat-run'
             sh 'docker rmi omegas27/mysql-run'
 
+            sh 'ls -ltr /opt/jenkins/volumes/computer-database/'
             sh 'rm -rf /opt/jenkins/volumes/computer-database/'
         }
         failure {
