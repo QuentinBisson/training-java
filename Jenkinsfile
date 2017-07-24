@@ -14,13 +14,13 @@ pipeline {
                 sh 'docker run -itd --name mysql-test --network=mysql-tomcat -p 3306:3306 mysql-test'
             }
         }
-        stage('maven-build') { // get war and do test
+        stage('maven-build') {
             agent any
             steps {
                 echo 'Build and test projet with maven'
 
                 script {
-                    docker.image('maven:latest').withRun('--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/') {c ->
+                    docker.image('maven:3.5-jdk-8').withRun('--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/') {c ->
                         checkout scm
                         sh 'mvn clean package -DskipTests'
                         sh 'cp target/ComputerDatabase.war $(pwd)/build/ComputerDatabase.war'
