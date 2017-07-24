@@ -15,20 +15,17 @@ pipeline {
             }
         }
         stage('maven-build') { // get war and do test
-            agent {
-                docker {
-                    image 'maven:latest'
-                    args '--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/'
-                }
-            }
+            agent any
             steps {
                 echo 'Build and test projet with maven'
 
                 script {
-                    checkout scm
-                    sh 'mvn clean package -DskipTests'
-                    sh 'cp target/ComputerDatabase.war $(pwd)/build/ComputerDatabase.war'
-                    deleteDir()
+                    docker.image('maven:latest').withRun('--name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database/:$(pwd)/build/') {c ->
+                        checkout scm
+                        sh 'mvn clean package -DskipTests'
+                        sh 'cp target/ComputerDatabase.war $(pwd)/build/ComputerDatabase.war'
+                        deleteDir()
+                    })
                 }
             }
         }
