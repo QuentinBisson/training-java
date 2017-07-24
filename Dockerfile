@@ -8,6 +8,8 @@ COPY . /usr/src/training-java
 
 RUN  mvn clean package -DskipTests
 
-RUN cd ..
+WORKDIR /usr/src
+
+RUN ls -ltr training-java
 
 RUN cp training-java/target/ComputerDatabase.war computer-database/
