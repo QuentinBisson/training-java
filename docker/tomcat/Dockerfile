@@ -1,3 +1,3 @@
 FROM tomcat:latest
 
-ADD /opt/jenkins/volumes/computer-database/target/ComputerDatabase.war /usr/local/tomcat/webapps/ROOT.war
+ADD "$PWD"/cdb/target/ComputerDatabase.war /usr/local/tomcat/webapps/ROOT.war
