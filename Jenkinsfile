@@ -21,7 +21,8 @@ pipeline {
 
                 script {
                    //def image = docker.build('maven-test', '.')
-                   docker.run('-it --name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database:/usr/src/training-java -w /usr/src/training-java maven:latest mvn clean package')
+                   sh 'docker run -it --name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database:/usr/src/training-java -w /usr/src/training-java maven:latest mvn clean package'
+                   //docker.run('-it --name maven-test --network=mysql-tomcat -v /opt/jenkins/volumes/computer-database:/usr/src/training-java -w /usr/src/training-java maven:latest mvn clean package')
                   //sh 'docker cp maven-test:/usr/src/training-java/target/ /opt/jenkins/volumes/computer-database'
                 }
             }
