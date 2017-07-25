@@ -32,7 +32,7 @@ pipeline {
                 echo 'Build production tomcat image'
 
                 script {
-                    sh 'cp /opt/jenkins/volumes/computer-database/*.war docker/tomcat'
+                    sh 'cp target/*.war docker/tomcat'
                     docker.withRegistry("https://registry.hub.docker.com", "docker-hub-credentials") {
                         docker.build('omegas27/tomcat-run', './docker/tomcat').push('latest')
                     }
@@ -53,8 +53,8 @@ pipeline {
     }
     post {
         always {
-            archive '/opt/jenkins/volumes/computer-database/**/*'
-            junit '/opt/jenkins/volumes/computer-database/surefire-reports/*.xml'
+            archive 'target/**/*'
+            junit 'target/surefire-reports/*.xml'
 
             sh 'docker stop mysql-container'
             sh 'docker stop maven-test'
@@ -70,8 +70,7 @@ pipeline {
             sh 'docker rmi omegas27/tomcat-run'
             sh 'docker rmi omegas27/mysql-run'
 
-            sh 'ls -ltr /opt/jenkins/volumes/computer-database/'
-            sh 'rm -rf /opt/jenkins/volumes/computer-database/'
+            sh 'rm -rf *'
         }
         failure {
             echo 'Failure happened'
