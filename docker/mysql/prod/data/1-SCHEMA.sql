@@ -14,8 +14,8 @@ create table company (
 create table computer (
   id                        bigint not null auto_increment,
   name                      varchar(255),
-  introduced                timestamp NULL,
-  discontinued              timestamp NULL,
+  introduced                DATETIME NULL,
+  discontinued              DATETIME NULL,
   company_id                bigint default NULL,
   constraint pk_computer primary key (id))
 ;
