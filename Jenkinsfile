@@ -20,7 +20,7 @@ pipeline {
                 echo 'Build and test projet with maven'
 
                 script {
-                   sh 'docker run --name maven-test --network=mysql-tomcat -v "$PWD":/usr/src/training-java -w /usr/src/training-java maven:latest mvn clean package'
+                   sh 'docker run --rm --network=mysql-tomcat -v "$PWD":/usr/src/training-java -w /usr/src/training-java maven:latest mvn clean package'
                 }
             }
         }
