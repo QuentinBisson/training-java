@@ -55,10 +55,10 @@ pipeline {
             archive '/opt/jenkins/volumes/computer-database/**/*'
             //junit '/opt/jenkins/volumes/computer-database/surefire-reports/*.xml'
 
-            sh 'docker stop mysql-test'
+            sh 'docker stop mysql-container'
             sh 'docker stop maven-test'
 
-            sh 'docker rm mysql-test'
+            sh 'docker rm mysql-container'
             sh 'docker rm maven-test'
 
             sh 'docker network rm mysql-tomcat'
