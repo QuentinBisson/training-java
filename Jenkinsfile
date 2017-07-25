@@ -21,7 +21,7 @@ pipeline {
 
                 script {
                    def image = docker.build('maven-test', '.')
-                   image.run('-itd --name maven-test --network=mysql-tomcat maven-test mvn clean test package')
+                   image.run('-itd --name maven-test --network=mysql-tomcat maven-test mvn clean package')
                    sh 'docker cp maven-test:/usr/src/training-java/target/ /opt/jenkins/volumes/computer-database'
                 }
             }
@@ -53,7 +53,7 @@ pipeline {
     post {
         always {
             archive '/opt/jenkins/volumes/computer-database/**/*'
-            //junit '/opt/jenkins/volumes/computer-database/surefire-reports/*.xml'
+            junit '/opt/jenkins/volumes/computer-database/surefire-reports/*.xml'
 
             sh 'docker stop mysql-container'
             sh 'docker stop maven-test'
@@ -70,7 +70,7 @@ pipeline {
             sh 'docker rmi omegas27/mysql-run'
 
             sh 'ls -ltr /opt/jenkins/volumes/computer-database/'
-            sh 'rm -rf /opt/jenkins/volumes/computer-database/'
+            //sh 'rm -rf /opt/jenkins/volumes/computer-database/'
         }
         failure {
             echo 'Failure happened'
