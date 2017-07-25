@@ -10,7 +10,7 @@ pipeline {
                 sh 'docker network create --driver bridge mysql-tomcat'
 
                 script {
-                    def image = docker.build('mysql-container', './docker/mysql/test/')
+                    def image = docker.build('mysql-test', './docker/mysql/test/')
                     image.run('-itd --name mysql-container --network=mysql-tomcat -p 3306:3306 mysql-test')
                 }
             }
