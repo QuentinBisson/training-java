@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.ui.web.form;
+package fr.ebiz.computerdatabase.ui.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

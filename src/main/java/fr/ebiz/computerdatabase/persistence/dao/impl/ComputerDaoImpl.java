@@ -7,10 +7,11 @@ import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
 import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
-import fr.ebiz.computerdatabase.persistence.transaction.impl.TransactionManagerImpl;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,11 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class ComputerDaoImpl implements ComputerDao {
 
     private static final String READ_QUERY = "SELECT computer.id, computer.name as computerName, computer.introduced, computer.discontinued, computer.company_id, company.name as companyName FROM computer computer LEFT JOIN company company ON computer.company_id = company.id";
     private static final String READ_BY_ID_QUERY = "SELECT computer.id, computer.name as computerName, computer.introduced, computer.discontinued, computer.company_id, company.name as companyName from computer LEFT JOIN company company ON computer.company_id = company.id where computer.id = ?";
-    private static final String COUNT_QUERY = "SELECT COUNT(1) from computer";
+    private static final String COUNT_QUERY = "SELECT COUNT(*) from computer";
     private static final String INSERT_QUERY = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES (?, ?, ?, ?) ";
     private static final String UPDATE_QUERY = "UPDATE computer SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM computer";
@@ -39,31 +41,17 @@ public class ComputerDaoImpl implements ComputerDao {
     private static final String COMPANY_ID_COLUMN_NAME = "company_id";
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
 
-    private static ComputerDao instance;
-
-    /**
-     * Get the dao instance.
-     * Creates it thread-safe if it does not exist.
-     *
-     * @return the dao singleton instance
-     */
-    public static ComputerDao getInstance() {
-        if (instance == null) {
-            synchronized (ComputerDaoImpl.class) {
-                if (instance == null) {
-                    instance = new ComputerDaoImpl();
-                }
-            }
-        }
-        return instance;
-    }
+    @Autowired
+    private TransactionManager transactionManager;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Optional<Computer> get(int id) {
-        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(READ_BY_ID_QUERY)) {
+        try (PreparedStatement statement = transactionManager
+                .getConnection()
+                .prepareStatement(READ_BY_ID_QUERY)) {
 
             statement.setInt(FIRST_PARAMETER_INDEX, id);
 
@@ -91,7 +79,7 @@ public class ComputerDaoImpl implements ComputerDao {
             stringQuery += " WHERE computer.name like ? OR company.name like ? ";
         }
         stringQuery += String.format(" ORDER BY %s %s LIMIT ? OFFSET ? ", request.getColumn().getField(), request.getOrder().name());
-        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(stringQuery)) {
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(stringQuery)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             if (!StringUtils.isBlank(request.getQuery())) {
@@ -126,7 +114,7 @@ public class ComputerDaoImpl implements ComputerDao {
         if (!StringUtils.isBlank(query)) {
             stringQuery += " LEFT JOIN company company ON computer.company_id = company.id WHERE computer.name like ? OR company.name like ? ";
         }
-        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(stringQuery)) {
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(stringQuery)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             if (!StringUtils.isBlank(query)) {
@@ -152,8 +140,9 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean insert(final Computer computer) {
-        TransactionManager tx = TransactionManagerImpl.getInstance();
-        try (PreparedStatement statement = tx.getConnection().prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement statement = transactionManager
+                .getConnection()
+                .prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS)) {
             bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
 
             int affectedRows = statement.executeUpdate();
@@ -165,7 +154,7 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            tx.rollback();
+            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
@@ -175,8 +164,7 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean update(final Computer computer) {
-        TransactionManager tx = TransactionManagerImpl.getInstance();
-        try (PreparedStatement statement = tx.getConnection().prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
             int parameterIndex = bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
             statement.setInt(parameterIndex, computer.getId());
 
@@ -188,7 +176,7 @@ public class ComputerDaoImpl implements ComputerDao {
             return affectedRows == 1;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            tx.rollback();
+            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
@@ -211,8 +199,7 @@ public class ComputerDaoImpl implements ComputerDao {
             query.append("?");
         }
         query.append(")");
-        TransactionManager tx = TransactionManagerImpl.getInstance();
-        try (PreparedStatement statement = tx.getConnection().prepareStatement(query.toString())) {
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(query.toString())) {
             int index = FIRST_PARAMETER_INDEX;
             for (Integer id : ids) {
                 statement.setInt(index++, id);
@@ -221,24 +208,24 @@ public class ComputerDaoImpl implements ComputerDao {
             return statement.executeUpdate() == ids.size();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            tx.rollback();
+            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
 
     /**
+     * .
      * {@inheritDoc}
      */
     @Override
     public boolean deleteByCompanyId(Integer companyId) {
-        TransactionManager tx = TransactionManagerImpl.getInstance();
-        try (PreparedStatement statement = tx.getConnection().prepareStatement(DELETE_COMPUTERS_FOR_COMPANY_QUERY)) {
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(DELETE_COMPUTERS_FOR_COMPANY_QUERY)) {
             statement.setInt(FIRST_PARAMETER_INDEX, companyId);
             int affectedRows = statement.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            tx.rollback();
+            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }

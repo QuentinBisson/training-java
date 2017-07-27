@@ -5,11 +5,11 @@ import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
-import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
 import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
 import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
 import fr.ebiz.computerdatabase.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -34,15 +34,15 @@ public class ComputerManagerServlet extends HttpServlet {
 
     private static final String SELECTION_TO_DELETE_PARAM = "selection";
 
+    @Autowired
     private ComputerService computerService;
+    @Autowired
     private CompanyService companyService;
 
-    /**
-     * Constructor.
-     */
-    public ComputerManagerServlet() {
-        computerService = ComputerServiceImpl.getInstance();
-        companyService = CompanyServiceImpl.getInstance();
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     @Override

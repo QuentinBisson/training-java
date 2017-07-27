@@ -4,13 +4,17 @@ import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
-import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
+import fr.ebiz.computerdatabase.service.CompanyService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,15 +23,21 @@ import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
 public class CompanyServiceTest {
 
     private static final int ELEMENTS_PER_PAGE = 10;
     @Mock
     private CompanyDao companyDao;
-
+    @Autowired
     @InjectMocks
-    private CompanyServiceImpl service;
+    private CompanyService service;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void testGetWorksWithExistingId() {

@@ -2,7 +2,8 @@ package fr.ebiz.computerdatabase.ui.web;
 
 import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,13 +18,14 @@ public class DashboardServlet extends HttpServlet {
     private static final String VIEW = "/WEB-INF/views/dashboard.jsp";
     private static final String COMPUTERS_ATTR = "computers";
 
-    private final ComputerService computerService;
+    @Autowired
+    private ComputerService computerService;
 
-    /**
-     * Constructor.
-     */
-    public DashboardServlet() {
-        this.computerService = ComputerServiceImpl.getInstance();
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     @Override

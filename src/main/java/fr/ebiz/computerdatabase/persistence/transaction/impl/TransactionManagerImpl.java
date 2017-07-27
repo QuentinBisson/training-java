@@ -1,34 +1,34 @@
 package fr.ebiz.computerdatabase.persistence.transaction.impl;
 
 
-import fr.ebiz.computerdatabase.persistence.ConnectionPool;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
 import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+@Component
 public class TransactionManagerImpl implements TransactionManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class.getName());
+
     private final DataSource dataSource;
     private final ThreadLocal<Connection> threadLocal;
 
     /**
      * Constructor.
      *
-     * @param dataSource  The injected dataSource
-     * @param threadLocal The thread local
+     * @param dataSource The datasource
      */
-    private TransactionManagerImpl(DataSource dataSource, ThreadLocal<Connection> threadLocal) {
+    @Autowired
+    private TransactionManagerImpl(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.threadLocal = threadLocal;
-    }
-
-    public static TransactionManager getInstance() {
-        return Transaction.INSTANCE.getTransactionManager();
+        this.threadLocal = new ThreadLocal<>();
     }
 
     @Override
@@ -91,28 +91,6 @@ public class TransactionManagerImpl implements TransactionManager {
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
             throw new DaoException("Could not close transaction", e);
-        }
-    }
-
-    /*
-        *  This pool is made for short quick transactions that the web application uses.
-        *  Using enum singleton pattern for lazy singletons
-        */
-    private enum Transaction {
-        INSTANCE(new TransactionManagerImpl(ConnectionPool.getInstance(), new ThreadLocal<>()));
-        private final TransactionManager local;
-
-        /**
-         * Constructor.
-         *
-         * @param transactionManager The unique transactionManager
-         */
-        Transaction(TransactionManager transactionManager) {
-            this.local = transactionManager;
-        }
-
-        public TransactionManager getTransactionManager() {
-            return local;
         }
     }
 }

@@ -20,10 +20,10 @@ public interface ComputerService {
     /**
      * Get the computers with pagination.
      *
-     * @param dashboardRequest    The filtering request
+     * @param request    The filtering request
      * @return The paginated computers
      */
-    Page<ComputerDto> getAll(GetAllComputersRequest dashboardRequest);
+    Page<ComputerDto> getAll(GetAllComputersRequest request);
 
     /**
      * Assert a computer is valid and insert it if it is.

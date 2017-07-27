@@ -10,18 +10,21 @@ import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
-import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
-import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
+import fr.ebiz.computerdatabase.service.ComputerService;
+import fr.ebiz.computerdatabase.service.validator.Validator;
 import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -30,27 +33,38 @@ import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
 public class ComputerServiceTest {
 
     private static final int PAGE_SIZE = 10;
+
+    @Mock
+    private ComputerMapper mockComputerMapper;
     @Mock
     private ComputerDao computerDao;
     @Mock
     private CompanyDao companyDao;
-    @Mock
-    private DataSource dataSource;
-    @Mock
-    private TransactionManager transactionManager;
-    @InjectMocks
-    private ComputerServiceImpl service;
 
+    @InjectMocks
+    @Autowired
+    private Validator<ComputerDto> computerValidator;
+    @Autowired
+    @InjectMocks
+    private ComputerService service;
+    @Autowired
+    private ComputerMapper computerMapper;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void testGetWorksWithExistingId() {
         Computer computer = Computer.builder().id(1).name("Test").build();
-        when(computerDao.get(1)).thenReturn(Optional.of(computer));
-
+        when(computerDao.get(computer.getId())).thenReturn(Optional.of(computer));
+        when(mockComputerMapper.toDto(computer)).thenReturn(computerMapper.toDto(computer));
         Assert.assertEquals(computer.getId(), service.get(1).get().getId());
     }
 
@@ -58,7 +72,7 @@ public class ComputerServiceTest {
     public void testGetHandlesMissingId() {
         when(computerDao.get(1)).thenReturn(Optional.empty());
 
-        Assert.assertEquals(service.get(1), Optional.empty());
+        Assert.assertFalse(service.get(1).isPresent());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -113,9 +127,14 @@ public class ComputerServiceTest {
         when(computerDao.count("")).thenReturn(elements);
         Pageable pageable = Pageable.builder().elements(PAGE_SIZE).page(0).build();
         List<Computer> pagedComputers = computers.subList(0, elements);
-        when(computerDao.getAll(Mockito.any(GetAllComputersRequest.class))).thenReturn(pagedComputers);
+        GetAllComputersRequest request = GetAllComputersRequest.builder().pageSize(pageable.getElements()).page(pageable.getPage()).query("").column(ComputerDao.SortColumn.NAME).order(SortOrder.ASC).build();
+        when(computerDao.getAll(request)).thenReturn(pagedComputers);
 
-        Page<ComputerDto> page = service.getAll(GetAllComputersRequest.builder().pageSize(pageable.getElements()).page(pageable.getPage()).query("").order(SortOrder.ASC).column(ComputerDao.SortColumn.NAME).build());
+        for (int i = 0; i < pagedComputers.size(); i++) {
+            when(mockComputerMapper.toDto(pagedComputers)).thenReturn(computerMapper.toDto(pagedComputers));
+        }
+
+        Page<ComputerDto> page = service.getAll(request);
         Assert.assertEquals(0, page.getCurrentPage());
         Assert.assertEquals(1, page.getTotalPages());
         for (int i = 0; i < pagedComputers.size(); i++) {
@@ -226,7 +245,6 @@ public class ComputerServiceTest {
                 .build();
 
         when(companyDao.get(1)).thenReturn(Optional.empty());
-
         service.insert(computer);
     }
 
@@ -245,8 +263,8 @@ public class ComputerServiceTest {
                 .companyId(company.getId())
                 .build();
 
-        when(companyDao.get(1)).thenReturn(Optional.of(company));
-        when(computerDao.insert(ComputerMapper.getInstance().toEntity(computer))).thenReturn(true);
+        when(companyDao.get(company.getId())).thenReturn(Optional.of(company));
+        when(computerDao.insert(mockComputerMapper.toEntity(computer))).thenReturn(true);
 
         service.insert(computer);
     }
@@ -277,8 +295,7 @@ public class ComputerServiceTest {
                 .id(1)
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-
+        when(computerDao.get(computer.getId())).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         service.update(computer);
     }
 
@@ -290,8 +307,7 @@ public class ComputerServiceTest {
                 .name("   ")
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-
+        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         service.update(computer);
     }
 
@@ -304,8 +320,7 @@ public class ComputerServiceTest {
                 .introduced(LocalDate.MIN)
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-
+        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         service.update(computer);
     }
 
@@ -318,8 +333,7 @@ public class ComputerServiceTest {
                 .introduced(LocalDate.MAX)
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-
+        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         service.update(computer);
     }
 
@@ -333,8 +347,7 @@ public class ComputerServiceTest {
                 .discontinued(LocalDate.MIN)
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-
+        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         service.update(computer);
     }
 
@@ -348,8 +361,7 @@ public class ComputerServiceTest {
                 .discontinued(LocalDate.MAX)
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-
+        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         service.update(computer);
     }
 
@@ -363,8 +375,7 @@ public class ComputerServiceTest {
                 .discontinued(LocalDate.now().minusDays(1))
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-
+        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         service.update(computer);
     }
 
@@ -379,7 +390,7 @@ public class ComputerServiceTest {
                 .companyId(1)
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
+        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         when(companyDao.get(1)).thenReturn(Optional.empty());
 
         service.update(computer);
@@ -401,8 +412,8 @@ public class ComputerServiceTest {
                 .companyId(company.getId())
                 .build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
-        when(companyDao.get(1)).thenReturn(Optional.of(company));
+        when(companyDao.get(company.getId())).thenReturn(Optional.of(company));
+        when(computerDao.get(computer.getId())).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         when(computerDao.update(Mockito.any(Computer.class))).thenReturn(true);
 
         service.update(computer);
@@ -427,12 +438,12 @@ public class ComputerServiceTest {
 
     @Test
     public void testDeleteWorks() {
-        ComputerDto computer = ComputerDto.builder().id(1).build();
+        Computer computer = Computer.builder().id(1).build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(ComputerMapper.getInstance().toEntity(computer)));
+        when(computerDao.get(1)).thenReturn(Optional.of(computer));
         when(computerDao.delete(1)).thenReturn(true);
 
-        service.delete(computer);
+        service.delete(computerMapper.toDto(computer));
     }
 
 }

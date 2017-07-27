@@ -101,7 +101,8 @@ public class Computer implements Serializable {
                 ", name='" + name + '\'' +
                 ", introduced=" + introduced +
                 ", discontinued=" + discontinued +
-                ", company=" + company.toString() +
+                (company != null ?
+                        ", company=" + company.toString() : "") +
                 '}';
     }
 
