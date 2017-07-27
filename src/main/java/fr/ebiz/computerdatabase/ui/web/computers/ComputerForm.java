@@ -2,7 +2,7 @@ package fr.ebiz.computerdatabase.ui.web.computers;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
-import fr.ebiz.computerdatabase.ui.web.form.Form;
+import fr.ebiz.computerdatabase.ui.web.Form;
 import fr.ebiz.computerdatabase.utils.FormUtils;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 

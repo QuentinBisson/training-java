@@ -2,7 +2,6 @@ package fr.ebiz.computerdatabase.persistence.dao;
 
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
 import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
-import fr.ebiz.computerdatabase.persistence.transaction.impl.TransactionManagerImpl;
 import org.slf4j.Logger;
 
 import java.sql.PreparedStatement;
@@ -60,20 +59,20 @@ public final class DaoUtils {
     /**
      * Delete an entity by id.
      *
-     * @param query  The query
-     * @param id     The id
-     * @param logger The logger
+     * @param query     The query
+     * @param id        The id
+     * @param txManager The transaction manager
+     * @param logger    The logger
      * @return true if the element was deleted
      */
-    public static boolean deleteById(String query, Integer id, Logger logger) {
-        TransactionManager tx = TransactionManagerImpl.getInstance();
-        try (PreparedStatement statement = tx.getConnection().prepareStatement(query)) {
+    public static boolean deleteById(String query, Integer id, TransactionManager txManager, Logger logger) {
+        try (PreparedStatement statement = txManager.getConnection().prepareStatement(query)) {
             statement.setInt(1, id);
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
-            tx.rollback();
+            txManager.rollback();
             throw new DaoException(DAO_ACCESS_ERROR, e);
         }
     }

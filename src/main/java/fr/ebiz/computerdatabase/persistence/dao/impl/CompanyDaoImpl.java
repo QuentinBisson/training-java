@@ -4,9 +4,11 @@ import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
-import fr.ebiz.computerdatabase.persistence.transaction.impl.TransactionManagerImpl;
+import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class CompanyDaoImpl implements CompanyDao {
 
     private static final String READ_QUERY = "SELECT * from company order by name LIMIT ? OFFSET ?";
@@ -28,22 +31,15 @@ public class CompanyDaoImpl implements CompanyDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
 
-    /**
-     * Get the dao instance.
-     * Creates it thread-safe if it does not exist.
-     *
-     * @return the dao singleton instance
-     */
-    public static CompanyDao getInstance() {
-        return Dao.INSTANCE.getDao();
-    }
+    @Autowired
+    private TransactionManager transactionManager;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Optional<Company> get(int id) {
-        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(READ_BY_ID_QUERY)) {
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(READ_BY_ID_QUERY)) {
 
             statement.setInt(FIRST_PARAMETER_INDEX, id);
 
@@ -66,7 +62,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public List<Company> getAll(int elements, int offset) throws DaoException {
-        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(READ_QUERY)) {
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(READ_QUERY)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             statement.setInt(parameterIndex++, elements);
@@ -91,7 +87,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public int count() throws DaoException {
-        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(COUNT_QUERY);
+        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(COUNT_QUERY);
              ResultSet resultSet = statement.executeQuery()) {
 
             return resultSet != null && resultSet.next() ? resultSet.getInt(FIRST_PARAMETER_INDEX) : 0;
@@ -108,7 +104,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public boolean delete(Integer id) throws DaoException {
-        return DaoUtils.deleteById(DELETE_QUERY, id, LOGGER);
+        return DaoUtils.deleteById(DELETE_QUERY, id, transactionManager, LOGGER);
     }
 
     /**
@@ -126,24 +122,6 @@ public class CompanyDaoImpl implements CompanyDao {
         }
 
         return null;
-    }
-
-    enum Dao {
-        INSTANCE(new CompanyDaoImpl());
-        private final CompanyDao dao;
-
-        /**
-         * Constructor.
-         *
-         * @param dao The unique company dao
-         */
-        Dao(CompanyDao dao) {
-            this.dao = dao;
-        }
-
-        public CompanyDao getDao() {
-            return dao;
-        }
     }
 
 }

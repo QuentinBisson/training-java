@@ -3,11 +3,13 @@ package fr.ebiz.computerdatabase.mapper;
 import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+@Component
 public class ComputerMapper implements Mapper<Computer, ComputerDto> {
 
     /**

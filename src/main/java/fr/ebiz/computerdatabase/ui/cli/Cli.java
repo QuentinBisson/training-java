@@ -9,10 +9,10 @@ import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.impl.CompanyServiceImpl;
-import fr.ebiz.computerdatabase.service.impl.ComputerServiceImpl;
 import fr.ebiz.computerdatabase.ui.cli.printer.factory.PrettyPrintFactory;
 import fr.ebiz.computerdatabase.utils.StringUtils;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -30,8 +30,10 @@ public class Cli {
      * Constructor.
      */
     private Cli() {
-        this.computerService = ComputerServiceImpl.getInstance();
-        this.companyService = CompanyServiceImpl.getInstance();
+        BeanFactory factory =
+                new ClassPathXmlApplicationContext("WEB-INF/applicationContext.xml");
+        this.computerService = (ComputerService) factory.getBean("computerService");
+        this.companyService = (CompanyService) factory.getBean("companyService");
         this.scanner = new Scanner(System.in);
     }
 
