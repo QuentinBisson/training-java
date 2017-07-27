@@ -1,9 +1,10 @@
 package fr.ebiz.computerdatabase.dto.paging;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Page<T> {
+public class Page<T> implements Serializable {
 
     private final List<T> elements;
     private int totalPages;

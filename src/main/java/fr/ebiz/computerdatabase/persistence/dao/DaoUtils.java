@@ -1,8 +1,12 @@
 package fr.ebiz.computerdatabase.persistence.dao;
 
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
+import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
+import fr.ebiz.computerdatabase.persistence.transaction.impl.TransactionManagerImpl;
 import org.slf4j.Logger;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -11,6 +15,7 @@ import java.util.Optional;
 
 public final class DaoUtils {
 
+    public static final String DAO_ACCESS_ERROR = "Dao access error";
     private static final String TOO_MANY_RESULTS_WERE_FOUND_EXCEPTION = "Too many results were found !";
 
     /**
@@ -50,6 +55,27 @@ public final class DaoUtils {
             throw new DaoException(message);
         }
         return Optional.of(list.get(0));
+    }
+
+    /**
+     * Delete an entity by id.
+     *
+     * @param query  The query
+     * @param id     The id
+     * @param logger The logger
+     * @return true if the element was deleted
+     */
+    public static boolean deleteById(String query, Integer id, Logger logger) {
+        TransactionManager tx = TransactionManagerImpl.getInstance();
+        try (PreparedStatement statement = tx.getConnection().prepareStatement(query)) {
+            statement.setInt(1, id);
+
+            return statement.executeUpdate() == 1;
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            tx.rollback();
+            throw new DaoException(DAO_ACCESS_ERROR, e);
+        }
     }
 
 }

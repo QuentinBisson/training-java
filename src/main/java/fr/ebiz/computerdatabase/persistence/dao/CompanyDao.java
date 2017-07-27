@@ -10,7 +10,7 @@ public interface CompanyDao {
     /**
      * Get the company from the database.
      *
-     * @param id The id of the company to get
+     * @param id         The id of the company to get
      * @return The company if it exists or Optional.empty() if it does not
      */
     Optional<Company> get(int id);
@@ -18,8 +18,8 @@ public interface CompanyDao {
     /**
      * Get the companies from the database paginated.
      *
-     * @param elements The number of companies to get
-     * @param offset   The number of companies to skip in the results
+     * @param elements   The number of companies to get
+     * @param offset     The number of companies to skip in the results
      * @return The paginated companies
      */
     List<Company> getAll(int elements, int offset);
@@ -27,7 +27,7 @@ public interface CompanyDao {
     /**
      * Delete a company from the database.
      *
-     * @param id The company's id to delete
+     * @param id         The company's id to delete
      * @return true if the company was deleted
      */
     boolean delete(Integer id);

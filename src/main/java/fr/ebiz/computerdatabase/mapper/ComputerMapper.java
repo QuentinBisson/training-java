@@ -10,6 +10,17 @@ import java.time.ZoneOffset;
 
 public class ComputerMapper implements Mapper<Computer, ComputerDto> {
 
+    /**
+     * Private Contructor for singleton.
+     */
+    private ComputerMapper() {
+        super();
+    }
+
+    public static ComputerMapper getInstance() {
+        return Singleton.INSTANCE.getMapper();
+    }
+
     @Override
     public ComputerDto toDto(Computer entity) {
         return ComputerDto.builder()
@@ -33,4 +44,23 @@ public class ComputerMapper implements Mapper<Computer, ComputerDto> {
                 .build();
     }
 
+
+    enum Singleton {
+        INSTANCE(new ComputerMapper());
+
+        private final ComputerMapper mapper;
+
+        /**
+         * Constructor for the singleton pattern.
+         *
+         * @param mapper The unique mapper
+         */
+        Singleton(ComputerMapper mapper) {
+            this.mapper = mapper;
+        }
+
+        public ComputerMapper getMapper() {
+            return mapper;
+        }
+    }
 }

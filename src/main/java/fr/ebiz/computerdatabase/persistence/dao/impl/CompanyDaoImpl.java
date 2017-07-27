@@ -4,12 +4,10 @@ import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
-import fr.ebiz.computerdatabase.persistence.factory.ConnectionPool;
+import fr.ebiz.computerdatabase.persistence.transaction.impl.TransactionManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +20,6 @@ public class CompanyDaoImpl implements CompanyDao {
     private static final String READ_QUERY = "SELECT * from company order by name LIMIT ? OFFSET ?";
     private static final String READ_BY_ID_QUERY = "SELECT * from company where id = ?";
     private static final String DELETE_QUERY = "DELETE FROM company WHERE id = ?";
-    private static final String DELETE_COMPUTERS_FOR_COMPANY_QUERY = "DELETE FROM computer WHERE company_id = ?";
     private static final String COUNT_QUERY = "SELECT COUNT(*) from company";
 
     private static final int FIRST_PARAMETER_INDEX = 1;
@@ -30,17 +27,6 @@ public class CompanyDaoImpl implements CompanyDao {
     private static final String NAME_COLUMN_NAME = "name";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
-    private static final String DAO_ACCESS_ERROR = "Dao access error";
-    private final DataSource dataSource;
-
-    /**
-     * Service constructor used to inject a {@link ConnectionPool} instance.
-     *
-     * @param dataSource The datasource to inject
-     */
-    private CompanyDaoImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
 
     /**
      * Get the dao instance.
@@ -57,8 +43,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public Optional<Company> get(int id) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(READ_BY_ID_QUERY)) {
+        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(READ_BY_ID_QUERY)) {
 
             statement.setInt(FIRST_PARAMETER_INDEX, id);
 
@@ -72,7 +57,7 @@ public class CompanyDaoImpl implements CompanyDao {
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException(DAO_ACCESS_ERROR, e);
+            throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -81,8 +66,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public List<Company> getAll(int elements, int offset) throws DaoException {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(READ_QUERY)) {
+        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(READ_QUERY)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             statement.setInt(parameterIndex++, elements);
@@ -98,7 +82,7 @@ public class CompanyDaoImpl implements CompanyDao {
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException(DAO_ACCESS_ERROR, e);
+            throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -107,13 +91,14 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public int count() throws DaoException {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(COUNT_QUERY);
+        try (PreparedStatement statement = TransactionManagerImpl.getInstance().getConnection().prepareStatement(COUNT_QUERY);
              ResultSet resultSet = statement.executeQuery()) {
+
             return resultSet != null && resultSet.next() ? resultSet.getInt(FIRST_PARAMETER_INDEX) : 0;
+
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new DaoException(DAO_ACCESS_ERROR, e);
+            throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
 
@@ -123,31 +108,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public boolean delete(Integer id) throws DaoException {
-        try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-
-            try (PreparedStatement deleteComputersStatement = connection.prepareStatement(DELETE_COMPUTERS_FOR_COMPANY_QUERY);
-                 PreparedStatement deleteCompanyStatement = connection.prepareStatement(DELETE_QUERY)) {
-                deleteComputersStatement.setInt(FIRST_PARAMETER_INDEX, id);
-                deleteCompanyStatement.setInt(FIRST_PARAMETER_INDEX, id);
-
-                deleteComputersStatement.executeUpdate();
-                int affectedRows = deleteCompanyStatement.executeUpdate();
-
-                connection.commit();
-                return affectedRows == 1;
-            } catch (SQLException e) {
-                LOGGER.error(e.getMessage(), e);
-                connection.rollback();
-                throw new DaoException(DAO_ACCESS_ERROR, e);
-            } finally {
-                connection.setAutoCommit(true);
-            }
-
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new DaoException(DAO_ACCESS_ERROR, e);
-        }
+        return DaoUtils.deleteById(DELETE_QUERY, id, LOGGER);
     }
 
     /**
@@ -168,7 +129,7 @@ public class CompanyDaoImpl implements CompanyDao {
     }
 
     enum Dao {
-        INSTANCE(new CompanyDaoImpl(ConnectionPool.getInstance()));
+        INSTANCE(new CompanyDaoImpl());
         private final CompanyDao dao;
 
         /**

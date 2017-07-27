@@ -1,5 +1,6 @@
 package fr.ebiz.computerdatabase.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Objects;
  * <p>
  * Model class used to represent companies managed by this application
  */
-public class Company {
+public class Company implements Serializable {
 
     /**
      * Company uuid.

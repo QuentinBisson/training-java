@@ -28,7 +28,10 @@ public interface Mapper<T, U> {
      * @return The dtos
      */
     default List<U> toDto(List<T> entities) {
-        return entities.stream().map(entity -> toDto(entity)).collect(Collectors.toList());
+        if (entities == null) {
+            throw new NullPointerException();
+        }
+        return entities.stream().map(this::toDto).collect(Collectors.toList());
     }
 
     /**
@@ -38,7 +41,7 @@ public interface Mapper<T, U> {
      * @return A list of unmapped element
      */
     default List<T> toEntity(List<U> dtos) {
-        return dtos.stream().map(dto -> toEntity(dto)).collect(Collectors.toList());
+        return dtos.stream().map(this::toEntity).collect(Collectors.toList());
     }
 
 }

@@ -15,7 +15,11 @@
 </head>
 <body>
 
-<c:import url="../template/header.jsp"/>
+<header class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="."> Application - Computer Database </a>
+    </div>
+</header>
 
 <section id="main">
     <div class="container">
@@ -38,7 +42,7 @@
         </div>
     </div>
 
-    <form id="deleteForm" action="/computers" method="POST">
+    <form id="deleteForm" action="${contextPath}/computers" method="POST">
         <input type="hidden" name="selection" value="">
     </form>
 
