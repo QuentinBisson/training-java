@@ -6,13 +6,14 @@ import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
-import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,15 +43,14 @@ public class ComputerDaoImpl implements ComputerDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
 
     @Autowired
-    private TransactionManager transactionManager;
+    private DataSource dataSource;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Optional<Computer> get(int id) {
-        try (PreparedStatement statement = transactionManager
-                .getConnection()
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource)
                 .prepareStatement(READ_BY_ID_QUERY)) {
 
             statement.setInt(FIRST_PARAMETER_INDEX, id);
@@ -79,7 +79,7 @@ public class ComputerDaoImpl implements ComputerDao {
             stringQuery += " WHERE computer.name like ? OR company.name like ? ";
         }
         stringQuery += String.format(" ORDER BY %s %s LIMIT ? OFFSET ? ", request.getColumn().getField(), request.getOrder().name());
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(stringQuery)) {
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(stringQuery)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             if (!StringUtils.isBlank(request.getQuery())) {
@@ -114,7 +114,7 @@ public class ComputerDaoImpl implements ComputerDao {
         if (!StringUtils.isBlank(query)) {
             stringQuery += " LEFT JOIN company company ON computer.company_id = company.id WHERE computer.name like ? OR company.name like ? ";
         }
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(stringQuery)) {
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(stringQuery)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             if (!StringUtils.isBlank(query)) {
@@ -140,8 +140,7 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean insert(final Computer computer) {
-        try (PreparedStatement statement = transactionManager
-                .getConnection()
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource)
                 .prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS)) {
             bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
 
@@ -154,7 +153,6 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
@@ -164,7 +162,7 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean update(final Computer computer) {
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(UPDATE_QUERY, Statement.RETURN_GENERATED_KEYS)) {
             int parameterIndex = bindParameters(computer, statement, FIRST_PARAMETER_INDEX);
             statement.setInt(parameterIndex, computer.getId());
 
@@ -176,7 +174,6 @@ public class ComputerDaoImpl implements ComputerDao {
             return affectedRows == 1;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
@@ -199,7 +196,7 @@ public class ComputerDaoImpl implements ComputerDao {
             query.append("?");
         }
         query.append(")");
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(query.toString())) {
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(query.toString())) {
             int index = FIRST_PARAMETER_INDEX;
             for (Integer id : ids) {
                 statement.setInt(index++, id);
@@ -208,7 +205,6 @@ public class ComputerDaoImpl implements ComputerDao {
             return statement.executeUpdate() == ids.size();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }
@@ -219,13 +215,12 @@ public class ComputerDaoImpl implements ComputerDao {
      */
     @Override
     public boolean deleteByCompanyId(Integer companyId) {
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(DELETE_COMPUTERS_FOR_COMPANY_QUERY)) {
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(DELETE_COMPUTERS_FOR_COMPANY_QUERY)) {
             statement.setInt(FIRST_PARAMETER_INDEX, companyId);
             int affectedRows = statement.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            transactionManager.rollback();
             throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
         }
     }

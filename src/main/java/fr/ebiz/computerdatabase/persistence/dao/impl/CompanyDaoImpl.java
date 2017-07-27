@@ -4,12 +4,13 @@ import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
-import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,14 +33,14 @@ public class CompanyDaoImpl implements CompanyDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
 
     @Autowired
-    private TransactionManager transactionManager;
+    private DataSource dataSource;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Optional<Company> get(int id) {
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(READ_BY_ID_QUERY)) {
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(READ_BY_ID_QUERY)) {
 
             statement.setInt(FIRST_PARAMETER_INDEX, id);
 
@@ -62,7 +63,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public List<Company> getAll(int elements, int offset) throws DaoException {
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(READ_QUERY)) {
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(READ_QUERY)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;
             statement.setInt(parameterIndex++, elements);
@@ -87,7 +88,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public int count() throws DaoException {
-        try (PreparedStatement statement = transactionManager.getConnection().prepareStatement(COUNT_QUERY);
+        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(COUNT_QUERY);
              ResultSet resultSet = statement.executeQuery()) {
 
             return resultSet != null && resultSet.next() ? resultSet.getInt(FIRST_PARAMETER_INDEX) : 0;
@@ -104,7 +105,7 @@ public class CompanyDaoImpl implements CompanyDao {
      */
     @Override
     public boolean delete(Integer id) throws DaoException {
-        return DaoUtils.deleteById(DELETE_QUERY, id, transactionManager, LOGGER);
+        return DaoUtils.deleteById(DELETE_QUERY, id, DataSourceUtils.getConnection(dataSource), LOGGER);
     }
 
     /**

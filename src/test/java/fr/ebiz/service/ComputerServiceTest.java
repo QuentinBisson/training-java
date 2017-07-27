@@ -13,6 +13,7 @@ import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.validator.Validator;
 import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
+import fr.ebiz.util.SpringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -56,8 +58,10 @@ public class ComputerServiceTest {
     private ComputerMapper computerMapper;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
+        ComputerService computerService = (ComputerService) SpringUtils.unwrapProxy(service);
+        ReflectionTestUtils.setField(computerService, "computerDao", computerDao);
     }
 
     @Test

@@ -5,6 +5,7 @@ import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.service.CompanyService;
+import fr.ebiz.util.SpringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,21 +32,24 @@ public class CompanyServiceTest {
     private static final int ELEMENTS_PER_PAGE = 10;
     @Mock
     private CompanyDao companyDao;
+
     @Autowired
     @InjectMocks
     private CompanyService service;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
+        CompanyService companyService = (CompanyService) SpringUtils.unwrapProxy(service);
+        ReflectionTestUtils.setField(companyService, "companyDao", companyDao);
     }
 
     @Test
     public void testGetWorksWithExistingId() {
         Company company = Company.builder().id(1).name("Test").build();
-        when(companyDao.get(1)).thenReturn(Optional.of(company));
+        when(companyDao.get(company.getId())).thenReturn(Optional.of(company));
 
-        Assert.assertEquals(company, service.get(1).get());
+        Assert.assertEquals(company, service.get(company.getId()).get());
     }
 
     @Test

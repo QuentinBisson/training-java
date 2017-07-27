@@ -7,11 +7,11 @@ import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
-import fr.ebiz.computerdatabase.persistence.transaction.TransactionManager;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,8 +19,7 @@ import java.util.Optional;
 
 @Service
 public class ComputerServiceImpl implements ComputerService {
-    @Autowired
-    private TransactionManager txManager;
+
     @Autowired
     private ComputerDao computerDao;
     @Autowired
@@ -37,19 +36,16 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("ID must be > 0");
         }
 
-        txManager.open(false);
-        try {
-            return computerDao.get(id).map(c -> Optional.of(ComputerMapper.getInstance().toDto(c)))
-                    .orElse(Optional.empty());
-        } finally {
-            txManager.close();
-        }
+        return computerDao.get(id).map(c -> Optional.of(ComputerMapper.getInstance().toDto(c)))
+                .orElse(Optional.empty());
+
     }
 
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings(value = "unchecked")
+    @Transactional(readOnly = true)
     @Override
     public Page<ComputerDto> getAll(GetAllComputersRequest request) {
         if (request == null) {
@@ -60,42 +56,35 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("Page size must be > 0");
         }
 
-        try {
-            txManager.open(true);
-            Integer numberOfComputers = computerDao.count(request.getQuery());
+        Integer numberOfComputers = computerDao.count(request.getQuery());
 
-            Integer totalPage = PagingUtils.countPages(request.getPageSize(), numberOfComputers);
+        Integer totalPage = PagingUtils.countPages(request.getPageSize(), numberOfComputers);
 
-            if (request.getPage() < 0 || request.getPage() > totalPage) {
-                throw new IllegalArgumentException("Page number must be [0-" + totalPage + "]");
-            }
-
-            List<Computer> computers;
-            if (totalPage == 0) {
-                computers = Collections.emptyList();
-            } else {
-                computers = computerDao.getAll(request);
-            }
-
-            txManager.commit();
-            Page<ComputerDto> page = Page.builder()
-                    .currentPage(request.getPage())
-                    .totalPages(totalPage)
-                    .totalElements(numberOfComputers)
-                    .elements(ComputerMapper.getInstance().toDto(computers))
-                    .build();
-
-            return page;
-
-        } finally {
-            txManager.close();
-
+        if (request.getPage() < 0 || request.getPage() > totalPage) {
+            throw new IllegalArgumentException("Page number must be [0-" + totalPage + "]");
         }
+
+        List<Computer> computers;
+        if (totalPage == 0) {
+            computers = Collections.emptyList();
+        } else {
+            computers = computerDao.getAll(request);
+        }
+
+        Page<ComputerDto> page = Page.builder()
+                .currentPage(request.getPage())
+                .totalPages(totalPage)
+                .totalElements(numberOfComputers)
+                .elements(ComputerMapper.getInstance().toDto(computers))
+                .build();
+
+        return page;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void insert(ComputerDto dto) {
         assertComputerIsNotNull(dto);
@@ -103,75 +92,46 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("Computer should not have an id");
         }
 
-        try {
-            txManager.open(true);
-            computerValidator.validate(dto);
-            computerDao.insert(computerMapper.toEntity(dto));
-            txManager.commit();
-        } finally {
-            txManager.close();
-        }
+        computerValidator.validate(dto);
+        computerDao.insert(computerMapper.toEntity(dto));
     }
 
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void update(ComputerDto dto) {
         assertComputerIsNotNull(dto);
 
-        try {
-            txManager.open(true);
-            assertComputerIdIsNotNullAndExists(dto);
+        assertComputerIdIsNotNullAndExists(dto);
 
-            computerValidator.validate(dto);
-            computerDao.update(computerMapper.toEntity(dto));
-            txManager.commit();
-        } finally {
-            txManager.close();
-        }
+        computerValidator.validate(dto);
+        computerDao.update(computerMapper.toEntity(dto));
     }
 
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void delete(ComputerDto dto) {
-        try {
-            txManager.open(true);
+        assertComputerIsNotNull(dto);
+        assertComputerIdIsNotNullAndExists(dto);
 
-            assertComputerIsNotNull(dto);
-            assertComputerIdIsNotNullAndExists(dto);
-
-            computerDao.delete(dto.getId());
-            txManager.commit();
-        } finally {
-            txManager.close();
-        }
+        computerDao.delete(dto.getId());
     }
 
+    @Transactional
     @Override
     public void deleteByCompanyId(Integer companyId) {
-        try {
-            txManager.open(true);
-
-            computerDao.deleteByCompanyId(companyId);
-            txManager.commit();
-        } finally {
-            txManager.close();
-        }
+        computerDao.deleteByCompanyId(companyId);
     }
 
+    @Transactional
     @Override
     public void deleteComputers(List<Integer> ids) {
-        try {
-            txManager.open(true);
-
-            computerDao.deleteComputers(ids);
-            txManager.commit();
-        } finally {
-            txManager.close();
-        }
+        computerDao.deleteComputers(ids);
     }
 
     /**
