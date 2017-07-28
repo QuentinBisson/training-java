@@ -27,7 +27,7 @@ public interface CompanyService {
     /**
      * Delete a company and it's attached computers.
      *
-     * @param company The company to delete
+     * @param companyId The company to delete
      */
-    void delete(Company company);
+    void delete(int companyId);
 }

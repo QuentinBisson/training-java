@@ -1,11 +1,11 @@
 package fr.ebiz.computerdatabase.ui.cli;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
@@ -85,7 +85,7 @@ public class Cli {
             case LIST_COMPANIES:
                 System.out.println("Here is the list of companies");
                 System.out.println(PrettyPrintFactory.getInstance()
-                        .make(Company.class).printList(companyService.getAll(Pageable.builder().page(DEFAULT_PAGE).elements(Integer.MAX_VALUE).build()).getElements()));
+                        .make(Company.class).printList(companyService.getAll(Pageable.builder().page(DEFAULT_PAGE).pageSize(Integer.MAX_VALUE).build()).getElements()));
                 break;
             case DELETE_COMPANY:
                 deleteCompany();
@@ -211,7 +211,7 @@ public class Cli {
      */
     private void deleteCompany() {
         Company company = readCompany(true);
-        companyService.delete(company);
+        companyService.delete(company.getId());
         System.out.println(company.toString() + " was deleted successfully");
     }
 
@@ -221,7 +221,7 @@ public class Cli {
      */
     private void deleteComputer() {
         ComputerDto computer = readComputer("Id of the computer to delete : ");
-        computerService.delete(computer);
+        computerService.delete(computer.getId());
         System.out.println(computer.toString() + " was deleted successfully");
     }
 

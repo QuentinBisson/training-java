@@ -1,10 +1,10 @@
 package fr.ebiz.computerdatabase.persistence.dao.impl;
 
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.exception.DaoException;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 import org.slf4j.Logger;
@@ -78,7 +78,12 @@ public class ComputerDaoImpl implements ComputerDao {
         if (!StringUtils.isBlank(request.getQuery())) {
             stringQuery += " WHERE computer.name like ? OR company.name like ? ";
         }
-        stringQuery += String.format(" ORDER BY %s %s LIMIT ? OFFSET ? ", request.getColumn().getField(), request.getOrder().name());
+
+        if (request.getColumn() != null && request.getOrder() != null) {
+            stringQuery += String.format(" ORDER BY %s %s", request.getColumn().getField(), request.getOrder().name());
+        }
+
+        stringQuery += " LIMIT ? OFFSET ? ";
         try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(stringQuery)) {
 
             int parameterIndex = FIRST_PARAMETER_INDEX;

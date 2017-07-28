@@ -1,12 +1,12 @@
 package fr.ebiz.computerdatabase.service.impl;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +20,23 @@ import java.util.Optional;
 @Service
 public class ComputerServiceImpl implements ComputerService {
 
+    private final ComputerDao computerDao;
+    private final ComputerMapper computerMapper;
+    private final ComputerValidator computerValidator;
+
+    /**
+     * Constructor.
+     *
+     * @param computerDao       Dao used to access the computers
+     * @param computerMapper    The computer mapper
+     * @param computerValidator The computer validator
+     */
     @Autowired
-    private ComputerDao computerDao;
-    @Autowired
-    private ComputerMapper computerMapper;
-    @Autowired
-    private ComputerValidator computerValidator;
+    public ComputerServiceImpl(ComputerDao computerDao, ComputerMapper computerMapper, ComputerValidator computerValidator) {
+        this.computerDao = computerDao;
+        this.computerMapper = computerMapper;
+        this.computerValidator = computerValidator;
+    }
 
     /**
      * {@inheritDoc}
@@ -38,7 +49,6 @@ public class ComputerServiceImpl implements ComputerService {
 
         return computerDao.get(id).map(c -> Optional.of(ComputerMapper.getInstance().toDto(c)))
                 .orElse(Optional.empty());
-
     }
 
     /**
@@ -57,10 +67,8 @@ public class ComputerServiceImpl implements ComputerService {
         }
 
         Integer numberOfComputers = computerDao.count(request.getQuery());
-
         Integer totalPage = PagingUtils.countPages(request.getPageSize(), numberOfComputers);
-
-        if (request.getPage() < 0 || request.getPage() > totalPage) {
+        if (request.getPage() < 0 || request.getPage() >= totalPage) {
             throw new IllegalArgumentException("Page number must be [0-" + totalPage + "]");
         }
 
@@ -86,25 +94,26 @@ public class ComputerServiceImpl implements ComputerService {
      */
     @Transactional
     @Override
-    public void insert(ComputerDto dto) {
+    public int insert(ComputerDto dto) {
         assertComputerIsNotNull(dto);
         if (dto.getId() != null) {
             throw new IllegalArgumentException("Computer should not have an id");
         }
 
         computerValidator.validate(dto);
-        computerDao.insert(computerMapper.toEntity(dto));
+        Computer computer = computerMapper.toEntity(dto);
+        computerDao.insert(computer);
+        return computer.getId();
     }
 
     /**
      * {@inheritDoc}
      */
-    @Transactional
+    @Transactional()
     @Override
     public void update(ComputerDto dto) {
         assertComputerIsNotNull(dto);
-
-        assertComputerIdIsNotNullAndExists(dto);
+        assertComputerIdIsNotNullAndExists(dto.getId());
 
         computerValidator.validate(dto);
         computerDao.update(computerMapper.toEntity(dto));
@@ -115,16 +124,15 @@ public class ComputerServiceImpl implements ComputerService {
      */
     @Transactional
     @Override
-    public void delete(ComputerDto dto) {
-        assertComputerIsNotNull(dto);
-        assertComputerIdIsNotNullAndExists(dto);
+    public void delete(int computerId) {
+        assertComputerIdIsNotNullAndExists(computerId);
 
-        computerDao.delete(dto.getId());
+        computerDao.delete(computerId);
     }
 
     @Transactional
     @Override
-    public void deleteByCompanyId(Integer companyId) {
+    public void deleteByCompanyId(int companyId) {
         computerDao.deleteByCompanyId(companyId);
     }
 
@@ -148,10 +156,10 @@ public class ComputerServiceImpl implements ComputerService {
     /**
      * Assert the computer object has an id and exists in the database, throws an {@link IllegalArgumentException} otherwise.
      *
-     * @param computer The computer to test
+     * @param computerId The computer to test
      */
-    private void assertComputerIdIsNotNullAndExists(ComputerDto computer) {
-        if (computer.getId() == null || !computerDao.get(computer.getId()).isPresent()) {
+    private void assertComputerIdIsNotNullAndExists(int computerId) {
+        if (!computerDao.get(computerId).isPresent()) {
             throw new IllegalArgumentException("Computer should have an id and exist in the db");
         }
     }

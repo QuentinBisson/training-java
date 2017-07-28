@@ -1,6 +1,7 @@
 package fr.ebiz.service;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
@@ -8,7 +9,6 @@ import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.validator.Validator;
@@ -129,9 +129,9 @@ public class ComputerServiceTest {
                 .collect(Collectors.toList());
 
         when(computerDao.count("")).thenReturn(elements);
-        Pageable pageable = Pageable.builder().elements(PAGE_SIZE).page(0).build();
+        Pageable pageable = Pageable.builder().pageSize(PAGE_SIZE).page(0).build();
         List<Computer> pagedComputers = computers.subList(0, elements);
-        GetAllComputersRequest request = GetAllComputersRequest.builder().pageSize(pageable.getElements()).page(pageable.getPage()).query("").column(ComputerDao.SortColumn.NAME).order(SortOrder.ASC).build();
+        GetAllComputersRequest request = GetAllComputersRequest.builder().pageSize(pageable.getPageSize()).page(pageable.getPage()).query("").column(ComputerDao.SortColumn.NAME).order(SortOrder.ASC).build();
         when(computerDao.getAll(request)).thenReturn(pagedComputers);
 
         for (int i = 0; i < pagedComputers.size(); i++) {
@@ -424,30 +424,20 @@ public class ComputerServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testDeleteHandleNull() {
-        service.delete(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDeleteHandleNullId() {
-        service.delete(new ComputerDto());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testDeleteHandleNonExistingComputer() {
         when(computerDao.get(Integer.MAX_VALUE)).thenReturn(Optional.empty());
 
-        service.delete(ComputerDto.builder().id(Integer.MAX_VALUE).build());
+        service.delete(Integer.MAX_VALUE);
     }
 
     @Test
     public void testDeleteWorks() {
         Computer computer = Computer.builder().id(1).build();
 
-        when(computerDao.get(1)).thenReturn(Optional.of(computer));
-        when(computerDao.delete(1)).thenReturn(true);
+        when(computerDao.get(computer.getId())).thenReturn(Optional.of(computer));
+        when(computerDao.delete(computer.getId())).thenReturn(true);
 
-        service.delete(computerMapper.toDto(computer));
+        service.delete(computer.getId());
     }
 
 }

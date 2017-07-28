@@ -1,7 +1,7 @@
 package fr.ebiz.computerdatabase.ui.web;
 
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao.SortColumn;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 

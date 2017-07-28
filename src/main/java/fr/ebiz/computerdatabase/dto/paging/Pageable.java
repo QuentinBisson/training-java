@@ -6,7 +6,7 @@ import java.util.Objects;
 public class Pageable implements Serializable {
 
     private int page;
-    private int elements;
+    private int pageSize;
 
     /**
      * Create a Pageable builder instance.
@@ -21,8 +21,20 @@ public class Pageable implements Serializable {
         return page;
     }
 
-    public int getElements() {
-        return elements;
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public int getOffset() {
+        return page * pageSize;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     @Override
@@ -35,12 +47,12 @@ public class Pageable implements Serializable {
         }
         Pageable pageable = (Pageable) o;
         return getPage() == pageable.getPage() &&
-                getElements() == pageable.getElements();
+                getPageSize() == pageable.getPageSize();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getPage(), getElements());
+        return Objects.hash(getPage(), getPageSize());
     }
 
     public static class PageableBuilder {
@@ -56,11 +68,11 @@ public class Pageable implements Serializable {
         /**
          * Set the number of requested elements.
          *
-         * @param elements The number of requested elements
+         * @param pageSize The number of requested elements
          * @return the pageable builder instance
          */
-        public PageableBuilder elements(int elements) {
-            pageable.elements = elements;
+        public PageableBuilder pageSize(int pageSize) {
+            pageable.pageSize = pageSize;
             return this;
         }
 

@@ -44,21 +44,21 @@ public class CompanyServiceImpl implements CompanyService {
             throw new IllegalArgumentException("Pagination object is null");
         }
 
-        if (pageable.getElements() <= 0) {
+        if (pageable.getPageSize() <= 0) {
             throw new IllegalArgumentException("The number of returned elements must be > 0");
         }
 
         Integer numberOfCompanies = companyDao.count();
 
         List<Company> companies;
-        Integer totalPage = PagingUtils.countPages(pageable.getElements(), numberOfCompanies);
+        Integer totalPage = PagingUtils.countPages(pageable.getPageSize(), numberOfCompanies);
         if (pageable.getPage() < 0 || pageable.getPage() > totalPage - 1) {
             throw new IllegalArgumentException("Page number must be [0-" + (totalPage - 1) + "]");
         }
         if (totalPage == 0) {
             companies = Collections.emptyList();
         } else {
-            companies = companyDao.getAll(pageable.getElements(), pageable.getPage() * pageable.getElements());
+            companies = companyDao.getAll(pageable.getPageSize(), pageable.getPage() * pageable.getPageSize());
         }
 
 
@@ -75,8 +75,8 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Transactional
     @Override
-    public void delete(Company company) {
-        computerService.deleteByCompanyId(company.getId());
-        companyDao.delete(company.getId());
+    public void delete(int companyId) {
+        computerService.deleteByCompanyId(companyId);
+        companyDao.delete(companyId);
     }
 }

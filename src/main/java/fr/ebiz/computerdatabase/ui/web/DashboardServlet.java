@@ -1,6 +1,6 @@
 package fr.ebiz.computerdatabase.ui.web;
 
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;

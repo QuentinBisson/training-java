@@ -81,24 +81,24 @@ public class CompanyServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNegativeElements() {
-        service.getAll(Pageable.builder().elements(Integer.MIN_VALUE).build());
+        service.getAll(Pageable.builder().pageSize(Integer.MIN_VALUE).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNegativePage() {
-        service.getAll(Pageable.builder().elements(10).page(-1).build());
+        service.getAll(Pageable.builder().pageSize(10).page(-1).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithTooBigPageNumberWithFullLastPage() {
         when(companyDao.count()).thenReturn(100);
-        service.getAll(Pageable.builder().elements(ELEMENTS_PER_PAGE).page(11).build());
+        service.getAll(Pageable.builder().pageSize(ELEMENTS_PER_PAGE).page(11).build());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithTooBigPageNumberWithoutFullLastPage() {
         when(companyDao.count()).thenReturn(101);
-        service.getAll(Pageable.builder().elements(ELEMENTS_PER_PAGE).page(12).build());
+        service.getAll(Pageable.builder().pageSize(ELEMENTS_PER_PAGE).page(12).build());
     }
 
     @Test
@@ -109,9 +109,9 @@ public class CompanyServiceTest {
                 .collect(Collectors.toList());
 
         when(companyDao.count()).thenReturn(elements);
-        Pageable pageable = Pageable.builder().elements(ELEMENTS_PER_PAGE).page(1).build();
+        Pageable pageable = Pageable.builder().pageSize(ELEMENTS_PER_PAGE).page(1).build();
         List<Company> pagedCompanies = companies.subList(ELEMENTS_PER_PAGE, elements);
-        when(companyDao.getAll(pageable.getElements(), pageable.getPage() * pageable.getElements())).thenReturn(pagedCompanies);
+        when(companyDao.getAll(pageable.getPageSize(), pageable.getPage() * pageable.getPageSize())).thenReturn(pagedCompanies);
 
         Page<Company> page = service.getAll(pageable);
         Assert.assertEquals(1, page.getCurrentPage());
