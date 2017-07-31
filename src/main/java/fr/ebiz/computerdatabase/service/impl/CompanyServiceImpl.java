@@ -55,21 +55,19 @@ public class CompanyServiceImpl implements CompanyService {
         if (pageable.getPage() < 0 || pageable.getPage() > totalPage - 1) {
             throw new IllegalArgumentException("Page number must be [0-" + (totalPage - 1) + "]");
         }
+
         if (totalPage == 0) {
             companies = Collections.emptyList();
         } else {
             companies = companyDao.getAll(pageable.getElements(), pageable.getPage() * pageable.getElements());
         }
 
-
-        Page<Company> page = Page.builder()
+        return Page.builder()
                 .currentPage(pageable.getPage())
                 .totalPages(totalPage)
                 .totalElements(numberOfCompanies)
                 .elements(companies)
                 .build();
-
-        return page;
 
     }
 

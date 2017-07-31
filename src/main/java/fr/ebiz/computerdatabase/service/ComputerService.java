@@ -1,8 +1,8 @@
 package fr.ebiz.computerdatabase.service;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 
 import java.util.List;
 import java.util.Optional;

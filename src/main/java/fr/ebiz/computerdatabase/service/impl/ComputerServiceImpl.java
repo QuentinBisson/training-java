@@ -1,12 +1,12 @@
 package fr.ebiz.computerdatabase.service.impl;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +37,7 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("ID must be > 0");
         }
 
-        return computerDao.get(id).map(c -> Optional.of(ComputerMapper.getInstance().toDto(c)))
-                .orElse(Optional.empty());
+        return computerDao.get(id).map(c -> ComputerMapper.getInstance().toDto(c));
 
     }
 
@@ -68,17 +67,15 @@ public class ComputerServiceImpl implements ComputerService {
         if (totalPage == 0) {
             computers = Collections.emptyList();
         } else {
-            computers = computerDao.getAll(request);
+            computers = computerDao.getAll(request.getQuery(), request.getPageSize(), request.getOffset(), request.getColumn(), request.getOrder());
         }
 
-        Page<ComputerDto> page = Page.builder()
+        return Page.builder()
                 .currentPage(request.getPage())
                 .totalPages(totalPage)
                 .totalElements(numberOfComputers)
                 .elements(ComputerMapper.getInstance().toDto(computers))
                 .build();
-
-        return page;
     }
 
     /**

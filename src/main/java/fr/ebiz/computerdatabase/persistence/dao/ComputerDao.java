@@ -1,6 +1,7 @@
 package fr.ebiz.computerdatabase.persistence.dao;
 
 import fr.ebiz.computerdatabase.model.Computer;
+import fr.ebiz.computerdatabase.persistence.SortOrder;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +18,14 @@ public interface ComputerDao {
     /**
      * Get the computers from the database paginated.
      *
-     * @param request    The request parameters
+     * @param query    The query to search computer of company name
+     * @param pageSize The number of elements per page
+     * @param offset   The paging offset
+     * @param column   The column to sort with
+     * @param order    the sort order
      * @return The paginated computers
      */
-    List<Computer> getAll(GetAllComputersRequest request);
+    List<Computer> getAll(String query, int pageSize, int offset, SortColumn column, SortOrder order);
 
     /**
      * Count the number of elements in the database.

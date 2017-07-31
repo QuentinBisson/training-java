@@ -1,8 +1,8 @@
 package fr.ebiz.computerdatabase.ui.web;
 
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.ui.web.binding.CaseInsensitiveConverter;
 import org.springframework.stereotype.Controller;

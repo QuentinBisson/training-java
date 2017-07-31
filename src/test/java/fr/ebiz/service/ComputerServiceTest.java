@@ -1,6 +1,7 @@
 package fr.ebiz.service;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
+import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
@@ -9,7 +10,6 @@ import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.service.validator.Validator;
 import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
@@ -92,11 +92,6 @@ public class ComputerServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetAllWithNullPageable() {
         service.getAll(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetAllWithNoRequestedElements() {
-        service.getAll(GetAllComputersRequest.builder().build());
     }
 
     @Test(expected = IllegalArgumentException.class)

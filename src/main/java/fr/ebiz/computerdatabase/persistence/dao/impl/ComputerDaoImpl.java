@@ -2,9 +2,9 @@ package fr.ebiz.computerdatabase.persistence.dao.impl;
 
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
+import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -97,13 +97,13 @@ public class ComputerDaoImpl implements ComputerDao {
      * {@inheritDoc}
      */
     @Override
-    public List<Computer> getAll(GetAllComputersRequest request) {
+    public List<Computer> getAll(String query, int pageSize, int offset, SortColumn column, SortOrder order) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("pageSize", request.getPageSize());
-        parameters.put("offset", request.getOffset());
+        parameters.put("pageSize", pageSize);
+        parameters.put("offset", offset);
 
-        String stringQuery = filterByName(parameters, READ_QUERY, request.getQuery());
-        stringQuery += String.format(" ORDER BY %s %s LIMIT :pageSize OFFSET :offset ", request.getColumn().getField(), request.getOrder().name());
+        String stringQuery = filterByName(parameters, READ_QUERY, query);
+        stringQuery += String.format(" ORDER BY %s %s LIMIT :pageSize OFFSET :offset ", column.getField(), order.name());
         return this.jdbcTemplate.query(stringQuery, parameters, (rs, row) -> mapRow(rs));
     }
 

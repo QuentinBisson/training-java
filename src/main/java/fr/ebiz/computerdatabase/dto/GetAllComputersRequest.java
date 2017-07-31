@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.persistence.dao;
+package fr.ebiz.computerdatabase.dto;
 
 import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao.SortColumn;
