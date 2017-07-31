@@ -34,8 +34,7 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <tx:annotation-driven proxy-target-class="true"
-                          transaction-manager="txManager"/>
+    <tx:annotation-driven transaction-manager="txManager"/>
 
     <context:component-scan base-package="fr.ebiz.computerdatabase"/>
 
