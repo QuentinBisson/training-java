@@ -188,6 +188,20 @@
             <version>${hikaricp.version}</version>
         </dependency>
 
+        <!-- Caching dependencies -->
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>${cache-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${ehcache.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
         <!-- Logging jars -->
         <dependency>
             <groupId>commons-logging</groupId>
