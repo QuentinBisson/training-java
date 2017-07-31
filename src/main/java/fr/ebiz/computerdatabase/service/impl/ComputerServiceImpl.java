@@ -113,7 +113,6 @@ public class ComputerServiceImpl implements ComputerService {
     /**
      * {@inheritDoc}
      */
-    @Transactional
     @Override
     public void delete(ComputerDto dto) {
         assertComputerIsNotNull(dto);
@@ -122,13 +121,11 @@ public class ComputerServiceImpl implements ComputerService {
         computerDao.delete(dto.getId());
     }
 
-    @Transactional
     @Override
     public void deleteByCompanyId(Integer companyId) {
         computerDao.deleteByCompanyId(companyId);
     }
 
-    @Transactional
     @Override
     public void deleteComputers(List<Integer> ids) {
         computerDao.deleteComputers(ids);
