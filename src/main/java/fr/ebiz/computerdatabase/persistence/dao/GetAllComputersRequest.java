@@ -1,5 +1,6 @@
 package fr.ebiz.computerdatabase.persistence.dao;
 
+import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao.SortColumn;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 
@@ -8,11 +9,14 @@ import java.util.Objects;
 
 public class GetAllComputersRequest implements Serializable {
 
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE = 0;
+
     private String query;
-    private int page;
-    private int pageSize;
-    private SortColumn column;
-    private SortOrder order;
+    private int page = DEFAULT_PAGE;
+    private int pageSize = DEFAULT_PAGE_SIZE;
+    private SortColumn column = SortColumn.NAME;
+    private SortOrder order = SortOrder.ASC;
 
     /**
      * Create a builder.
@@ -27,20 +31,40 @@ public class GetAllComputersRequest implements Serializable {
         return query;
     }
 
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
     public int getPage() {
         return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     public int getPageSize() {
         return pageSize;
     }
 
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
     public SortColumn getColumn() {
         return column;
     }
 
+    public void setColumn(SortColumn column) {
+        this.column = column;
+    }
+
     public SortOrder getOrder() {
         return order;
+    }
+
+    public void setOrder(SortOrder order) {
+        this.order = order;
     }
 
     public int getOffset() {

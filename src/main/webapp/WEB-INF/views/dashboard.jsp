@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="tags" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <!DOCTYPE html>
@@ -25,20 +26,20 @@
         <div id="actions" class="form-horizontal">
             <div class="pull-left">
                 <form id="searchForm" action="#" method="GET" class="form-inline">
-                    <input type="search" id="searchbox" name="search" class="form-control" placeholder="Search name"
-                           value="${search}"/>
+                    <input type="search" id="searchbox" name="query" class="form-control" placeholder="Search name"
+                           value="${request.query}"/>
                     <input type="submit" id="searchsubmit" value="Filter by name"
                            class="btn btn-primary"/>
                 </form>
             </div>
             <div class="pull-right">
-                <a class="btn btn-success" id="addComputer" href="computers">Add Computer</a>
+                <a class="btn btn-success" id="addComputer" href="${contextPath}/computers">Add Computer</a>
                 <a class="btn btn-default" id="editComputer" href="#" onclick="$.fn.toggleEditMode();">Edit</a>
             </div>
         </div>
     </div>
 
-    <form id="deleteForm" action="computers" method="POST">
+    <form id="deleteForm" action="${contextPath}/computers" method="POST">
         <input type="hidden" name="selection" value="">
     </form>
 
@@ -58,28 +59,29 @@
                             </span>
                 </th>
                 <th>
-                    <a <c:if test="${empty order || order.equals(\"name\")}">class="disabled"
-                       </c:if>href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=name">Computer
+                    <a
+                            <c:if test="${empty request.column || \"name\".equalsIgnoreCase(request.column)}">class="disabled"
+                            </c:if>href="?query=${request.query}&page=${computers.currentPage}&pageSize=${request.pageSize}&column=name">Computer
                         name</a>
                 </th>
                 <th>
                     <a
-                            <c:if test="${order.equals(\"introduced\")}">class="disabled" </c:if>
-                            href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=introduced">Introduced
+                            <c:if test="${\"introduced\".equalsIgnoreCase(request.column)}">class="disabled" </c:if>
+                            href="?query=${request.query}&page=${computers.currentPage}&pageSize=${request.pageSize}&column=introduced">Introduced
                         date</a>
                 </th>
                 <!-- Table header for Discontinued Date -->
                 <th>
                     <a
-                            <c:if test="${order.equals(\"discontinued\")}">class="disabled" </c:if>
-                            href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=discontinued">Discontinued
+                            <c:if test="${\"discontinued\".equalsIgnoreCase(request.column)}">class="disabled" </c:if>
+                            href="?query=${request.query}&page=${computers.currentPage}&pageSize=${request.pageSize}&column=discontinued">Discontinued
                         date</a>
                 </th>
                 <!-- Table header for Company -->
                 <th>
                     <a
-                            <c:if test="${order.equals(\"company\")}">class="disabled" </c:if>
-                            href="?search=${search}&page=${computers.currentPage}&pageSize=${pageSize}&order=company">Company</a>
+                            <c:if test="${\"company\".equalsIgnoreCase(request.column)}">class="disabled" </c:if>
+                            href="?query=${request.query}&page=${computers.currentPage}&pageSize=${request.pageSize}&column=company">Company</a>
                 </th>
             </tr>
 
@@ -115,8 +117,8 @@
         <tags:pager
                 page="${computers.currentPage}"
                 totalPages="${computers.totalPages}"
-                pageSize="${pageSize}"
-                url="?search=${search}&order=${order}"/>
+                pageSize="${request.pageSize}"
+                url="?query=${request.query}&column=${request.column}"/>
     </div>
 </footer>
 

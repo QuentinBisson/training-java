@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional(readOnly = true)
 @Service
 public class ComputerServiceImpl implements ComputerService {
 
@@ -45,7 +46,6 @@ public class ComputerServiceImpl implements ComputerService {
      * {@inheritDoc}
      */
     @SuppressWarnings(value = "unchecked")
-    @Transactional(readOnly = true)
     @Override
     public Page<ComputerDto> getAll(GetAllComputersRequest request) {
         if (request == null) {
@@ -113,6 +113,7 @@ public class ComputerServiceImpl implements ComputerService {
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void delete(ComputerDto dto) {
         assertComputerIsNotNull(dto);
@@ -121,11 +122,13 @@ public class ComputerServiceImpl implements ComputerService {
         computerDao.delete(dto.getId());
     }
 
+    @Transactional
     @Override
-    public void deleteByCompanyId(Integer companyId) {
+    public void deleteByCompanyId(int companyId) {
         computerDao.deleteByCompanyId(companyId);
     }
 
+    @Transactional
     @Override
     public void deleteComputers(List<Integer> ids) {
         computerDao.deleteComputers(ids);

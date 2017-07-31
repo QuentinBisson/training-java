@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional(readOnly = true)
 @Service
 public class CompanyServiceImpl implements CompanyService {
     @Autowired
@@ -36,7 +37,6 @@ public class CompanyServiceImpl implements CompanyService {
     /**
      * {@inheritDoc}
      */
-    @Transactional(readOnly = true)
     @SuppressWarnings(value = "unchecked")
     @Override
     public Page<Company> getAll(Pageable pageable) {

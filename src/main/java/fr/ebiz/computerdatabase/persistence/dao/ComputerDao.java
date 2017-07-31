@@ -60,7 +60,7 @@ public interface ComputerDao {
      * @param companyId The id of the company
      * @return true if any computer was deleted
      */
-    boolean deleteByCompanyId(Integer companyId);
+    boolean deleteByCompanyId(int companyId);
 
     /**
      * Delete a list of computer from the database.
@@ -71,7 +71,7 @@ public interface ComputerDao {
     boolean deleteComputers(List<Integer> ids);
 
     enum SortColumn {
-        NAME("computerName"), INTRODUCED("introduced, computerName"), DISCONTINUED("discontinued, computerName"), COMPANY_NAME("companyName, computerName"), COMPANY_ID("company_id, computerName");
+        NAME("computerName"), INTRODUCED("introduced, computerName"), DISCONTINUED("discontinued, computerName"), COMPANY("companyName, computerName");
 
         String field;
 
