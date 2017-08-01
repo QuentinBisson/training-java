@@ -4,27 +4,25 @@ import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.ui.web.binding.CaseInsensitiveConverter;
+import fr.ebiz.computerdatabase.ui.web.converter.CaseInsensitiveConverter;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServlet;
 
 @Controller
 @RequestMapping({"/", "home", "dashboard"})
-public class DashboardController extends HttpServlet {
+public class DashboardController {
 
     private static final String COMPUTERS_ATTR = "computers";
     private static final String DASHBOARD_VIEW = "dashboard";
 
     private final ComputerService computerService;
 
-    /**
+    /**public
      * Constructor.
      *
      * @param computerService The injected computer service
@@ -41,11 +39,10 @@ public class DashboardController extends HttpServlet {
      * @return the model and view
      */
     @GetMapping
-    public ModelAndView getDashboard(@ModelAttribute GetAllComputersRequest request, ModelAndView model) {
-        model.setViewName(DASHBOARD_VIEW);
-        model.addObject("request", request);
-        model.addObject(COMPUTERS_ATTR, computerService.getAll(request));
-        return model;
+    public String getDashboard(@ModelAttribute GetAllComputersRequest request, Model model) {
+        model.addAttribute("request", request);
+        model.addAttribute(COMPUTERS_ATTR, computerService.getAll(request));
+        return DASHBOARD_VIEW;
     }
 
     /**

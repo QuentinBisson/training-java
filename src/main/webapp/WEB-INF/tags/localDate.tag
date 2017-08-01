@@ -7,7 +7,7 @@
 <%@ attribute name="pattern" required="false" type="java.lang.String" %>
 
 <c:if test="${empty pattern}">
-    <c:set var="pattern" value="MM/dd/yyyy"/>
+    <c:set var="pattern" value="yyyy-MM-dd"/>
 </c:if>
 
 <fmt:parseDate value="${value}" pattern="yyyy-MM-dd" var="parsedDate" type="date" parseLocale="en_GB"/>

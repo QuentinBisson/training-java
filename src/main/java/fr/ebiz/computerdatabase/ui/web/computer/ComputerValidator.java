@@ -1,50 +1,48 @@
-package fr.ebiz.computerdatabase.service.validator.impl;
+package fr.ebiz.computerdatabase.ui.web.computer;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.service.CompanyService;
-import fr.ebiz.computerdatabase.service.validator.Validator;
-import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
-public class ComputerValidator implements Validator<ComputerDto> {
+@Qualifier("computerValidator")
+public class ComputerValidator implements Validator {
 
-    private static final String COMPUTER_NAME_FIELD = "name";
     private static final String COMPUTER_INTRODUCED_FIELD = "introduced";
     private static final String COMPUTER_DISCONTINUED_FIELD = "discontinued";
     private static final String COMPUTER_COMPANY_FIELD = "company";
 
+    private final CompanyService companyService;
+
+    /**
+     * Constructor.
+     *
+     * @param companyService The injected company Service
+     */
     @Autowired
-    private CompanyService companyService;
+    public ComputerValidator(CompanyService companyService) {
+        this.companyService = companyService;
+    }
 
     @Override
-    public void validate(ComputerDto computer) {
-        Map<String, String> errors = new HashMap<>();
-        assertComputerNameIsFilled(errors, computer);
+    public boolean supports(Class<?> clazz) {
+        return ComputerDto.class.equals(clazz);
+    }
+
+    @Override
+    public void validate(Object object, Errors errors) {
+        ComputerDto computer = (ComputerDto) object;
+        // We don't validate the name field since it is validated with annotations
         assertComputerIntroductionDateIsNullOrValid(errors, computer);
         assertComputerDiscontinuedDateIsNullOrValid(errors, computer);
         assertCompanyIsNullOrExist(errors, computer);
 
-        if (!errors.isEmpty()) {
-            throw new ValidationException(errors);
-        }
-    }
-
-    /**
-     * Assert the computer's name is filled and not blank, throws an {@link IllegalArgumentException} otherwise.
-     *
-     * @param errors   The map of errors
-     * @param computer The computer to test
-     */
-    private void assertComputerNameIsFilled(Map<String, String> errors, ComputerDto computer) {
-        if (computer.getName() == null || computer.getName().trim().isEmpty()) {
-            errors.put(COMPUTER_NAME_FIELD, "Name should be filled !");
-        }
     }
 
     /**
@@ -53,9 +51,9 @@ public class ComputerValidator implements Validator<ComputerDto> {
      * @param errors   The map of errors
      * @param computer The computer to test
      */
-    private void assertComputerIntroductionDateIsNullOrValid(Map<String, String> errors, ComputerDto computer) {
+    private void assertComputerIntroductionDateIsNullOrValid(Errors errors, ComputerDto computer) {
         if (computer.getIntroduced() != null && (computer.getIntroduced().toEpochDay() < 0 || computer.getIntroduced().isAfter(LocalDate.now()))) {
-            errors.put(COMPUTER_INTRODUCED_FIELD, "Introduction date must be empty or a valid timestamp !");
+            errors.rejectValue(COMPUTER_INTRODUCED_FIELD, "computers.constraints." + COMPUTER_INTRODUCED_FIELD + ".invalid");
         }
     }
 
@@ -65,13 +63,13 @@ public class ComputerValidator implements Validator<ComputerDto> {
      * @param errors   The map of errors
      * @param computer The computer to test
      */
-    private void assertComputerDiscontinuedDateIsNullOrValid(Map<String, String> errors, ComputerDto computer) {
+    private void assertComputerDiscontinuedDateIsNullOrValid(Errors errors, ComputerDto computer) {
         if (computer.getDiscontinued() != null && (computer.getDiscontinued().toEpochDay() < 0 || computer.getDiscontinued().isAfter(LocalDate.now()))) {
-            errors.put(COMPUTER_DISCONTINUED_FIELD, "Discontinuation date must be empty or a valid timestamp !");
+            errors.rejectValue(COMPUTER_DISCONTINUED_FIELD, "computers.constraints." + COMPUTER_DISCONTINUED_FIELD + ".invalid");
         }
 
         if ((computer.getIntroduced() == null && computer.getDiscontinued() != null) || (computer.getIntroduced() != null && computer.getDiscontinued() != null && computer.getIntroduced().isAfter(computer.getDiscontinued()))) {
-            errors.put(COMPUTER_DISCONTINUED_FIELD, "Discontinuation date must be superior to the introduction date !");
+            errors.rejectValue(COMPUTER_DISCONTINUED_FIELD, "computers.constraints." + COMPUTER_DISCONTINUED_FIELD + ".afterIntroductionDate");
         }
     }
 
@@ -81,9 +79,9 @@ public class ComputerValidator implements Validator<ComputerDto> {
      * @param errors   The map of errors
      * @param computer The computer to test
      */
-    private void assertCompanyIsNullOrExist(Map<String, String> errors, ComputerDto computer) {
+    private void assertCompanyIsNullOrExist(Errors errors, ComputerDto computer) {
         if (computer.getCompanyId() != null && !companyService.exists(computer.getCompanyId())) {
-            errors.put(COMPUTER_COMPANY_FIELD, "Company which introduced the computer does not exist");
+            errors.rejectValue(COMPUTER_COMPANY_FIELD, "computers.constraints." + COMPUTER_COMPANY_FIELD + ".invalid");
         }
     }
 

@@ -127,7 +127,7 @@ public class ComputerServiceTest {
         Pageable pageable = Pageable.builder().elements(PAGE_SIZE).page(0).build();
         List<Computer> pagedComputers = computers.subList(0, elements);
         GetAllComputersRequest request = GetAllComputersRequest.builder().pageSize(pageable.getElements()).page(pageable.getPage()).query("").column(ComputerDao.SortColumn.NAME).order(SortOrder.ASC).build();
-        when(computerDao.getAll(request)).thenReturn(pagedComputers);
+        when(computerDao.getAll(request.getQuery(), request.getPageSize(), request.getOffset(), request.getColumn(), request.getOrder())).thenReturn(pagedComputers);
 
         for (int i = 0; i < pagedComputers.size(); i++) {
             when(mockComputerMapper.toDto(pagedComputers)).thenReturn(computerMapper.toDto(pagedComputers));

@@ -5,6 +5,7 @@ import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -49,8 +50,11 @@ public class CompanyDaoImpl implements CompanyDao {
     public Optional<Company> get(int id) {
         Map<String, Integer> parameters = new HashMap<>();
         parameters.put(ID_COLUMN_NAME, id);
-
-        return Optional.ofNullable(this.jdbcTemplate.queryForObject(READ_BY_ID_QUERY, parameters, (rs, row) -> mapRow(rs)));
+        try {
+            return Optional.of(this.jdbcTemplate.queryForObject(READ_BY_ID_QUERY, parameters, (rs, row) -> mapRow(rs)));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     /**

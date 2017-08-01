@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.ui.web.binding;
+package fr.ebiz.computerdatabase.ui.web.converter;
 
 import java.beans.PropertyEditorSupport;
 

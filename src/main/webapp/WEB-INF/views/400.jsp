@@ -19,7 +19,7 @@
 <section id="main">
     <div class="container">
         <div class="alert alert-danger">
-            <spring:message code="error.500"/>
+            <spring:message code="error.400"/>
             <br/>
             <!-- stacktrace -->
         </div>

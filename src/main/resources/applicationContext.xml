@@ -25,18 +25,18 @@
         <property name="maximumPoolSize" value="${maximumPoolSize}"/>
         <property name="idleTimeout" value="${idleTimeout}"/>
     </bean>
+
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <constructor-arg ref="hikariConfig"/>
     </bean>
 
+    <!-- Accept transactional annotations and define tx manager -->
+    <tx:annotation-driven transaction-manager="txManager"/>
     <!-- Transaction manager -->
     <bean id="txManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-
-    <!-- Accept transactional annotations and define tx manager -->
-    <tx:annotation-driven transaction-manager="txManager"/>
 
     <!-- Enable component scan on repository and services-->
     <context:component-scan base-package="fr.ebiz.computerdatabase.persistence"/>

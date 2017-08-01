@@ -1,5 +1,8 @@
 package fr.ebiz.computerdatabase.dto;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.Min;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -21,16 +24,19 @@ public class ComputerDto implements Serializable {
     /**
      * Computer name.
      */
+    @Min(value = 3, message = "computers.constraints.name.toosmall")
     private String name;
 
     /**
      * Introduction date of the computer.
      */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate introduced;
 
     /**
      * Discontinuation date of the computer.
      */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate discontinued;
     /**
      * Company id.
@@ -73,6 +79,26 @@ public class ComputerDto implements Serializable {
 
     public String getCompanyName() {
         return companyName;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIntroduced(LocalDate introduced) {
+        this.introduced = introduced;
+    }
+
+    public void setDiscontinued(LocalDate discontinued) {
+        this.discontinued = discontinued;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
     }
 
     @Override

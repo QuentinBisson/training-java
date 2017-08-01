@@ -18,6 +18,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 @Service
 public class CompanyServiceImpl implements CompanyService {
+
     @Autowired
     private CompanyDao companyDao;
     @Autowired
@@ -28,10 +29,17 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     public Optional<Company> get(int id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("ID must be > 0");
-        }
+        assertCompanyIdIsGreaterThanZero(id);
         return companyDao.get(id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean exists(int id) {
+        assertCompanyIdIsGreaterThanZero(id);
+        return companyDao.get(id).isPresent();
     }
 
     /**
@@ -68,7 +76,6 @@ public class CompanyServiceImpl implements CompanyService {
                 .totalElements(numberOfCompanies)
                 .elements(companies)
                 .build();
-
     }
 
     @Transactional
@@ -77,4 +84,17 @@ public class CompanyServiceImpl implements CompanyService {
         computerService.deleteByCompanyId(company.getId());
         companyDao.delete(company.getId());
     }
+
+    /**
+     * Assert the id is greater than 0.
+     *
+     * @param id The id to check
+     */
+    private void assertCompanyIdIsGreaterThanZero(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID must be > 0");
+        }
+    }
+
+
 }

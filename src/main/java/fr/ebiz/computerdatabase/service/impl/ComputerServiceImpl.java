@@ -21,12 +21,23 @@ import java.util.Optional;
 @Service
 public class ComputerServiceImpl implements ComputerService {
 
+    private final ComputerDao computerDao;
+    private final ComputerMapper computerMapper;
+    private final ComputerValidator computerValidator;
+
+    /**
+     * Constructor.
+     *
+     * @param computerDao       The computer dao to inject
+     * @param computerMapper    The computer mapper to inject
+     * @param computerValidator The computer validator to inject
+     */
     @Autowired
-    private ComputerDao computerDao;
-    @Autowired
-    private ComputerMapper computerMapper;
-    @Autowired
-    private ComputerValidator computerValidator;
+    public ComputerServiceImpl(ComputerDao computerDao, ComputerMapper computerMapper, ComputerValidator computerValidator) {
+        this.computerDao = computerDao;
+        this.computerMapper = computerMapper;
+        this.computerValidator = computerValidator;
+    }
 
     /**
      * {@inheritDoc}
@@ -128,7 +139,9 @@ public class ComputerServiceImpl implements ComputerService {
     @Transactional
     @Override
     public void deleteComputers(List<Integer> ids) {
-        computerDao.deleteComputers(ids);
+        if (!ids.isEmpty()) {
+            computerDao.deleteComputers(ids);
+        }
     }
 
     /**

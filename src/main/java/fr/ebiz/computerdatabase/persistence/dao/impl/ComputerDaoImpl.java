@@ -7,6 +7,7 @@ import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -89,8 +90,11 @@ public class ComputerDaoImpl implements ComputerDao {
     public Optional<Computer> get(int id) {
         Map<String, Integer> parameters = new HashMap<>();
         parameters.put(ID_COLUMN_NAME, id);
-
-        return Optional.ofNullable(this.jdbcTemplate.queryForObject(READ_BY_ID_QUERY, parameters, (rs, row) -> mapRow(rs)));
+        try {
+            return Optional.of(this.jdbcTemplate.queryForObject(READ_BY_ID_QUERY, parameters, (rs, row) -> mapRow(rs)));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     /**
