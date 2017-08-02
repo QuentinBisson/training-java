@@ -14,7 +14,7 @@ import java.util.Properties;
 
 public class ComputerManagerTest {
 
-    private static final String INDEX_URL = "/";
+    private static final String INDEX_URL = "/dashboard";
     private static final By SEARCHBOX_BY = By.id("searchbox");
     private static final By SEARCH_SUBMIT_BY = By.id("searchsubmit");
     private static final By EDIT_COMPUTER_BY = By.id("editComputer");
@@ -62,9 +62,9 @@ public class ComputerManagerTest {
 
         driver.findElement(By.name("cb")).click();
         driver.findElement(By.xpath("//a[@id='deleteSelected']/i")).click();
-        Assert.assertTrue(SeleniumUtils.alert(driver, true).matches("^Are you sure you want to delete the selected computers[\\s\\S]$"));
+        Assert.assertTrue(SeleniumUtils.alert(driver, true).matches("^Are you sure you want to delete the selected computers \\?$"));
         new WebDriverWait(driver, 10).until(ExpectedConditions.visibilityOfElementLocated(HOME_TITLE_BY));
-        Assert.assertEquals(baseUrl + INDEX_URL + "home", driver.getCurrentUrl().replace("#", ""));
+        Assert.assertEquals(baseUrl + INDEX_URL, driver.getCurrentUrl().replace("#", ""));
     }
 
     private void searchAndEditComputer() {
@@ -73,11 +73,11 @@ public class ComputerManagerTest {
         driver.findElement(SEARCH_SUBMIT_BY).click();
         driver.findElement(By.linkText("Nouvel ordinateur")).click();
 
-        Assert.assertTrue(driver.getCurrentUrl().matches(baseUrl + "/computers\\?id=\\d+"));
+        Assert.assertTrue(driver.getCurrentUrl().matches(baseUrl + "/computers/\\d+"));
 
         new Select(driver.findElement(By.id("companyId"))).selectByVisibleText("BBN Technologies");
         SeleniumUtils.input(driver, COMPUTER_NAME_BY, "Ordinateur edite");
-        driver.findElement(By.cssSelector("input.btn.btn-primary")).click();
+        driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
     }
 
 
@@ -87,13 +87,13 @@ public class ComputerManagerTest {
         Assert.assertEquals(baseUrl + "/computers", driver.getCurrentUrl());
 
         SeleniumUtils.input(driver, COMPUTER_NAME_BY, "Nouvel ordinateur");
-        SeleniumUtils.input(driver, INTRODUCED_BY, "04/07/2013");
-        SeleniumUtils.input(driver, DISCONTINUED_BY, "04/07/2012");
+        SeleniumUtils.input(driver, INTRODUCED_BY, "2013-04-07");
+        SeleniumUtils.input(driver, DISCONTINUED_BY, "2012-04-07");
         new Select(driver.findElement(By.id("companyId"))).selectByVisibleText("Amiga Corporation");
 
-        driver.findElement(By.cssSelector("input.btn.btn-primary")).click();
-        SeleniumUtils.input(driver, DISCONTINUED_BY, "04/07/2015");
-        driver.findElement(By.cssSelector("input.btn.btn-primary")).click();
+        driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
+        SeleniumUtils.input(driver, DISCONTINUED_BY, "2015-04-07");
+        driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
     }
 
     @After

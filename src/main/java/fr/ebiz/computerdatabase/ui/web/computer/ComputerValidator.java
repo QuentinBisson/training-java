@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import java.time.LocalDate;
-
 @Component
 @Qualifier("computerValidator")
 public class ComputerValidator implements Validator {
@@ -52,7 +50,7 @@ public class ComputerValidator implements Validator {
      * @param computer The computer to test
      */
     private void assertComputerIntroductionDateIsNullOrValid(Errors errors, ComputerDto computer) {
-        if (computer.getIntroduced() != null && (computer.getIntroduced().toEpochDay() < 0 || computer.getIntroduced().isAfter(LocalDate.now()))) {
+        if (computer.getIntroduced() != null && computer.getIntroduced().toEpochDay() < 0) {
             errors.rejectValue(COMPUTER_INTRODUCED_FIELD, "computers.constraints." + COMPUTER_INTRODUCED_FIELD + ".invalid");
         }
     }
@@ -64,7 +62,7 @@ public class ComputerValidator implements Validator {
      * @param computer The computer to test
      */
     private void assertComputerDiscontinuedDateIsNullOrValid(Errors errors, ComputerDto computer) {
-        if (computer.getDiscontinued() != null && (computer.getDiscontinued().toEpochDay() < 0 || computer.getDiscontinued().isAfter(LocalDate.now()))) {
+        if (computer.getDiscontinued() != null && computer.getDiscontinued().toEpochDay() < 0) {
             errors.rejectValue(COMPUTER_DISCONTINUED_FIELD, "computers.constraints." + COMPUTER_DISCONTINUED_FIELD + ".invalid");
         }
 

@@ -22,6 +22,7 @@
           class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="basenames" value="classpath:messages/messages"/>
         <property name="defaultEncoding" value="UTF-8"/>
+        <property name="fallbackToSystemLocale" value="false"/>
         <property name="useCodeAsDefaultMessage" value="true"/>
     </bean>
 
@@ -32,9 +33,12 @@
 
     <!-- Add a locale change interceptor to be made aware of locale changes for the user -->
     <mvc:interceptors>
-        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-            <property name="paramName" value="lang"/>
-        </bean>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+                <property name="paramName" value="lang"/>
+            </bean>
+        </mvc:interceptor>
     </mvc:interceptors>
 
     <!-- Allow resources to be handled by tomcat's default servlet -->

@@ -10,13 +10,11 @@
         <div class="pull-right">
             <spring:url var="currentUrl" value=""/>
             <c:set var="queryString"
-                   value='${pageContext.request.queryString.replaceFirst("[?&]lang=[a-zA-Z][a-zA-Z]", "")}'/>
+                   value='${pageContext.request.queryString.replaceAll("[?&]{0,1}lang=[a-zA-Z]{2}", "")}'/>
             <c:set var="langUrl" value='${currentUrl}?${queryString}${empty queryString ? "lang=" : "&lang="}'/>
-
             <a href="${langUrl}en">
                 EN
             </a>
-
             <a href="${langUrl}fr">
                 FR
             </a>

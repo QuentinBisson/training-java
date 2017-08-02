@@ -8,11 +8,9 @@ import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.SortOrder;
-import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
+import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.validator.Validator;
-import fr.ebiz.computerdatabase.service.validator.exception.ValidationException;
 import fr.ebiz.util.SpringUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,11 +44,8 @@ public class ComputerServiceTest {
     @Mock
     private ComputerDao computerDao;
     @Mock
-    private CompanyDao companyDao;
+    private CompanyService companyService;
 
-    @InjectMocks
-    @Autowired
-    private Validator<ComputerDto> computerValidator;
     @Autowired
     @InjectMocks
     private ComputerService service;
@@ -156,97 +151,6 @@ public class ComputerServiceTest {
         service.insert(computer);
     }
 
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleNullName() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .build();
-
-        service.insert(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleEmptyName() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .name("   ")
-                .build();
-
-        service.insert(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleInvalidTimestampForIntroduced() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .name("test")
-                .introduced(LocalDate.MIN)
-                .build();
-
-        service.insert(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleIntroducedAfterNow() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .name("test")
-                .introduced(LocalDate.MAX)
-                .build();
-
-        service.insert(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleInvalidTimestampForDiscontinued() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .name("test")
-                .introduced(LocalDate.now())
-                .discontinued(LocalDate.MIN)
-                .build();
-
-        service.insert(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleDiscontinuedAfterNow() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .name("test")
-                .introduced(LocalDate.now())
-                .discontinued(LocalDate.MAX)
-                .build();
-
-        service.insert(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleDiscontinuedBeforeIntroduced() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .name("test")
-                .introduced(LocalDate.now())
-                .discontinued(LocalDate.now().minusDays(1))
-                .build();
-
-        service.insert(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testInsertHandleUnknownCompany() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .name("test")
-                .introduced(LocalDate.now().minusDays(1))
-                .discontinued(LocalDate.now())
-                .companyId(1)
-                .build();
-
-        when(companyDao.get(1)).thenReturn(Optional.empty());
-        service.insert(computer);
-    }
-
     @Test
     public void testInsertWorks() {
         Company company = Company
@@ -262,7 +166,7 @@ public class ComputerServiceTest {
                 .companyId(company.getId())
                 .build();
 
-        when(companyDao.get(company.getId())).thenReturn(Optional.of(company));
+        when(companyService.get(company.getId())).thenReturn(Optional.of(company));
         when(computerDao.insert(mockComputerMapper.toEntity(computer))).thenReturn(true);
 
         service.insert(computer);
@@ -287,114 +191,6 @@ public class ComputerServiceTest {
         service.update(computer);
     }
 
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleNullName() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .build();
-
-        when(computerDao.get(computer.getId())).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        service.update(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleEmptyName() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .name("   ")
-                .build();
-
-        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        service.update(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleInvalidTimestampForIntroduced() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .name("test")
-                .introduced(LocalDate.MIN)
-                .build();
-
-        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        service.update(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleIntroducedAfterNow() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .name("test")
-                .introduced(LocalDate.MAX)
-                .build();
-
-        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        service.update(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleInvalidTimestampForDiscontinued() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .name("test")
-                .introduced(LocalDate.now())
-                .discontinued(LocalDate.MIN)
-                .build();
-
-        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        service.update(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleDiscontinuedAfterNow() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .name("test")
-                .introduced(LocalDate.now())
-                .discontinued(LocalDate.MAX)
-                .build();
-
-        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        service.update(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleDiscontinuedBeforeIntroduced() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .name("test")
-                .introduced(LocalDate.now())
-                .discontinued(LocalDate.now().minusDays(1))
-                .build();
-
-        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        service.update(computer);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testUpdateHandleUnknownCompany() {
-        ComputerDto computer = ComputerDto
-                .builder()
-                .id(1)
-                .name("test")
-                .introduced(LocalDate.now().minusDays(1))
-                .discontinued(LocalDate.now())
-                .companyId(1)
-                .build();
-
-        when(computerDao.get(1)).thenReturn(Optional.of(computerMapper.toEntity(computer)));
-        when(companyDao.get(1)).thenReturn(Optional.empty());
-
-        service.update(computer);
-    }
-
     @Test
     public void testUpdateWorks() {
         Company company = Company
@@ -411,7 +207,7 @@ public class ComputerServiceTest {
                 .companyId(company.getId())
                 .build();
 
-        when(companyDao.get(company.getId())).thenReturn(Optional.of(company));
+        when(companyService.get(company.getId())).thenReturn(Optional.of(company));
         when(computerDao.get(computer.getId())).thenReturn(Optional.of(computerMapper.toEntity(computer)));
         when(computerDao.update(Mockito.any(Computer.class))).thenReturn(true);
 

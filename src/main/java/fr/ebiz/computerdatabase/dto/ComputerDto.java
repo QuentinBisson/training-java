@@ -30,13 +30,13 @@ public class ComputerDto implements Serializable {
     /**
      * Introduction date of the computer.
      */
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate introduced;
 
     /**
      * Discontinuation date of the computer.
      */
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate discontinued;
     /**
      * Company id.

@@ -57,7 +57,7 @@
                 <th class="editMode" style="width: 60px; height: 22px;">
                     <input type="checkbox" id="selectall"/>
                     <span style="vertical-align: top;">
-                         -  <a href="#" id="deleteSelected" onclick="$.fn.deleteSelected();">
+                         -  <a href="#" id="deleteSelected">
                                 <i class="fa fa-trash-o fa-lg"></i>
                             </a>
                     </span>
@@ -103,11 +103,11 @@
                     </td>
                     <td>
                         <c:if test="${!empty computer.introduced}">
-                            <tags:localDate pattern="yyyy-MM-dd" value="${computer.introduced}"/>
+                            <tags:localDate value="${computer.introduced}"/>
                         </c:if>
                     </td>
                     <td><c:if test="${!empty computer.discontinued}">
-                        <tags:localDate pattern="yyyy-MM-dd" value="${computer.discontinued}"/>
+                        <tags:localDate value="${computer.discontinued}"/>
                     </c:if></td>
                     <td><c:out value="${computer.companyName}"/></td>
                 </tr>

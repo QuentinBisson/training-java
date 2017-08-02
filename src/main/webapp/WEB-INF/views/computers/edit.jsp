@@ -26,7 +26,7 @@
                     id: ${computer.id}
                 </div>
                 <h1><spring:message code="computers.actions.edit"/></h1>
-                <form:form action="${contextPath}/computers/${computer.id}" method="POST" id="computer-form"
+                <form:form action="${contextPath}/computers" method="POST" id="computer-form"
                            modelAttribute="computer">
                     <form:hidden path="id"/>
                     <fieldset>
@@ -106,7 +106,7 @@
                         </spring:bind>
                     </fieldset>
                     <div class="actions pull-right">
-                        <form:button type="submit" class="btn btn-primary"><spring:message
+                        <form:button class="btn btn-primary"><spring:message
                                 code="actions.edit"/></form:button>
                         <spring:message code="globals.or"/>
                         <a href="${contextPath}" class="btn btn-default"><spring:message code="actions.cancel"/></a>
@@ -123,17 +123,17 @@
         computers: {
             constraints: {
                 name: {
-                    toosmall: '<spring:message code="computers.constraints.name.toosmall" arguments="3"/>'
+                    toosmall: "<spring:message code="computers.constraints.name.toosmall" arguments="3"/>"
                 },
                 introduced: {
-                    invalid: '<spring:message code="computers.constraints.introduced.invalid" />'
+                    invalid: "<spring:message code="computers.constraints.introduced.invalid" />"
                 },
                 discontinued: {
-                    invalid: '<spring:message code="computers.constraints.discontinued.invalid" />',
-                    afterIntroductionDate: '<spring:message code="computers.constraints.discontinued.afterIntroductionDate" />'
+                    invalid: "<spring:message code="computers.constraints.discontinued.invalid" />",
+                    afterIntroductionDate: "<spring:message code="computers.constraints.discontinued.afterIntroductionDate" />"
                 },
                 company: {
-                    invalid: '<spring:message code="computers.constraints.company.invalid" />'
+                    invalid: "<spring:message code="computers.constraints.company.invalid" />"
                 }
             }
         }

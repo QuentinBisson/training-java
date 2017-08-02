@@ -20,10 +20,15 @@ $(function () {
         } else {
             $("#selectall").prop("checked", false);
         }
-        if ($(".cb:checked").length != 0) {
-            $("#deleteSelected").enable();
+
+        if ($(".cb:checked").length) {
+            $("#deleteSelected").on('click', $.fn.deleteSelected);
         } else {
-            $("#deleteSelected").disable();
+            $("#deleteSelected").prop('onclick', null).off('click');
+            $("#deleteSelected")
+                .on('click', function (e) {
+                    e.preventDefault();
+                });
         }
     });
 
@@ -49,7 +54,6 @@ $(function () {
 (function ($) {
 
     $.fn.toggleEditMode = function () {
-        debugger;
         if ($(".editMode").is(":visible")) {
             $(".editMode").hide();
             $("#editComputer").text(i18nFromJava.actions.edit);

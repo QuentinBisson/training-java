@@ -11,4 +11,4 @@
 </c:if>
 
 <fmt:parseDate value="${value}" pattern="yyyy-MM-dd" var="parsedDate" type="date" parseLocale="en_GB"/>
-<fmt:formatDate value="${parsedDate}" type="date" pattern="${pattern}"/>
+<fmt:formatDate value="${parsedDate}" type="date" pattern="yyyy-MM-dd"/>

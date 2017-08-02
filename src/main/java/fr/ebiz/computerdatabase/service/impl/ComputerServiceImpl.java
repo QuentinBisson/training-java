@@ -8,7 +8,6 @@ import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,20 +22,17 @@ public class ComputerServiceImpl implements ComputerService {
 
     private final ComputerDao computerDao;
     private final ComputerMapper computerMapper;
-    private final ComputerValidator computerValidator;
 
     /**
      * Constructor.
      *
      * @param computerDao       The computer dao to inject
      * @param computerMapper    The computer mapper to inject
-     * @param computerValidator The computer validator to inject
      */
     @Autowired
-    public ComputerServiceImpl(ComputerDao computerDao, ComputerMapper computerMapper, ComputerValidator computerValidator) {
+    public ComputerServiceImpl(ComputerDao computerDao, ComputerMapper computerMapper) {
         this.computerDao = computerDao;
         this.computerMapper = computerMapper;
-        this.computerValidator = computerValidator;
     }
 
     /**
@@ -100,7 +96,6 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("Computer should not have an id");
         }
 
-        computerValidator.validate(dto);
         computerDao.insert(computerMapper.toEntity(dto));
     }
 
@@ -114,7 +109,6 @@ public class ComputerServiceImpl implements ComputerService {
 
         assertComputerIdIsNotNullAndExists(dto);
 
-        computerValidator.validate(dto);
         computerDao.update(computerMapper.toEntity(dto));
     }
 
