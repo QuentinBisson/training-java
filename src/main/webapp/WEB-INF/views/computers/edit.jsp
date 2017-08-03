@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="tags" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <!DOCTYPE html>
@@ -26,6 +27,7 @@
                     id: ${computer.id}
                 </div>
                 <h1><spring:message code="computers.actions.edit"/></h1>
+
                 <form:form action="${contextPath}/computers" method="POST" id="computer-form"
                            modelAttribute="computer">
                     <form:hidden path="id"/>
@@ -55,9 +57,9 @@
 
                                 <form:input
                                         id="introduced"
-                                        type="date"
+                                        type="text"
                                         path="introduced"
-                                        class="form-control ${status.error ? 'form-control-danger' : 'form-control-success'}"
+                                        class="form-control ${(status.error) ? 'form-control-danger' : (status.value ? 'form-control-success' : '')}"
                                         placeholder="${fieldIntroduced}"
                                 />
                                 <div class="form-control-error">
@@ -74,9 +76,9 @@
 
                                 <form:input
                                         id="discontinued"
-                                        type="date"
+                                        type="text"
                                         path="discontinued"
-                                        cssClass="form-control ${status.error ? 'form-control-danger' : 'form-control-success'}"
+                                        cssClass="form-control ${(status.error) ? 'form-control-danger' : (status.value ? 'form-control-success' : '')}"
                                         placeholder="${fieldDiscontinued}"
                                 />
 
@@ -120,6 +122,9 @@
 <script type="text/javascript">
     // Declare variable here to access spring i18n in js code
     var i18nFromJava = {
+        date: {
+            format: "<spring:message code="date.format"/>"
+        },
         computers: {
             constraints: {
                 name: {

@@ -6,6 +6,14 @@ $(function () {
     const formControlError = 'form-control-danger';
     const formControlFeedbackClass = '.form-control-error';
 
+    // Create date matcher from localized date format
+    const dateFormat = i18nFromJava.date.format
+        .replace("dd", "(0[1-9]|1[0-2])")
+        .replace("MM", "(0[1-9]|[12][0-9]|3[01])")
+        .replace("yyyy", "(\\d{4})");
+    const dateRegex = new RegExp('^' + dateFormat + '$');
+
+
     function cleanState($element) {
         $element.parent().removeClass(formGroupSuccess + ' ' + formGroupError);
         $element.removeClass(formControlSuccess + ' ' + formControlError);
@@ -25,7 +33,7 @@ $(function () {
 
     const isValidDate = function (str) {
         // Match iso date
-        return str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        return str.match(dateRegex);
     };
 
     function validateDate(identifier, errorMessage) {

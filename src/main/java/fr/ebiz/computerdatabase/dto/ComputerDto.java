@@ -1,8 +1,5 @@
 package fr.ebiz.computerdatabase.dto;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.Min;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -24,19 +21,18 @@ public class ComputerDto implements Serializable {
     /**
      * Computer name.
      */
-    @Min(value = 3, message = "computers.constraints.name.toosmall")
     private String name;
 
     /**
      * Introduction date of the computer.
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
     private LocalDate introduced;
 
     /**
      * Discontinuation date of the computer.
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
     private LocalDate discontinued;
     /**
      * Company id.
@@ -123,16 +119,14 @@ public class ComputerDto implements Serializable {
         private final ComputerDto computer;
 
         /**
-         * .
-         * Create a new computer object to build;
+         * Create a new computer object to build.
          */
         ComputerDtoBuilder() {
             computer = new ComputerDto();
         }
 
         /**
-         * .
-         * Set the computer id
+         * Set the computer id.
          *
          * @param id The new id to set
          * @return The builder instance
@@ -143,8 +137,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer name
+         * Set the computer name.
          *
          * @param name The new name to set
          * @return The builder instance
@@ -155,8 +148,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer introduction date
+         * Set the computer introduction date.
          *
          * @param introduced The new introduction date to set
          * @return The builder instance
@@ -167,8 +159,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer discontinuation date
+         * Set the computer discontinuation date.
          *
          * @param discontinued The new discontinued to set
          * @return The builder instance
@@ -179,8 +170,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer company id
+         * Set the computer company id.
          *
          * @param companyId The new company id to set
          * @return The builder instance
@@ -192,8 +182,7 @@ public class ComputerDto implements Serializable {
 
 
         /**
-         * .
-         * Set the computer company name
+         * Set the computer company name.
          *
          * @param companyName The new company name to set
          * @return The builder instance
@@ -204,8 +193,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Return the built instance of ComputerDto
+         * Return the built instance of ComputerDto.
          *
          * @return the computer
          */

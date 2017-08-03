@@ -106,7 +106,6 @@ public class ComputerServiceImpl implements ComputerService {
     @Override
     public void update(ComputerDto dto) {
         assertComputerIsNotNull(dto);
-
         assertComputerIdIsNotNullAndExists(dto);
 
         computerDao.update(computerMapper.toEntity(dto));

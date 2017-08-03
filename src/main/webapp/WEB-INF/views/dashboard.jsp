@@ -45,6 +45,10 @@
 
     <form id="deleteForm" action="${contextPath}/computers/delete" method="POST">
         <input type="hidden" name="selection" value="">
+        <input type="hidden" name="query" value="${request.query}">
+        <input type="hidden" name="page" value="${computers.currentPage}">
+        <input type="hidden" name="pageSize" value="${request.pageSize}">
+        <input type="hidden" name="column" value="${request.column}">
     </form>
 
     <div class="container" style="margin-top: 10px;">

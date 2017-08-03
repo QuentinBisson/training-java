@@ -5,14 +5,12 @@ import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
+import fr.ebiz.computerdatabase.ui.web.converter.LocalDatePropertyEditorSupport;
 import fr.ebiz.computerdatabase.ui.web.exception.ResourceNotFoundException;
-import fr.ebiz.computerdatabase.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -20,19 +18,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
 @RequestMapping("/computers")
 public class ComputerController {
-
-    private static final String DELETE_COMPUTERS_REGEX = "\\d+(,\\d+)*";
 
     private static final String COMPUTER_ATTR = "computer";
     private static final String COMPANIES_ATTR = "companies";
@@ -41,13 +34,26 @@ public class ComputerController {
     private static final String EDIT_COMPUTER_VIEW = "computers/edit";
     private static final String REDIRECT_TO_DASHBOARD_VIEW = "redirect:/dashboard";
 
+    private final ComputerService computerService;
+    private final CompanyService companyService;
+    private final ComputerValidator validator;
+    private final LocalDatePropertyEditorSupport localDatePropertyEditorSupport;
+
+    /**
+     * Constructor.
+     *
+     * @param computerService                The computer service
+     * @param companyService                 The company service
+     * @param validator                      The computer validator
+     * @param localDatePropertyEditorSupport localDatePropertyEditorSupport
+     */
     @Autowired
-    private ComputerService computerService;
-    @Autowired
-    private CompanyService companyService;
-    @Autowired
-    @Qualifier("computerValidator")
-    private Validator validator;
+    public ComputerController(ComputerService computerService, CompanyService companyService, ComputerValidator validator, LocalDatePropertyEditorSupport localDatePropertyEditorSupport) {
+        this.computerService = computerService;
+        this.companyService = companyService;
+        this.validator = validator;
+        this.localDatePropertyEditorSupport = localDatePropertyEditorSupport;
+    }
 
     /**
      * Init the validators.
@@ -56,7 +62,8 @@ public class ComputerController {
      */
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        binder.setValidator(validator);
+        binder.addValidators(validator);
+        binder.registerCustomEditor(LocalDate.class, localDatePropertyEditorSupport);
     }
 
     /**
@@ -96,7 +103,7 @@ public class ComputerController {
      * @return The created model
      */
     @PostMapping
-    public String saveComputer(@Valid @ModelAttribute("computer") ComputerDto computerDto, BindingResult result) {
+    public String saveComputer(@ModelAttribute("computer") @Valid ComputerDto computerDto, BindingResult result) {
         if (result.hasErrors()) {
             if (computerDto.getId() == null) {
                 return ADD_COMPUTER_VIEW;
@@ -111,25 +118,6 @@ public class ComputerController {
         } else {
             computerService.update(computerDto);
         }
-        return REDIRECT_TO_DASHBOARD_VIEW;
-    }
-
-    /**
-     * Create or update a computer.
-     *
-     * @param ids The list of id to delete
-     * @return The created model
-     */
-    @PostMapping("/delete")
-    public String deleteComputers(
-            @RequestParam("selection")
-            @Pattern(regexp = DELETE_COMPUTERS_REGEX) String ids) {
-        List<Integer> idList = new ArrayList<>();
-        Arrays.stream(ids.split(","))
-                .filter(StringUtils::isNumeric)
-                .mapToInt(Integer::parseInt).forEach(idList::add);
-
-        computerService.deleteComputers(idList);
         return REDIRECT_TO_DASHBOARD_VIEW;
     }
 

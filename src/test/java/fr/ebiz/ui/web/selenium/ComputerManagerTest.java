@@ -87,12 +87,12 @@ public class ComputerManagerTest {
         Assert.assertEquals(baseUrl + "/computers", driver.getCurrentUrl());
 
         SeleniumUtils.input(driver, COMPUTER_NAME_BY, "Nouvel ordinateur");
-        SeleniumUtils.input(driver, INTRODUCED_BY, "2013-04-07");
-        SeleniumUtils.input(driver, DISCONTINUED_BY, "2012-04-07");
+        SeleniumUtils.input(driver, INTRODUCED_BY, "04/07/2013");
+        SeleniumUtils.input(driver, DISCONTINUED_BY, "04/07/2012");
         new Select(driver.findElement(By.id("companyId"))).selectByVisibleText("Amiga Corporation");
 
         driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
-        SeleniumUtils.input(driver, DISCONTINUED_BY, "2015-04-07");
+        SeleniumUtils.input(driver, DISCONTINUED_BY, "04/07/2015");
         driver.findElement(By.cssSelector("button.btn.btn-primary")).click();
     }
 

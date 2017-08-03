@@ -11,7 +11,7 @@ import org.springframework.validation.Validator;
 @Component
 @Qualifier("computerValidator")
 public class ComputerValidator implements Validator {
-
+    private static final String COMPUTER_NAME_FIELD = "name";
     private static final String COMPUTER_INTRODUCED_FIELD = "introduced";
     private static final String COMPUTER_DISCONTINUED_FIELD = "discontinued";
     private static final String COMPUTER_COMPANY_FIELD = "company";
@@ -36,10 +36,24 @@ public class ComputerValidator implements Validator {
     @Override
     public void validate(Object object, Errors errors) {
         ComputerDto computer = (ComputerDto) object;
-        // We don't validate the name field since it is validated with annotations
+
+        assertNameIsNotEmpty(errors, computer);
         assertComputerIntroductionDateIsNullOrValid(errors, computer);
         assertComputerDiscontinuedDateIsNullOrValid(errors, computer);
         assertCompanyIsNullOrExist(errors, computer);
+
+    }
+
+    /**
+     * Assert the computer name is at least 3 characters long.
+     *
+     * @param errors   The map of errors
+     * @param computer The computer to test
+     */
+    private void assertNameIsNotEmpty(Errors errors, ComputerDto computer) {
+        if (computer.getName() == null || computer.getName().length() < 3) {
+            errors.rejectValue(COMPUTER_NAME_FIELD, "computers.constraints." + COMPUTER_NAME_FIELD + ".toosmall", new Object[]{3}, "");
+        }
 
     }
 
