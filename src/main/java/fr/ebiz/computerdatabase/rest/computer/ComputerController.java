@@ -19,7 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/computers")
+@RequestMapping(value = "/computers")
 public class ComputerController {
 
     private ComputerService computerService;

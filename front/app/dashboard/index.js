@@ -1,16 +1,16 @@
-import angular from 'angular';
-import ngRoute from 'angular-route';
+import angular from 'angular'
 
-import routeConfig from './route';
-import dashboard from './component'
-import {
-    DASHBOARD_MODULE_NAME,
-    DASHBOARD_COMPONENT_NAME
-} from './config';
+import routes from './routes'
+import {computerList, dashboard, dashboardActions, dashboardTitle} from './components'
 
-const dashboardModule = angular.module(DASHBOARD_MODULE_NAME, ['ngRoute']);
-dashboardModule
-    .config(routeConfig)
-    .component(DASHBOARD_COMPONENT_NAME, dashboard);
+import {DASHBOARD_MODULE_NAME} from './config';
 
-export default dashboardModule;
+const dashboardModule = angular
+    .module(DASHBOARD_MODULE_NAME, ['ngRoute', 'commons'])
+    .config(routes)
+    .component('dashboard', dashboard)
+    .component('dashboardActions', dashboardActions)
+    .component('dashboardTitle', dashboardTitle)
+    .component('computerList', computerList);
+
+export default dashboardModule

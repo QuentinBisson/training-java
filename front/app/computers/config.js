@@ -1,0 +1,1 @@
+export const COMPUTERS_MODULE_NAME = 'computers';

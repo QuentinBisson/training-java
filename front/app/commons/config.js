@@ -1,0 +1,1 @@
+export const COMMONS_MODULE_NAME = 'commons';
