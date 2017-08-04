@@ -45,12 +45,10 @@
         <appender-ref ref="ASYNC"/>
     </root>
 
-    <logger name="net.sf.ehcache" level="INFO"/>
-
-    <logger name="org.springframework" level="DEBUG"/>
+    <logger name="org.springframework" level="INFO"/>
 
     <!-- Turn on debug logging for our HikariCP connection pool. -->
-    <logger name="com.zaxxer.hikari" level="DEBUG"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
 
     <!-- Turn on debug logging for all loggers under fr.ebiz.computerdatabase -->
     <logger name="fr.ebiz.computerdatabase" level="DEBUG"/>

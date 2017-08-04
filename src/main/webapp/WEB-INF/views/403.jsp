@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <!DOCTYPE html>
 <html>
@@ -13,16 +14,12 @@
 </head>
 <body>
 
-<header class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="."> Application - Computer Database </a>
-    </div>
-</header>
+<c:import url="../template/header.jsp"/>
 
 <section id="main">
     <div class="container">
         <div class="alert alert-danger">
-            Error 403: Access denied!
+            <spring:message code="error.403"/>
             <br/>
             <!-- stacktrace -->
         </div>

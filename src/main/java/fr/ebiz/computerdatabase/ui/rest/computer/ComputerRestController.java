@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.rest.computer;
+package fr.ebiz.computerdatabase.ui.rest.computer;
 
 import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping(value = "/computers")
+@RequestMapping(value = "/api/computers")
 public class ComputerController {
 
     private ComputerService computerService;

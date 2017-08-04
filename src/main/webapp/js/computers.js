@@ -6,6 +6,14 @@ $(function () {
     const formControlError = 'form-control-danger';
     const formControlFeedbackClass = '.form-control-error';
 
+    // Create date matcher from localized date format
+    const dateFormat = i18nFromJava.date.format
+        .replace("dd", "(0[1-9]|1[0-2])")
+        .replace("MM", "(0[1-9]|[12][0-9]|3[01])")
+        .replace("yyyy", "(\\d{4})");
+    const dateRegex = new RegExp('^' + dateFormat + '$');
+
+
     function cleanState($element) {
         $element.parent().removeClass(formGroupSuccess + ' ' + formGroupError);
         $element.removeClass(formControlSuccess + ' ' + formControlError);
@@ -24,17 +32,18 @@ $(function () {
     };
 
     const isValidDate = function (str) {
-        return str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        // Match iso date
+        return str.match(dateRegex);
     };
 
-    function validateDate(identifier) {
+    function validateDate(identifier, errorMessage) {
         var $date = $(identifier);
         if (!$date.val() || isValidDate($date.val())) {
             addSuccess($date);
             $date.siblings(formControlFeedbackClass).text('');
         } else {
             addError($date);
-            $date.siblings(formControlFeedbackClass).text('Invalid timestamp !');
+            $date.siblings(formControlFeedbackClass).text(errorMessage);
             return false;
         }
         return true;
@@ -44,21 +53,20 @@ $(function () {
         var valid = true;
 
         var $computerName = $('#computerName');
-        if ($computerName.val()) {
+        if ($computerName.val() && $computerName.val().length >= 3) {
             addSuccess($computerName);
             $computerName.siblings(formControlFeedbackClass).text('');
         } else {
             addError($computerName);
-            $computerName.siblings(formControlFeedbackClass).text('Name must be filled !');
+            $computerName.siblings(formControlFeedbackClass).text(i18nFromJava.computers.constraints.name.toosmall);
             valid = false;
         }
 
-        valid = validateDate('#introduced') && valid;
-        valid = validateDate('#discontinued') && valid;
+        valid = validateDate('#introduced', i18nFromJava.computers.constraints.introduced.invalid) && valid;
+        valid = validateDate('#discontinued', i18nFromJava.computers.constraints.discontinued.invalid) && valid;
 
         addSuccess($('#companyId'));
 
         return valid;
     });
-
 });

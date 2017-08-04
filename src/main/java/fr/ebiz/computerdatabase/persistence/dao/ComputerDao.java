@@ -2,6 +2,7 @@ package fr.ebiz.computerdatabase.persistence.dao;
 
 import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.model.Computer;
+import fr.ebiz.computerdatabase.persistence.SortOrder;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +19,14 @@ public interface ComputerDao {
     /**
      * Get the computers from the database paginated.
      *
-     * @param request    The request parameters
+     * @param query    The query to search computer of company name
+     * @param pageSize The number of elements per page
+     * @param offset   The paging offset
+     * @param column   The column to sort with
+     * @param order    the sort order
      * @return The paginated computers
      */
-    List<Computer> getAll(GetAllComputersRequest request);
+    List<Computer> getAll(String query, int pageSize, int offset, SortColumn column, SortOrder order);
 
     /**
      * Count the number of elements in the database.
@@ -61,7 +66,7 @@ public interface ComputerDao {
      * @param companyId The id of the company
      * @return true if any computer was deleted
      */
-    boolean deleteByCompanyId(Integer companyId);
+    boolean deleteByCompanyId(int companyId);
 
     /**
      * Delete a list of computer from the database.
@@ -72,7 +77,7 @@ public interface ComputerDao {
     boolean deleteComputers(List<Integer> ids);
 
     enum SortColumn {
-        NAME("computerName"), INTRODUCED("introduced, computerName"), DISCONTINUED("discontinued, computerName"), COMPANY_NAME("companyName, computerName"), COMPANY_ID("company_id, computerName");
+        NAME("computerName"), INTRODUCED("introduced, computerName"), DISCONTINUED("discontinued, computerName"), COMPANY("companyName, computerName");
 
         String field;
 

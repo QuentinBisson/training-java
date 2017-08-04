@@ -26,11 +26,13 @@ public class ComputerDto implements Serializable {
     /**
      * Introduction date of the computer.
      */
+
     private LocalDate introduced;
 
     /**
      * Discontinuation date of the computer.
      */
+
     private LocalDate discontinued;
     /**
      * Company id.
@@ -75,6 +77,26 @@ public class ComputerDto implements Serializable {
         return companyName;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIntroduced(LocalDate introduced) {
+        this.introduced = introduced;
+    }
+
+    public void setDiscontinued(LocalDate discontinued) {
+        this.discontinued = discontinued;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -97,16 +119,14 @@ public class ComputerDto implements Serializable {
         private final ComputerDto computer;
 
         /**
-         * .
-         * Create a new computer object to build;
+         * Create a new computer object to build.
          */
         ComputerDtoBuilder() {
             computer = new ComputerDto();
         }
 
         /**
-         * .
-         * Set the computer id
+         * Set the computer id.
          *
          * @param id The new id to set
          * @return The builder instance
@@ -117,8 +137,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer name
+         * Set the computer name.
          *
          * @param name The new name to set
          * @return The builder instance
@@ -129,8 +148,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer introduction date
+         * Set the computer introduction date.
          *
          * @param introduced The new introduction date to set
          * @return The builder instance
@@ -141,8 +159,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer discontinuation date
+         * Set the computer discontinuation date.
          *
          * @param discontinued The new discontinued to set
          * @return The builder instance
@@ -153,8 +170,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Set the computer company id
+         * Set the computer company id.
          *
          * @param companyId The new company id to set
          * @return The builder instance
@@ -166,8 +182,7 @@ public class ComputerDto implements Serializable {
 
 
         /**
-         * .
-         * Set the computer company name
+         * Set the computer company name.
          *
          * @param companyName The new company name to set
          * @return The builder instance
@@ -178,8 +193,7 @@ public class ComputerDto implements Serializable {
         }
 
         /**
-         * .
-         * Return the built instance of ComputerDto
+         * Return the built instance of ComputerDto.
          *
          * @return the computer
          */

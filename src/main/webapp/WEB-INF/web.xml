@@ -5,10 +5,10 @@
         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
         version="3.1">
 
-    <welcome-file-list>
-        <welcome-file>home</welcome-file>
-    </welcome-file-list>
-
+    <error-page>
+        <error-code>400</error-code>
+        <location>/WEB-INF/views/400.jsp</location>
+    </error-page>
     <error-page>
         <error-code>404</error-code>
         <location>/WEB-INF/views/404.jsp</location>
@@ -23,8 +23,8 @@
     </error-page>
 
     <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext.xml</param-value>
+        <param-name>contextClass</param-name>
+        <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
     </context-param>
 
     <listener>
@@ -32,19 +32,5 @@
             org.springframework.web.context.ContextLoaderListener
         </listener-class>
     </listener>
-
-    <servlet>
-        <servlet-name>dispatcherServlet</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:applicationContext.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>dispatcherServlet</servlet-name>
-        <url-pattern>/api/*</url-pattern>
-    </servlet-mapping>
 
 </web-app>

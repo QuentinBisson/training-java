@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.rest.company;
+package fr.ebiz.computerdatabase.ui.rest.company;
 
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/api/companies")
 public class CompanyController {
 
     private CompanyService companyService;

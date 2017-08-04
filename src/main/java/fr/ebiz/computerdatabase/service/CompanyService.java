@@ -30,4 +30,12 @@ public interface CompanyService {
      * @param companyId The company to delete
      */
     void delete(int companyId);
+
+    /**
+     * Check whether a company exists.
+     *
+     * @param id The company id to check
+     * @return True if the company exists
+     */
+    boolean exists(int id);
 }

@@ -1,6 +1,7 @@
 <%@ tag body-content="empty" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <%@ attribute name="page" required="true" type="java.lang.Integer" %>
 <%@ attribute name="totalPages" required="true" type="java.lang.Integer" %>
@@ -19,7 +20,7 @@
 <ul class="pagination">
     <c:if test="${page > 0}">
         <li>
-            <a href="${url}&page=${page - 1}${pageSizeParameter}" aria-label="Previous">
+            <a href="${url}&page=${page - 1}${pageSizeParameter}" aria-label="<spring:message code="paging.previous"/>">
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
@@ -35,7 +36,7 @@
 
     <c:if test="${page < totalPages - 1}" >
         <li>
-            <a href="${url}&page=${page + 1}${pageSizeParameter}" aria-label="Next">
+            <a href="${url}&page=${page + 1}${pageSizeParameter}" aria-label="<spring:message code="paging.next"/>">
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>

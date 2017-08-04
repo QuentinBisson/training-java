@@ -2,59 +2,58 @@ package fr.ebiz.computerdatabase.persistence.dao.impl;
 
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
-import fr.ebiz.computerdatabase.persistence.dao.DaoUtils;
-import fr.ebiz.computerdatabase.persistence.exception.DaoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public class CompanyDaoImpl implements CompanyDao {
 
-    private static final String READ_QUERY = "SELECT * from company order by name LIMIT ? OFFSET ?";
-    private static final String READ_BY_ID_QUERY = "SELECT * from company where id = ?";
-    private static final String DELETE_QUERY = "DELETE FROM company WHERE id = ?";
-    private static final String COUNT_QUERY = "SELECT COUNT(*) from company";
+    private static final String READ_QUERY = "SELECT * FROM company ORDER BY name LIMIT :pageSize OFFSET :offset";
+    private static final String READ_BY_ID_QUERY = "SELECT * FROM company WHERE id = :id";
+    private static final String DELETE_QUERY = "DELETE FROM company WHERE id = :id";
+    private static final String COUNT_QUERY = "SELECT COUNT(*) FROM company";
 
-    private static final int FIRST_PARAMETER_INDEX = 1;
     private static final String ID_COLUMN_NAME = "id";
     private static final String NAME_COLUMN_NAME = "name";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputerDaoImpl.class.getName());
 
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+
+    /**
+     * Constructor.
+     *
+     * @param dataSource The dataSource
+     */
     @Autowired
-    private DataSource dataSource;
+    public CompanyDaoImpl(DataSource dataSource) {
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Optional<Company> get(int id) {
-        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(READ_BY_ID_QUERY)) {
-
-            statement.setInt(FIRST_PARAMETER_INDEX, id);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                List<Company> found = new ArrayList<>();
-                while (resultSet != null && resultSet.next()) {
-                    found.add(mapEntity(resultSet));
-                }
-
-                return DaoUtils.checkOnlyOne(found, LOGGER);
-            }
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
+        Map<String, Integer> parameters = new HashMap<>();
+        parameters.put(ID_COLUMN_NAME, id);
+        try {
+            return Optional.of(this.jdbcTemplate.queryForObject(READ_BY_ID_QUERY, parameters, (rs, row) -> mapRow(rs)));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
         }
     }
 
@@ -62,41 +61,20 @@ public class CompanyDaoImpl implements CompanyDao {
      * {@inheritDoc}
      */
     @Override
-    public List<Company> getAll(int elements, int offset) throws DaoException {
-        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(READ_QUERY)) {
+    public List<Company> getAll(int pageSize, int offset) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("pageSize", pageSize);
+        parameters.put("offset", offset);
 
-            int parameterIndex = FIRST_PARAMETER_INDEX;
-            statement.setInt(parameterIndex++, elements);
-            statement.setInt(parameterIndex, offset);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                List<Company> found = new ArrayList<>();
-                while (resultSet != null && resultSet.next()) {
-                    found.add(mapEntity(resultSet));
-                }
-                return found;
-            }
-
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
-        }
+        return this.jdbcTemplate.query(READ_QUERY, parameters, (rs, row) -> mapRow(rs));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int count() throws DaoException {
-        try (PreparedStatement statement = DataSourceUtils.getConnection(dataSource).prepareStatement(COUNT_QUERY);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            return resultSet != null && resultSet.next() ? resultSet.getInt(FIRST_PARAMETER_INDEX) : 0;
-
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new DaoException(DaoUtils.DAO_ACCESS_ERROR, e);
-        }
+    public int count() {
+        return this.jdbcTemplate.queryForObject(COUNT_QUERY, Collections.emptyMap(), Integer.class);
     }
 
     /**
@@ -104,8 +82,11 @@ public class CompanyDaoImpl implements CompanyDao {
      * {@inheritDoc}
      */
     @Override
-    public boolean delete(Integer id) throws DaoException {
-        return DaoUtils.deleteById(DELETE_QUERY, id, DataSourceUtils.getConnection(dataSource), LOGGER);
+    public boolean delete(Integer id) {
+        Map<String, Integer> parameters = new HashMap<>();
+        parameters.put(ID_COLUMN_NAME, id);
+
+        return jdbcTemplate.update(DELETE_QUERY, parameters) == 1;
     }
 
     /**
@@ -115,7 +96,7 @@ public class CompanyDaoImpl implements CompanyDao {
      * @return The mapped entity
      * @throws SQLException if an error occurs when accessing the properties from the result set
      */
-    private Company mapEntity(ResultSet resultSet) throws SQLException {
+    private Company mapRow(ResultSet resultSet) throws SQLException {
         if (resultSet != null && !resultSet.isClosed()) {
             return Company.builder()
                     .id(resultSet.getInt(ID_COLUMN_NAME))

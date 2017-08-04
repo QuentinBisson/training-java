@@ -18,11 +18,11 @@ public interface CompanyDao {
     /**
      * Get the companies from the database paginated.
      *
-     * @param elements   The number of companies to get
+     * @param pageSize   The number of companies to get
      * @param offset     The number of companies to skip in the results
      * @return The paginated companies
      */
-    List<Company> getAll(int elements, int offset);
+    List<Company> getAll(int pageSize, int offset);
 
     /**
      * Delete a company from the database.

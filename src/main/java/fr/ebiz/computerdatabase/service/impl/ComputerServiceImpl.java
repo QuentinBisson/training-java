@@ -8,7 +8,6 @@ import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
 import fr.ebiz.computerdatabase.service.ComputerService;
-import fr.ebiz.computerdatabase.service.validator.impl.ComputerValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,25 +16,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional(readOnly = true)
 @Service
 public class ComputerServiceImpl implements ComputerService {
 
     private final ComputerDao computerDao;
     private final ComputerMapper computerMapper;
-    private final ComputerValidator computerValidator;
 
     /**
      * Constructor.
      *
-     * @param computerDao       Dao used to access the computers
-     * @param computerMapper    The computer mapper
-     * @param computerValidator The computer validator
+     * @param computerDao       The computer dao to inject
+     * @param computerMapper    The computer mapper to inject
      */
     @Autowired
-    public ComputerServiceImpl(ComputerDao computerDao, ComputerMapper computerMapper, ComputerValidator computerValidator) {
+    public ComputerServiceImpl(ComputerDao computerDao, ComputerMapper computerMapper) {
         this.computerDao = computerDao;
         this.computerMapper = computerMapper;
-        this.computerValidator = computerValidator;
     }
 
     /**
@@ -47,15 +44,14 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("ID must be > 0");
         }
 
-        return computerDao.get(id).map(c -> Optional.of(ComputerMapper.getInstance().toDto(c)))
-                .orElse(Optional.empty());
+        return computerDao.get(id).map(c -> ComputerMapper.getInstance().toDto(c));
+
     }
 
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings(value = "unchecked")
-    @Transactional(readOnly = true)
     @Override
     public Page<ComputerDto> getAll(GetAllComputersRequest request) {
         if (request == null) {
@@ -76,17 +72,15 @@ public class ComputerServiceImpl implements ComputerService {
         if (totalPage == 0) {
             computers = Collections.emptyList();
         } else {
-            computers = computerDao.getAll(request);
+            computers = computerDao.getAll(request.getQuery(), request.getPageSize(), request.getOffset(), request.getColumn(), request.getOrder());
         }
 
-        Page<ComputerDto> page = Page.builder()
+        return Page.builder()
                 .currentPage(request.getPage())
                 .totalPages(totalPage)
                 .totalElements(numberOfComputers)
                 .elements(ComputerMapper.getInstance().toDto(computers))
                 .build();
-
-        return page;
     }
 
     /**
@@ -100,7 +94,6 @@ public class ComputerServiceImpl implements ComputerService {
             throw new IllegalArgumentException("Computer should not have an id");
         }
 
-        computerValidator.validate(dto);
         Computer computer = computerMapper.toEntity(dto);
         computerDao.insert(computer);
         return computer.getId();
@@ -109,19 +102,19 @@ public class ComputerServiceImpl implements ComputerService {
     /**
      * {@inheritDoc}
      */
-    @Transactional()
+    @Transactional
     @Override
     public void update(ComputerDto dto) {
         assertComputerIsNotNull(dto);
-        assertComputerIdIsNotNullAndExists(dto.getId());
+        assertComputerIdIsNotNullAndExists(dto);
 
-        computerValidator.validate(dto);
         computerDao.update(computerMapper.toEntity(dto));
     }
 
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     public void delete(int computerId) {
         assertComputerIdIsNotNullAndExists(computerId);
@@ -129,14 +122,18 @@ public class ComputerServiceImpl implements ComputerService {
         computerDao.delete(computerId);
     }
 
+    @Transactional
     @Override
     public void deleteByCompanyId(int companyId) {
         computerDao.deleteByCompanyId(companyId);
     }
 
+    @Transactional
     @Override
     public void deleteComputers(List<Integer> ids) {
-        computerDao.deleteComputers(ids);
+        if (!ids.isEmpty()) {
+            computerDao.deleteComputers(ids);
+        }
     }
 
     /**
