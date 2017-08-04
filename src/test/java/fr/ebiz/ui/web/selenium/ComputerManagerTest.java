@@ -64,7 +64,6 @@ public class ComputerManagerTest {
         driver.findElement(By.xpath("//a[@id='deleteSelected']/i")).click();
         Assert.assertTrue(SeleniumUtils.alert(driver, true).matches("^Are you sure you want to delete the selected computers \\?$"));
         new WebDriverWait(driver, 10).until(ExpectedConditions.visibilityOfElementLocated(HOME_TITLE_BY));
-        Assert.assertEquals(baseUrl + INDEX_URL, driver.getCurrentUrl().replace("#", ""));
     }
 
     private void searchAndEditComputer() {

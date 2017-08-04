@@ -1,5 +1,6 @@
 package fr.ebiz.service;
 
+import fr.ebiz.computerdatabase.config.ServiceConfiguration;
 import fr.ebiz.computerdatabase.dto.ComputerDto;
 import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.dto.paging.Page;
@@ -23,6 +24,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
@@ -34,7 +36,7 @@ import java.util.stream.IntStream;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:applicationContext.xml"})
+@ContextConfiguration(classes = ServiceConfiguration.class, loader = AnnotationConfigContextLoader.class)
 public class ComputerServiceTest {
 
     private static final int PAGE_SIZE = 10;
