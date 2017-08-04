@@ -1,6 +1,5 @@
 package fr.ebiz.computerdatabase.persistence.dao.impl;
 
-import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.SortOrder;
@@ -102,16 +101,16 @@ public class ComputerDaoImpl implements ComputerDao {
      * {@inheritDoc}
      */
     @Override
-    public List<Computer> getAll(GetAllComputersRequest request) {
+    public List<Computer> getAll(String query, int pageSize, int offset, SortColumn column, SortOrder order) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("pageSize", request.getPageSize());
-        parameters.put("offset", request.getOffset());
+        parameters.put("pageSize", pageSize);
+        parameters.put("offset", offset);
 
-        String stringQuery = filterByName(parameters, READ_QUERY, request.getQuery());
-        if (request.getColumn() != null && request.getOrder() != null) {
-            stringQuery += String.format(" ORDER BY %s %s", request.getColumn().getField(), request.getOrder().name());
+        String stringQuery = filterByName(parameters, READ_QUERY, query);
+        if (column != null && order != null) {
+            stringQuery += String.format(" ORDER BY %s %s", column.getField(), order.name());
         }
-        stringQuery += " LIMIT ? OFFSET ? ";
+        stringQuery += " LIMIT :pageSize OFFSET :offset";
         return this.jdbcTemplate.query(stringQuery, parameters, (rs, row) -> mapRow(rs));
     }
 

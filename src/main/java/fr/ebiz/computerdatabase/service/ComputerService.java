@@ -45,14 +45,14 @@ public interface ComputerService {
      *
      * @param computerId The computer to delete
      */
-    void delete(int computerId);
+    void delete(Integer computerId);
 
     /**
      * Delete computers introduced by a company.
      *
      * @param companyId The id of the company
      */
-    void deleteByCompanyId(int companyId);
+    void deleteByCompanyId(Integer companyId);
 
     /**
      * Delete computers introduced by a company.

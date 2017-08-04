@@ -140,7 +140,7 @@ public class ComputerController {
      * @return the list of all companies
      */
     private List<Company> getAllCompanies() {
-        return companyService.getAll(Pageable.builder().elements(Integer.MAX_VALUE).page(0).build()).getElements();
+        return companyService.getAll(Pageable.builder().pageSize(Integer.MAX_VALUE).page(0).build()).getElements();
     }
 
 

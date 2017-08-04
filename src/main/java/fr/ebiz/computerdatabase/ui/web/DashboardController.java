@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-@RequestMapping({"/", "home", "dashboard"})
+@RequestMapping({"/", "/home", "/dashboard"})
 public class DashboardController {
 
     private static final String DELETE_COMPUTERS_REGEX = "\\d+(,\\d+)*";
@@ -33,7 +33,8 @@ public class DashboardController {
 
     private final ComputerService computerService;
 
-    /**public
+    /**
+     * public
      * Constructor.
      *
      * @param computerService The injected computer service

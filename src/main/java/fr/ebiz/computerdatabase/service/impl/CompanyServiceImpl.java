@@ -1,97 +1,108 @@
-package fr.ebiz.computerdatabase.service.impl
+package fr.ebiz.computerdatabase.service.impl;
 
-import fr.ebiz.computerdatabase.dto.paging.Page
-import fr.ebiz.computerdatabase.dto.paging.Pageable
-import fr.ebiz.computerdatabase.dto.paging.PagingUtils
-import fr.ebiz.computerdatabase.model.Company
-import fr.ebiz.computerdatabase.persistence.dao.CompanyDao
-import fr.ebiz.computerdatabase.service.CompanyService
-import fr.ebiz.computerdatabase.service.ComputerService
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import fr.ebiz.computerdatabase.dto.paging.Page;
+import fr.ebiz.computerdatabase.dto.paging.Pageable;
+import fr.ebiz.computerdatabase.dto.paging.PagingUtils;
+import fr.ebiz.computerdatabase.model.Company;
+import fr.ebiz.computerdatabase.persistence.dao.CompanyDao;
+import fr.ebiz.computerdatabase.service.CompanyService;
+import fr.ebiz.computerdatabase.service.ComputerService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections
-import java.util.Optional
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 @Service
-class CompanyServiceImpl
-/**
- * Constructor.
- * @param companyDao
- * * The company DAO
- * *
- * @param computerService
- * * The computer service
- */
-@Autowired
-constructor(private val companyDao: CompanyDao, private val computerService: ComputerService) : CompanyService {
+public class CompanyServiceImpl implements CompanyService {
+
+    private final CompanyDao companyDao;
+    private final ComputerService computerService;
 
     /**
-     * {@inheritDoc}
+     * Constructor.
+     *
+     * @param companyDao      The company DAO
+     * @param computerService The computer service
      */
-    override fun get(id: Int): Optional<Company> {
-        assertCompanyIdIsGreaterThanZero(id)
-        return companyDao.get(id)
+    @Autowired
+    public CompanyServiceImpl(CompanyDao companyDao, ComputerService computerService) {
+        this.companyDao = companyDao;
+        this.computerService = computerService;
     }
 
     /**
      * {@inheritDoc}
      */
-    override fun exists(id: Int): Boolean {
-        assertCompanyIdIsGreaterThanZero(id)
-        return companyDao.get(id).isPresent
+    @Override
+    public Optional<Company> get(int id) {
+        assertCompanyIdIsGreaterThanZero(id);
+        return companyDao.get(id);
     }
 
     /**
      * {@inheritDoc}
      */
-    override fun getAll(pageable: Pageable?): Page<Company> {
+    @Override
+    public boolean exists(int id) {
+        assertCompanyIdIsGreaterThanZero(id);
+        return companyDao.get(id).isPresent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings(value = "unchecked")
+    @Override
+    public Page<Company> getAll(Pageable pageable) {
         if (pageable == null) {
-            throw IllegalArgumentException("Pagination object is null")
+            throw new IllegalArgumentException("Pagination object is null");
         }
 
-        if (pageable.pageSize <= 0) {
-            throw IllegalArgumentException("The number of returned elements must be > 0")
+        if (pageable.getPageSize() <= 0) {
+            throw new IllegalArgumentException("The number of returned elements must be > 0");
         }
 
-        val numberOfCompanies = companyDao.count()
+        Integer numberOfCompanies = companyDao.count();
 
-        val companies: List<Company>
-        val totalPage = PagingUtils.countPages(pageable.pageSize, numberOfCompanies)
-        if (pageable.page < 0 || pageable.page > totalPage!! - 1) {
-            throw IllegalArgumentException("Page number must be [0-" + (totalPage!! - 1) + "]")
+        List<Company> companies;
+        Integer totalPage = PagingUtils.countPages(pageable.getPageSize(), numberOfCompanies);
+        if (pageable.getPage() < 0 || pageable.getPage() > totalPage - 1) {
+            throw new IllegalArgumentException("Page number must be [0-" + (totalPage - 1) + "]");
         }
 
-        if (totalPage === 0) {
-            companies = emptyList<Company>()
+        if (totalPage == 0) {
+            companies = Collections.emptyList();
         } else {
-            companies = companyDao.getAll(pageable.pageSize, pageable.page * pageable.pageSize)
+            companies = companyDao.getAll(pageable.getPageSize(), pageable.getPage() * pageable.getPageSize());
         }
 
-        return Page.builder<Any>()
-                .currentPage(pageable.page)
+        return Page.builder()
+                .currentPage(pageable.getPage())
                 .totalPages(totalPage)
                 .totalElements(numberOfCompanies)
                 .elements(companies)
-                .build()
+                .build();
     }
 
     @Transactional
-    override fun delete(companyId: Int) {
-        computerService.deleteByCompanyId(companyId)
-        companyDao.delete(companyId)
+    @Override
+    public void delete(int companyId) {
+        computerService.deleteByCompanyId(companyId);
+        companyDao.delete(companyId);
     }
 
     /**
      * Assert the id is greater than 0.
-
+     *
      * @param id The id to check
      */
-    private fun assertCompanyIdIsGreaterThanZero(id: Int) {
+    private void assertCompanyIdIsGreaterThanZero(int id) {
         if (id <= 0) {
-            throw IllegalArgumentException("ID must be > 0")
+            throw new IllegalArgumentException("ID must be > 0");
         }
     }
 

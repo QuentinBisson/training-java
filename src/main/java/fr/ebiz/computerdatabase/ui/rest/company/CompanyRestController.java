@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/companies")
-public class CompanyController {
+public class CompanyRestController {
 
     private CompanyService companyService;
 
@@ -24,7 +24,7 @@ public class CompanyController {
      * @param companyService The company service
      */
     @Autowired
-    public CompanyController(CompanyService companyService) {
+    public CompanyRestController(CompanyService companyService) {
         this.companyService = companyService;
     }
 

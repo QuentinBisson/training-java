@@ -2,7 +2,6 @@ package fr.ebiz.computerdatabase.dto;
 
 import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao.SortColumn;
-import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.utils.StringUtils;
 
 import java.io.Serializable;
@@ -70,26 +69,6 @@ public class GetAllComputersRequest implements Serializable {
 
     public int getOffset() {
         return page * pageSize;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public void setColumn(SortColumn column) {
-        this.column = column;
-    }
-
-    public void setOrder(SortOrder order) {
-        this.order = order;
     }
 
     @Override

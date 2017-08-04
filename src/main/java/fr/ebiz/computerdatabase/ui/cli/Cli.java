@@ -7,8 +7,6 @@ import fr.ebiz.computerdatabase.dto.paging.Pageable;
 import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.persistence.SortOrder;
 import fr.ebiz.computerdatabase.persistence.dao.ComputerDao;
-import fr.ebiz.computerdatabase.persistence.dao.GetAllComputersRequest;
-import fr.ebiz.computerdatabase.persistence.dao.SortOrder;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import fr.ebiz.computerdatabase.service.ComputerService;
 import fr.ebiz.computerdatabase.ui.cli.printer.factory.PrettyPrintFactory;

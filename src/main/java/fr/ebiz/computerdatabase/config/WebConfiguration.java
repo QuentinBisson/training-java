@@ -20,7 +20,10 @@ import java.util.Locale;
 
 
 @EnableWebMvc
-@ComponentScan("fr.ebiz.computerdatabase.ui.web")
+@ComponentScan({
+        "fr.ebiz.computerdatabase.ui.web",
+        "fr.ebiz.computerdatabase.ui.rest"
+})
 @Configuration
 public class WebConfiguration extends WebMvcConfigurerAdapter {
 

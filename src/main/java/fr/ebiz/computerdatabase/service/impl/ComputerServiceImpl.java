@@ -106,7 +106,7 @@ public class ComputerServiceImpl implements ComputerService {
     @Override
     public void update(ComputerDto dto) {
         assertComputerIsNotNull(dto);
-        assertComputerIdIsNotNullAndExists(dto);
+        assertComputerIdIsNotNullAndExists(dto.getId());
 
         computerDao.update(computerMapper.toEntity(dto));
     }
@@ -116,7 +116,7 @@ public class ComputerServiceImpl implements ComputerService {
      */
     @Transactional
     @Override
-    public void delete(int computerId) {
+    public void delete(Integer computerId) {
         assertComputerIdIsNotNullAndExists(computerId);
 
         computerDao.delete(computerId);
@@ -124,7 +124,7 @@ public class ComputerServiceImpl implements ComputerService {
 
     @Transactional
     @Override
-    public void deleteByCompanyId(int companyId) {
+    public void deleteByCompanyId(Integer companyId) {
         computerDao.deleteByCompanyId(companyId);
     }
 
@@ -152,8 +152,8 @@ public class ComputerServiceImpl implements ComputerService {
      *
      * @param computerId The computer to test
      */
-    private void assertComputerIdIsNotNullAndExists(int computerId) {
-        if (!computerDao.get(computerId).isPresent()) {
+    private void assertComputerIdIsNotNullAndExists(Integer computerId) {
+        if (computerId == null || !computerDao.get(computerId).isPresent()) {
             throw new IllegalArgumentException("Computer should have an id and exist in the db");
         }
     }

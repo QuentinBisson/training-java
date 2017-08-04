@@ -20,7 +20,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/api/computers")
-public class ComputerController {
+public class ComputerRestController {
 
     private ComputerService computerService;
 
@@ -30,7 +30,7 @@ public class ComputerController {
      * @param computerService The computer service
      */
     @Autowired
-    public ComputerController(ComputerService computerService) {
+    public ComputerRestController(ComputerService computerService) {
         this.computerService = computerService;
     }
 

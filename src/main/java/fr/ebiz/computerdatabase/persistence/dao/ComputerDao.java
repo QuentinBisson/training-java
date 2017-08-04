@@ -1,6 +1,5 @@
 package fr.ebiz.computerdatabase.persistence.dao;
 
-import fr.ebiz.computerdatabase.dto.GetAllComputersRequest;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.persistence.SortOrder;
 
