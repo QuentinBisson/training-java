@@ -1,0 +1,66 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.ebiz</groupId>
+    <artifactId>computerdatabase.service</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>service</name>
+
+    <parent>
+        <groupId>fr.ebiz</groupId>
+        <artifactId>computerdatabase</artifactId>
+        <version>8.0.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <computerdatabase.binding.version>1.0.0-SNAPSHOT</computerdatabase.binding.version>
+        <computerdatabase.persistence.version>1.0.0-SNAPSHOT</computerdatabase.persistence.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.ebiz</groupId>
+            <artifactId>computerdatabase.persistence</artifactId>
+            <version>${computerdatabase.persistence.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.ebiz</groupId>
+            <artifactId>computerdatabase.binding</artifactId>
+            <version>${computerdatabase.binding.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
