@@ -4,13 +4,13 @@
     <groupId>fr.ebiz</groupId>
     <artifactId>computerdatabase.core</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <name>core</name>
 
     <parent>
         <groupId>fr.ebiz</groupId>
         <artifactId>computerdatabase</artifactId>
-        <version>8.0.1-SNAPSHOT</version>
+        <version>8.0.0</version>
     </parent>
 
     <properties>
