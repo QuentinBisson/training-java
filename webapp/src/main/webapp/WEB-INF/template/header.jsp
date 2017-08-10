@@ -1,23 +1,24 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-
-<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <header class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="${contextPath}"> <spring:message code="app.title"/> </a>
-        <div class="pull-right">
-            <spring:url var="currentUrl" value=""/>
-            <c:set var="queryString"
-                   value='${pageContext.request.queryString.replaceAll("[?&]{0,1}lang=[a-zA-Z]{2}", "")}'/>
-            <c:set var="langUrl" value='${currentUrl}?${queryString}${empty queryString ? "lang=" : "&lang="}'/>
-            <a href="${langUrl}en">
-                EN
-            </a>
-            <a href="${langUrl}fr">
-                FR
-            </a>
+        <spring:message var="appTitle" code="app.title"/>
+        <tags:link className="navbar-brand col-md-6" content="${appTitle}"/>
+        <div class="col-md-6">
+            <div class="pull-right">
+                <tags:link paramName="lang" paramValue="en" content="EN" className="btn btn-link"/>
+                <tags:link paramName="lang" paramValue="fr" content="FR" className="btn btn-link"/>
+
+                <sec:authorize access="isAuthenticated()">
+                    <form action="${pageContext.request.contextPath}/logout" method="POST" style="display: inline;">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <button class="btn btn-link"><spring:message code="app.logout"/></button>
+                    </form>
+                </sec:authorize>
+            </div>
         </div>
     </div>
 </header>

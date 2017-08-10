@@ -4,16 +4,16 @@
     <groupId>fr.ebiz</groupId>
     <artifactId>computerdatabase.binding</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>binding</name>
     <parent>
         <groupId>fr.ebiz</groupId>
         <artifactId>computerdatabase</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <computerdatabase.persistence.version>1.0.0-SNAPSHOT</computerdatabase.persistence.version>
+        <computerdatabase.persistence.version>1.0.1-SNAPSHOT</computerdatabase.persistence.version>
     </properties>
 
     <dependencies>

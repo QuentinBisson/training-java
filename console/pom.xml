@@ -4,17 +4,17 @@
     <groupId>fr.ebiz</groupId>
     <artifactId>computerdatabase.console</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>console</name>
 
     <parent>
         <groupId>fr.ebiz</groupId>
         <artifactId>computerdatabase</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <computerdatabase.service.version>1.0.0-SNAPSHOT</computerdatabase.service.version>
+        <computerdatabase.service.version>1.0.1-SNAPSHOT</computerdatabase.service.version>
     </properties>
 
     <dependencies>

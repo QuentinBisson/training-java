@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fr.ebiz</groupId>
     <artifactId>computerdatabase</artifactId>
-    <version>8.0.0-SNAPSHOT</version>
+    <version>8.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Computer database</name>
@@ -19,6 +19,14 @@
         <module>webapp</module>
         <module>console</module>
     </modules>
+
+    <repositories>
+        <repository>
+            <id>version99</id>
+            <!-- highly available repository serving empty artifacts -->
+            <url>http://version99.qos.ch/</url>
+        </repository>
+    </repositories>
 
     <properties>
         <!-- Project properties -->
@@ -35,7 +43,12 @@
 
         <!-- Version dependencies -->
         <spring.version>4.3.10.RELEASE</spring.version>
+        <spring-security.version>4.2.3.RELEASE</spring-security.version>
         <querydsl.version>3.7.4</querydsl.version>
+
+        <jcl-over-slf4j.version>1.7.21</jcl-over-slf4j.version>
+        <logback.version>1.2.3</logback.version>
+        <empty.version>99-empty</empty.version>
 
         <!-- Test dependencies -->
         <junit.version>4.12</junit.version>
@@ -44,31 +57,32 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Spring dependencies -->
+            <!-- Logging jars -->
             <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring.version}</version>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${empty.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${jcl-over-slf4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-tx</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-orm</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-web</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-webmvc</artifactId>
-                <version>${spring.version}</version>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Testing -->
@@ -92,6 +106,28 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <!-- Logging jars -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>

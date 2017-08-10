@@ -34,8 +34,8 @@ public class Cli {
     private Cli() {
         BeanFactory factory =
                 new AnnotationConfigApplicationContext(RepositoryConfiguration.class, ServiceConfiguration.class);
-        this.computerService = (ComputerService) factory.getBean("computerService");
-        this.companyService = (CompanyService) factory.getBean("companyService");
+        this.computerService = factory.getBean(ComputerService.class);
+        this.companyService = factory.getBean(CompanyService.class);
         this.scanner = new Scanner(System.in);
     }
 

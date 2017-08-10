@@ -4,13 +4,13 @@
     <groupId>fr.ebiz</groupId>
     <artifactId>computerdatabase.webapp</artifactId>
     <packaging>war</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>webapp</name>
 
     <parent>
         <groupId>fr.ebiz</groupId>
         <artifactId>computerdatabase</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -18,17 +18,15 @@
         <maven-war-plugin.version>3.1.0</maven-war-plugin.version>
 
         <!-- Dependency versions -->
-        <computerdatabase.service.version>1.0.0-SNAPSHOT</computerdatabase.service.version>
+        <computerdatabase.service.version>1.0.1-SNAPSHOT</computerdatabase.service.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <jstl.version>1.2</jstl.version>
         <jsp-api.version>2.2</jsp-api.version>
 
-        <jcl-over-slf4j.version>1.7.21</jcl-over-slf4j.version>
-        <logback.version>1.2.3</logback.version>
-        <empty.version>99-empty</empty.version>
-
         <selenium-java.version>3.4.0</selenium-java.version>
         <webdrivermanager.version>1.7.0</webdrivermanager.version>
+        <spring-security-jwt.version>1.0.8.RELEASE</spring-security-jwt.version>
+        <spring-security-oauth2.version>2.2.0.RELEASE</spring-security-oauth2.version>
     </properties>
 
     <build>
@@ -63,14 +61,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>version99</id>
-            <!-- highly available repository serving empty artifacts -->
-            <url>http://version99.qos.ch/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>fr.ebiz</groupId>
@@ -101,38 +91,39 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
         </dependency>
 
-        <!-- Logging jars -->
+        <!-- Spring security dependencies -->
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${empty.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${jcl-over-slf4j.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${spring-security.version}</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-taglibs</artifactId>
+            <version>${spring-security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+            <version>${spring-security-oauth2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-jwt</artifactId>
+            <version>${spring-security-jwt.version}</version>
         </dependency>
 
         <!-- Testing -->

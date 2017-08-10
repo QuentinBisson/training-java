@@ -99,7 +99,7 @@ public class ComputerDaoImpl implements ComputerDao {
     @Override
     public void deleteByCompanyId(int companyId) {
         new JPADeleteClause(entityManager, QComputer.computer)
-                .where(QCompany.company.id.eq(companyId))
+                .where(QComputer.computer.company.id.eq(companyId))
                 .execute();
     }
 

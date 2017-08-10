@@ -4,18 +4,18 @@
     <groupId>fr.ebiz</groupId>
     <artifactId>computerdatabase.service</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>service</name>
 
     <parent>
         <groupId>fr.ebiz</groupId>
         <artifactId>computerdatabase</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <computerdatabase.binding.version>1.0.0-SNAPSHOT</computerdatabase.binding.version>
-        <computerdatabase.persistence.version>1.0.0-SNAPSHOT</computerdatabase.persistence.version>
+        <computerdatabase.binding.version>1.0.1-SNAPSHOT</computerdatabase.binding.version>
+        <computerdatabase.persistence.version>1.0.1-SNAPSHOT</computerdatabase.persistence.version>
     </properties>
 
     <dependencies>
@@ -34,6 +34,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring-security.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

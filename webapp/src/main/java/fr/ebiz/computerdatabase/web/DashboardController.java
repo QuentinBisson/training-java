@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-@RequestMapping({"/", "home", "dashboard"})
 public class DashboardController {
 
     private static final String DELETE_COMPUTERS_REGEX = "\\d+(,\\d+)*";
@@ -48,13 +46,12 @@ public class DashboardController {
      * @param request The computer request
      * @return the model and view
      */
-    @GetMapping
+    @GetMapping({"/", "home", "dashboard"})
     public String getDashboard(@ModelAttribute GetAllComputersRequest request, Model model) {
         model.addAttribute("request", request);
         model.addAttribute(COMPUTERS_ATTR, computerService.getAll(request));
         return DASHBOARD_VIEW;
     }
-
 
     /**
      * Create or update a computer.
