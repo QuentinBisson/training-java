@@ -1,0 +1,72 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.ebiz</groupId>
+    <artifactId>computerdatabase.persistence</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.1</version>
+    <name>persistence</name>
+
+    <parent>
+        <groupId>fr.ebiz</groupId>
+        <artifactId>computerdatabase</artifactId>
+        <version>8.0.0</version>
+    </parent>
+
+    <properties>
+        <!-- Version dependencies -->
+        <mysql-connector-java.version>6.0.6</mysql-connector-java.version>
+        <hikaricp.version>2.6.2</hikaricp.version>
+        <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
+        <computerdatabase.core.version>1.0.1</computerdatabase.core.version>
+        <validation-api.version>1.1.0.Final</validation-api.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.ebiz</groupId>
+            <artifactId>computerdatabase.core</artifactId>
+            <version>${computerdatabase.core.version}</version>
+        </dependency>
+
+        <!-- Validation dependencies -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${validation-api.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+
+        <!-- Database dependencies -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql-connector-java.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikaricp.version}</version>
+        </dependency>
+    </dependencies>
+</project>
