@@ -113,7 +113,7 @@ public class CompanyServiceTest {
         Mockito.when(companyDao.count()).thenReturn(elements);
         Pageable pageable = Pageable.builder().pageSize(ELEMENTS_PER_PAGE).page(1).build();
         List<Company> pagedCompanies = companies.subList(ELEMENTS_PER_PAGE, elements);
-        Mockito.when(companyDao.getAll(pageable.getPageSize(), pageable.getPage() * pageable.getElements())).thenReturn(pagedCompanies);
+        Mockito.when(companyDao.getAll(pageable.getPageSize(), pageable.getPage() * pageable.getPageSize())).thenReturn(pagedCompanies);
 
         Page<Company> page = service.getAll(pageable);
         Assert.assertEquals(1, page.getCurrentPage());

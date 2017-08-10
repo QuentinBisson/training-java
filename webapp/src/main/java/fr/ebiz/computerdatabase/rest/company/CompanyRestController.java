@@ -1,8 +1,8 @@
-package fr.ebiz.computerdatabase.ui.rest.company;
+package fr.ebiz.computerdatabase.rest.company;
 
+import fr.ebiz.computerdatabase.core.Company;
 import fr.ebiz.computerdatabase.dto.paging.Page;
 import fr.ebiz.computerdatabase.dto.paging.Pageable;
-import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

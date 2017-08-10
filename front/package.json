@@ -19,7 +19,9 @@
   "homepage": "https://github.com/omegas27/training-java#readme",
   "dependencies": {
     "angular": "^1.6.5",
-    "angular-route": "^1.6.5"
+    "angular-jwt": "^0.1.9",
+    "angular-route": "^1.6.5",
+    "angular-storage": "0.0.15"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",

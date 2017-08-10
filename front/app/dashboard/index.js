@@ -1,6 +1,9 @@
 import angular from 'angular'
+import ngRoute from 'angular-route'
 
 import routes from './routes'
+import commons from './../commons'
+
 import {computerList, dashboard, dashboardActions, dashboardTitle} from './components'
 
 import {DASHBOARD_MODULE_NAME} from './config';

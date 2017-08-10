@@ -5,8 +5,6 @@ export const dashboard = {
         this.pageSize = 10;
 
         this.$onInit = function () {
-            debugger;
-            console.log(computerService);
             let promise = computerService
                 .getAll(this.page, this.pageSize);
 
