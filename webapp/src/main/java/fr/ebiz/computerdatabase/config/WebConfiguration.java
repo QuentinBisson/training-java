@@ -4,15 +4,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.Ordered;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
@@ -24,7 +21,6 @@ import java.util.Locale;
 @EnableWebMvc
 @ComponentScan("fr.ebiz.computerdatabase.web")
 @Configuration
-@Import({SecurityConfiguration.class})
 public class WebConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
@@ -80,14 +76,4 @@ public class WebConfiguration extends WebMvcConfigurerAdapter {
         registry.addInterceptor(interceptor);
     }
 
-    /**
-     * Add login view without a controller here.
-     *
-     * @param registry The view controller registry
-     */
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/login").setViewName("login");
-        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-    }
 }

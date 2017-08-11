@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.config;
+package fr.ebiz.computerdatabase.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

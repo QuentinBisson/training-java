@@ -15,7 +15,8 @@ public class Application implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.setConfigLocations(
                 "fr.ebiz.computerdatabase.service.config",
-                "fr.ebiz.computerdatabase.config");
+                "fr.ebiz.computerdatabase.config",
+                "fr.ebiz.computerdatabase.oauth");
         container.addListener(new ContextLoaderListener(context));
 
         ServletRegistration.Dynamic dispatcher = container

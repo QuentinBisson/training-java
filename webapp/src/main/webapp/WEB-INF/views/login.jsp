@@ -44,9 +44,7 @@
                                class="form-control"
                         />
                     </div>
-
                 </fieldset>
-
                 <div class="actions pull-right">
                     <button class="btn btn-primary"><spring:message code="login.button"/></button>
                 </div>

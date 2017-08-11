@@ -45,7 +45,7 @@
         <appender-ref ref="ASYNC"/>
     </root>
 
-    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework" level="DEBUG"/>
 
     <!-- Turn on debug logging for our HikariCP connection pool. -->
     <logger name="com.zaxxer.hikari" level="INFO"/>
